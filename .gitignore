@@ -1,0 +1,10 @@
+.idea/
+.idea/*
+*.iml
+lib_managed/
+target/
+.idea_modules/
+.hydra
+hydra.sbt
+.bloop
+out
