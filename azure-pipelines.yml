@@ -42,4 +42,4 @@ steps:
     displayName: Logout of ACR
     inputs:
       command: logout
-      containerRegistry: malliinacr
+      containerRegistry: malliinaregistry
