@@ -14,7 +14,9 @@ object ScalaVersion extends PrimitiveCompanion[ScalaVersion] {
   val scala213 = apply("2.13")
 }
 
-case class MavenQuery(group: GroupId, artifact: ArtifactId)
+case class MavenQuery(group: GroupId, artifact: ArtifactId, scalaVersion: ScalaVersion) {
+  def scalaArtifactName = s"${artifact}_$scalaVersion"
+}
 
 trait PrimitiveId extends Any {
   def id: String

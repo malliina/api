@@ -25,7 +25,9 @@ class MavenCentralClient(http: HttpClient) {
 
   def search(q: MavenQuery): IO[MavenSearchResults] = {
     val url =
-      baseUrl.withQueryParams(Map("q" -> s"""g:"${q.group}" AND a:"${q.artifact}"""", "rows" -> "20", "core" -> "gav"))
+      baseUrl.withQueryParams(
+        Map("q" -> s"""g:"${q.group}" AND a:"${q.scalaArtifactName}"""", "rows" -> "20", "core" -> "gav")
+      )
     http.run[MavenSearchResponse](GET(url)).map { res =>
       MavenSearchResults(res.response.docs)
     }

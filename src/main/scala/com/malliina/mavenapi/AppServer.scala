@@ -32,7 +32,8 @@ class AppService(maven: MavenCentralClient, http: HttpClient, data: MyDatabase) 
 //  implicit def enc[T: Encoder] = jsonEncoderOf[IO, T]
 
   val service = HttpRoutes.of[IO] {
-    case GET -> Root / "ping" => Ok(pong)
+    case GET -> Root / "ping"   => Ok(pong)
+    case GET -> Root / "health" => Ok(AppMeta.meta.asJson)
     case GET -> Root / "items" =>
       data.load.flatMap { items =>
         Ok(items.asJson)
@@ -61,18 +62,27 @@ class AppService(maven: MavenCentralClient, http: HttpClient, data: MyDatabase) 
   object parsers {
     implicit val group = idQueryDecoder(GroupId.apply)
     implicit val artifact = idQueryDecoder(ArtifactId.apply)
+    implicit val sv = idQueryDecoder(ScalaVersion.apply)
+
     def idQueryDecoder[T](build: String => T): QueryParamDecoder[T] =
       QueryParamDecoder.stringQueryParamDecoder.map(build)
 
+    def parseOrDefault[T](q: Query, key: String, default: => T)(implicit dec: QueryParamDecoder[T]) =
+      parseOpt[T](q, key).getOrElse(Right(default))
+
     def parse[T](q: Query, key: String)(implicit dec: QueryParamDecoder[T]) =
-      q.params.get(key).toRight(NonEmptyList(parseFailure(s"Query key not found: '$key'."), Nil)).flatMap { g =>
+      parseOpt[T](q, key).getOrElse(Left(NonEmptyList(parseFailure(s"Query key not found: '$key'."), Nil)))
+
+    def parseOpt[T](q: Query, key: String)(implicit dec: QueryParamDecoder[T]) =
+      q.params.get(key).map { g =>
         dec.decode(QueryParameterValue(g)).toEither
       }
 
     def parseMavenQuery(q: Query) = for {
       g <- parse[GroupId](q, "g")
       a <- parse[ArtifactId](q, "a")
-    } yield MavenQuery(g, a)
+      sv <- parseOrDefault[ScalaVersion](q, "sv", ScalaVersion.scala213)
+    } yield MavenQuery(g, a, sv)
   }
 
   def parseFailure(message: String) = ParseFailure(message, message)

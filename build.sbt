@@ -1,5 +1,6 @@
 import com.typesafe.sbt.packager.docker.DockerVersion
-
+import sbtbuildinfo.BuildInfoKey
+import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
 import scala.sys.process.Process
 import scala.util.Try
 
@@ -8,7 +9,7 @@ val circeVersion = "0.13.0"
 val prodPort = 9000
 
 val mavenapi = Project("mavenapi", file("."))
-  .enablePlugins(JavaServerAppPackaging)
+  .enablePlugins(JavaServerAppPackaging, BuildInfoPlugin)
   .settings(
     organization := "com.malliina",
     version := "0.0.1",
@@ -33,7 +34,9 @@ val mavenapi = Project("mavenapi", file("."))
     daemonUser in Docker := "mavenapi",
     version in Docker := gitHash,
     dockerRepository := Option("malliinacr.azurecr.io"),
-    dockerExposedPorts ++= Seq(prodPort)
+    dockerExposedPorts ++= Seq(prodPort),
+    buildInfoPackage := "com.malliina.mavenapi",
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, "gitHash" -> gitHash)
   )
 
 def gitHash: String =

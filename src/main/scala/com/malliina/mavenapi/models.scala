@@ -20,6 +20,13 @@ object AppResult {
   implicit val json = deriveCodec[AppResult]
 }
 
+case class AppMeta(version: String, gitHash: String)
+
+object AppMeta {
+  implicit val json = deriveCodec[AppMeta]
+  val meta = AppMeta(BuildInfo.version, BuildInfo.gitHash)
+}
+
 case class SingleError(message: String, key: String)
 
 object SingleError {
