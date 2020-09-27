@@ -1,0 +1,20 @@
+pool:
+  vmImage: Ubuntu-16.04
+
+variables:
+  azureSubscriptionEndpoint: malliina
+  DockerNamespace: malliinacr.azurecr.io
+  DockerRepository: mavenapi
+  WebAppName: malliinamavenapi
+
+steps:
+
+  - task: AzureRMWebAppDeployment@4
+    displayName: Azure App Service Deploy
+    inputs:
+      appType: webAppContainer
+      ConnectedServiceName: $(azureSubscriptionEndpoint)
+      WebAppName: $(WebAppName)
+      DockerNamespace: $(DockerNamespace)
+      DockerRepository: $(DockerRepository)
+      DockerImageTag: $(Build.BuildId)
