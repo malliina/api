@@ -11,10 +11,10 @@ variables:
 steps:
 
   - script: wget https://dl.bintray.com/sbt/debian/sbt-$(sbtVersion).deb
-    displayName: 'Download SBT'
+    displayName: 'Download sbt'
 
   - script: sudo dpkg -i sbt-$(sbtVersion).deb
-    displayName: 'Install SBT'
+    displayName: 'Install sbt'
 
   - script: sbt test
     displayName: 'Compile'
