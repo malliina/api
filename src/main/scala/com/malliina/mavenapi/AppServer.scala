@@ -8,7 +8,6 @@ import com.malliina.mavenapi.AppService.pong
 import io.circe.syntax._
 import scalatags.Text.all._
 import org.http4s._
-import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 
@@ -45,10 +44,10 @@ class AppService(maven: MavenCentralClient, http: HttpClient, data: MyDatabase) 
     case req @ GET -> Root / "artifacts" =>
       val e = parsers.parseMavenQuery(req.uri.query)
       e.fold(
-        errors => BadRequest(Errors(errors.map(e => SingleError.input(e.sanitized)))),
+        errors => BadRequest(Errors(errors.map(e => SingleError.input(e.sanitized))).asJson),
         ok =>
           maven.search(ok).flatMap { res =>
-            Ok(res)
+            Ok(res.asJson)
           }
       )
     case GET -> Root / "ids" / IntVar(id)      => Ok(pong)
