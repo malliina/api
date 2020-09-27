@@ -1,8 +1,16 @@
+import com.typesafe.sbt.packager.docker.DockerVersion
+
+import scala.sys.process.Process
+import scala.util.Try
+
 val http4sVersion = "0.21.7"
 val circeVersion = "0.13.0"
+val prodPort = 9000
 
-val demo = Project("http4s-demo", file("."))
+val mavenapi = Project("mavenapi", file("."))
+  .enablePlugins(JavaServerAppPackaging)
   .settings(
+    organization := "com.malliina",
     version := "0.0.1",
     scalaVersion := "2.13.3",
     libraryDependencies ++= Seq(
@@ -19,7 +27,19 @@ val demo = Project("http4s-demo", file("."))
       "ch.qos.logback" % "logback-core" % "1.2.3",
       "org.scalameta" %% "munit" % "0.7.12" % Test
     ),
-    testFrameworks += new TestFramework("munit.Framework")
+    testFrameworks += new TestFramework("munit.Framework"),
+    dockerVersion := Option(DockerVersion(19, 3, 5, None)),
+    dockerBaseImage := "openjdk:11",
+    daemonUser in Docker := "mavenapi",
+    version in Docker := gitHash,
+    dockerRepository := Option("malliinacr.azurecr.io"),
+    dockerExposedPorts ++= Seq(prodPort)
   )
+
+def gitHash: String =
+  sys.env
+    .get("GITHUB_SHA")
+    .orElse(Try(Process("git rev-parse --short HEAD").lineStream.head).toOption)
+    .getOrElse("unknown")
 
 bloopExportJarClassifiers in Global := Some(Set("sources"))

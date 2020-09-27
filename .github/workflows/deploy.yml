@@ -1,0 +1,41 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@master
+
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '11.0.7'
+
+      - uses: azure/docker-login@v1
+        with:
+          login-server: malliinacr.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - run: |
+          sbt docker:publish
+
+      - name: 'Deploy to Azure'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'malliinacr'
+          images: 'malliinacr.azurecr.io/mavenapi:${{ github.sha }}'
+
+      - name: Azure logout
+        run: |
+          az logout

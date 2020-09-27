@@ -1,4 +1,4 @@
-package com.malliina.http4s
+package com.malliina.mavenapi
 
 import cats.effect.{ContextShift, IO}
 

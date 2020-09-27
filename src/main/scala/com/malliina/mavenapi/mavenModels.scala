@@ -1,4 +1,4 @@
-package com.malliina.http4s
+package com.malliina.mavenapi
 
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._

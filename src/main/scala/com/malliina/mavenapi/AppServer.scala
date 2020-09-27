@@ -1,10 +1,10 @@
-package com.malliina.http4s
+package com.malliina.mavenapi
 
 import cats.data.NonEmptyList
 import cats.effect._
 import cats.implicits._
-import com.malliina.http4s.AppImplicits._
-import com.malliina.http4s.AppService.pong
+import com.malliina.mavenapi.AppImplicits._
+import com.malliina.mavenapi.AppService.pong
 import io.circe.syntax._
 import scalatags.Text.all._
 import org.http4s._
@@ -81,7 +81,7 @@ class AppService(maven: MavenCentralClient, http: HttpClient, data: MyDatabase) 
 
 object AppServer extends IOApp {
   val app = Router("/" -> AppService(contextShift).service).orNotFound
-  val server = BlazeServerBuilder[IO](ExecutionContext.global).bindHttp(port = 9000, "localhost").withHttpApp(app)
+  val server = BlazeServerBuilder[IO](ExecutionContext.global).bindHttp(port = 9000, "0.0.0.0").withHttpApp(app)
 
   override def run(args: List[String]): IO[ExitCode] = server.serve.compile.drain.as(ExitCode.Success)
 }
