@@ -1,13 +1,32 @@
 pool:
-  vmImage: Ubuntu-16.04
+  vmImage: 'Ubuntu 18.04'
 
 variables:
   azureSubscriptionEndpoint: malliina
   DockerNamespace: malliinacr.azurecr.io
   DockerRepository: mavenapi
   WebAppName: malliinamavenapi
+  SbtVersion: 1.3.13
 
 steps:
+
+  - script: wget https://dl.bintray.com/sbt/debian/sbt-$(sbtVersion).deb
+    displayName: 'Download SBT'
+
+  - script: sudo dpkg -i sbt-$(sbtVersion).deb
+    displayName: 'Install SBT'
+
+  - script: sbt test
+    displayName: 'Compile'
+
+  - task: Docker@2
+    displayName: Login to ACR
+    inputs:
+      command: login
+      containerRegistry: malliinacr
+
+  - script: sbt docker:publish
+    displayName: 'Push to ACR'
 
   - task: AzureRMWebAppDeployment@4
     displayName: Azure App Service Deploy
@@ -17,4 +36,10 @@ steps:
       WebAppName: $(WebAppName)
       DockerNamespace: $(DockerNamespace)
       DockerRepository: $(DockerRepository)
-      DockerImageTag: $(Build.BuildId)
+      DockerImageTag: $(Build.SourceVersion)
+
+  - task: Docker@2
+    displayName: Logout of ACR
+    inputs:
+      command: logout
+      containerRegistry: malliinacr
