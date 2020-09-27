@@ -9,6 +9,10 @@ case class GroupId(id: String) extends AnyVal with PrimitiveId
 object GroupId extends PrimitiveCompanion[GroupId]
 case class Version(id: String) extends AnyVal with PrimitiveId
 object Version extends PrimitiveCompanion[Version]
+case class ScalaVersion(id: String) extends AnyVal with PrimitiveId
+object ScalaVersion extends PrimitiveCompanion[ScalaVersion] {
+  val scala213 = apply("2.13")
+}
 
 case class MavenQuery(group: GroupId, artifact: ArtifactId)
 
