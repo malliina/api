@@ -11,3 +11,6 @@ I'm evaluating [http4s](https://http4s.org/).
     ~reStart
     
 Navigate to http://localhost:9000.
+
+## Deployment
+

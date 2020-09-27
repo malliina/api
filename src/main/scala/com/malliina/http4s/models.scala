@@ -1,5 +1,6 @@
 package com.malliina.http4s
 
+import cats.data.NonEmptyList
 import io.circe.generic.semiauto._
 
 case class Name(name: String) extends AnyVal
@@ -19,15 +20,16 @@ object AppResult {
   implicit val json = deriveCodec[AppResult]
 }
 
-case class Error(message: String)
+case class SingleError(message: String, key: String)
 
-object Error {
-  implicit val json = deriveCodec[Error]
+object SingleError {
+  implicit val json = deriveCodec[SingleError]
+  def input(message: String): SingleError = apply(message, "input")
 }
 
-case class Errors(errors: Seq[Error])
+case class Errors(errors: NonEmptyList[SingleError])
 
 object Errors {
   implicit val json = deriveCodec[Errors]
-  def apply(message: String): Errors = Errors(Seq(Error(message)))
+  def apply(message: String): Errors = Errors(NonEmptyList(SingleError(message, "general"), Nil))
 }
