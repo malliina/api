@@ -33,7 +33,7 @@ jobs:
       - name: 'Deploy to Azure'
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'malliinacr'
+          app-name: 'mavenapi'
           images: 'malliinacr.azurecr.io/mavenapi:${{ github.sha }}'
 
       - name: Azure logout
