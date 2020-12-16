@@ -6,7 +6,7 @@ variables:
   DockerNamespace: malliinacr.azurecr.io
   DockerRepository: mavenapi
   WebAppName: malliinamavenapi
-  SbtVersion: 1.3.13
+  SbtVersion: 1.4.4
 
 steps:
 
