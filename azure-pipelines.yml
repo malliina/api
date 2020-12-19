@@ -44,6 +44,15 @@ steps:
       SlotName: staging
       ResourceGroupName: personal
 
+  - task: AzureCLI@2
+    displayName: Swap to production using Azure CLI
+    inputs:
+      azureSubscription: $(azureSubscriptionEndpoint)
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        az webapp deployment slot swap -g personal -n malliinamavenapi --slot staging --target-slot production
+
   - task: Docker@2
     displayName: Logout of ACR
     inputs:
