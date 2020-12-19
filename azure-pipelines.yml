@@ -6,6 +6,7 @@ pool:
 
 variables:
   azureSubscriptionEndpoint: malliina
+  ResourceGroupName: personal
   DockerNamespace: malliinacr.azurecr.io
   DockerRepository: mavenapi
   WebAppName: malliinamavenapi
@@ -42,7 +43,7 @@ steps:
       DockerImageTag: $(Build.SourceVersion)
       DeployToSlotOrASEFlag: true
       SlotName: staging
-      ResourceGroupName: personal
+      ResourceGroupName: $(ResourceGroupName)
 
   - task: AzureCLI@2
     displayName: Swap to production using Azure CLI
@@ -51,7 +52,7 @@ steps:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        az webapp deployment slot swap -g personal -n malliinamavenapi --slot staging --target-slot production
+        az webapp deployment slot swap -g personal -n $(WebAppName) --slot staging --target-slot production
 
   - task: Docker@2
     displayName: Logout of ACR
