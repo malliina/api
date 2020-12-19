@@ -11,6 +11,7 @@ variables:
   DockerRepository: mavenapi
   WebAppName: malliinamavenapi
   SbtVersion: 1.4.4
+  ContainerRegistry: malliinaregistry
 
 steps:
 
@@ -27,7 +28,7 @@ steps:
     displayName: Login to ACR
     inputs:
       command: login
-      containerRegistry: malliinaregistry
+      containerRegistry: $(ContainerRegistry)
 
   - script: sbt docker:publish
     displayName: 'Push to ACR'
@@ -58,4 +59,4 @@ steps:
     displayName: Logout of ACR
     inputs:
       command: logout
-      containerRegistry: malliinaregistry
+      containerRegistry: $(ContainerRegistry)
