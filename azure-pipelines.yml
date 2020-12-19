@@ -15,6 +15,12 @@ variables:
 
 steps:
 
+  - task: JavaToolInstaller@0
+    inputs:
+      versionSpec: '11'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
+
   - script: wget https://dl.bintray.com/sbt/debian/sbt-$(sbtVersion).deb
     displayName: 'Download sbt'
 
