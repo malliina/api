@@ -8,7 +8,8 @@ val http4sVersion = "0.21.7"
 val circeVersion = "0.13.0"
 val prodPort = 9000
 
-val mavenapi = Project("mavenapi", file("."))
+val mavenapi = project
+  .in(file("."))
   .enablePlugins(JavaServerAppPackaging, BuildInfoPlugin)
   .settings(
     organization := "com.malliina",
