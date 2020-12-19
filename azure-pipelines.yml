@@ -41,7 +41,7 @@ steps:
       DockerRepository: $(DockerRepository)
       DockerImageTag: $(Build.SourceVersion)
       DeployToSlotFlag: true
-      SlotName: true
+      SlotName: staging
 
   - task: Docker@2
     displayName: Logout of ACR
