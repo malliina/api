@@ -53,7 +53,7 @@ steps:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        az webapp deployment slot swap -g personal -n $(WebAppName) --slot staging --target-slot production
+        az webapp deployment slot swap -g $(ResourceGroupName) -n $(WebAppName) --slot staging --target-slot production
 
   - task: Docker@2
     displayName: Logout of ACR
