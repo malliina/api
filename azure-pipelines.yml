@@ -40,7 +40,7 @@ steps:
       DockerNamespace: $(DockerNamespace)
       DockerRepository: $(DockerRepository)
       DockerImageTag: $(Build.SourceVersion)
-      DeployToSlotFlag: true
+      DeployToSlotOrASEFlag: true
       SlotName: staging
 
   - task: Docker@2
