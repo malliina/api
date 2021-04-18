@@ -5,13 +5,13 @@ pool:
   vmImage: 'Ubuntu 18.04'
 
 variables:
-  azureSubscriptionEndpoint: malliina
+  azureSubscriptionEndpoint: malliinapersonal
   ResourceGroupName: personal
   DockerNamespace: malliinacr.azurecr.io
   DockerRepository: mavenapi
   WebAppName: malliinamavenapi
-  SbtVersion: 1.4.4
-  ContainerRegistry: malliinaregistry
+  SbtVersion: 1.4.6
+  ContainerRegistry: malliinacr
 
 steps:
 

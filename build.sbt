@@ -4,7 +4,7 @@ import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
 import scala.sys.process.Process
 import scala.util.Try
 
-val http4sVersion = "0.21.7"
+val http4sVersion = "0.21.22"
 val circeVersion = "0.13.0"
 val prodPort = 9000
 
@@ -14,7 +14,7 @@ val mavenapi = project
   .settings(
     organization := "com.malliina",
     version := "0.0.1",
-    scalaVersion := "2.13.3",
+    scalaVersion := "2.13.5",
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-blaze-server" % http4sVersion,
       "org.http4s" %% "http4s-blaze-client" % http4sVersion,
@@ -27,13 +27,13 @@ val mavenapi = project
       "org.slf4j" % "slf4j-api" % "1.7.30",
       "ch.qos.logback" % "logback-classic" % "1.2.3",
       "ch.qos.logback" % "logback-core" % "1.2.3",
-      "org.scalameta" %% "munit" % "0.7.12" % Test
+      "org.scalameta" %% "munit" % "0.7.23" % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
     dockerVersion := Option(DockerVersion(19, 3, 5, None)),
     dockerBaseImage := "openjdk:11",
-    daemonUser in Docker := "mavenapi",
-    version in Docker := gitHash,
+    Docker / daemonUser := "mavenapi",
+    Docker / version := gitHash,
     dockerRepository := Option("malliinacr.azurecr.io"),
     dockerExposedPorts ++= Seq(prodPort),
     buildInfoPackage := "com.malliina.mavenapi",
@@ -46,4 +46,4 @@ def gitHash: String =
     .orElse(Try(Process("git rev-parse HEAD").lineStream.head).toOption)
     .getOrElse("unknown")
 
-bloopExportJarClassifiers in Global := Some(Set("sources"))
+Global / bloopExportJarClassifiers := Some(Set("sources"))
