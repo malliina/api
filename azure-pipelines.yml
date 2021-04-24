@@ -21,12 +21,6 @@ steps:
       jdkArchitectureOption: 'x64'
       jdkSourceOption: 'PreInstalled'
 
-  - script: wget https://dl.bintray.com/sbt/debian/sbt-$(sbtVersion).deb
-    displayName: 'Download sbt'
-
-  - script: sudo dpkg -i sbt-$(sbtVersion).deb
-    displayName: 'Install sbt'
-
   - script: sbt test
     displayName: 'Compile'
 
