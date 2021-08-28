@@ -1,26 +1,26 @@
 package com.malliina.mavenapi
 
 import cats.data.NonEmptyList
-import cats.effect._
-import cats.implicits._
-import com.malliina.mavenapi.AppImplicits._
+import cats.effect.*
+import cats.implicits.*
+import com.malliina.mavenapi.AppImplicits.*
+import com.malliina.mavenapi.AppServer.{ec}
 import com.malliina.mavenapi.AppService.pong
-import io.circe.syntax._
-import scalatags.Text.all._
-import org.http4s._
+import io.circe.syntax.*
+import org.http4s.HttpRoutes
+import scalatags.Text.all.*
 import org.http4s.server.Router
-import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.blaze.server.BlazeServerBuilder
 
 import scala.concurrent.ExecutionContext
 
 object AppService {
   val pong = "pong"
 
-  def apply(ctx: ContextShift[IO]): AppService = {
-    val ec = ExecutionContext.global
-    val http = HttpClient(ec, ctx)
-    apply(http, ec, ctx)
-  }
+  def apply(ctx: ContextShift[IO], ec: ExecutionContext): Resource[IO, AppService] =
+    for {
+      http <- HttpClient(ec)(ctx)
+    } yield apply(http, ec, ctx)
 
   def apply(http: HttpClient, ec: ExecutionContext, ctx: ContextShift[IO]): AppService = {
     val db = MyDatabase(ec, ctx)
@@ -30,8 +30,7 @@ object AppService {
 
 class AppService(maven: MavenCentralClient, http: HttpClient, data: MyDatabase) {
 //  implicit def enc[T: Encoder] = jsonEncoderOf[IO, T]
-
-  val service = HttpRoutes.of[IO] {
+  val service: HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "ping"   => Ok(pong)
     case GET -> Root / "health" => Ok(AppMeta.meta.asJson)
     case GET -> Root / "items" =>
@@ -58,11 +57,12 @@ class AppService(maven: MavenCentralClient, http: HttpClient, data: MyDatabase) 
     case GET -> Root / "json"                  => Ok(Person("Michael", 17).asJson)
     case req                                   => NotFound(Errors(s"Not found: ${req.method} ${req.uri}.").asJson)
   }
+  import org.http4s.{Query, QueryParamDecoder, ParseFailure, QueryParameterValue}
 
   object parsers {
-    implicit val group = idQueryDecoder(GroupId.apply)
-    implicit val artifact = idQueryDecoder(ArtifactId.apply)
-    implicit val sv = idQueryDecoder(ScalaVersion.apply)
+    implicit val group: QueryParamDecoder[GroupId] = idQueryDecoder(GroupId.apply)
+    implicit val artifact: QueryParamDecoder[ArtifactId] = idQueryDecoder(ArtifactId.apply)
+    implicit val sv: QueryParamDecoder[ScalaVersion] = idQueryDecoder(ScalaVersion.apply)
 
     def idQueryDecoder[T](build: String => T): QueryParamDecoder[T] =
       QueryParamDecoder.stringQueryParamDecoder.map(build)
@@ -89,8 +89,15 @@ class AppService(maven: MavenCentralClient, http: HttpClient, data: MyDatabase) 
 }
 
 object AppServer extends IOApp {
-  val app = Router("/" -> AppService(contextShift).service).orNotFound
-  val server = BlazeServerBuilder[IO](ExecutionContext.global).bindHttp(port = 9000, "0.0.0.0").withHttpApp(app)
+  val ec: ExecutionContext = ExecutionContext.global
+  val appResource = for {
+    service <- AppService(contextShift, ec)
+  } yield Router("/" -> service.service).orNotFound
+  val server = for {
+    app <- appResource
+    server <- BlazeServerBuilder[IO](ec).bindHttp(port = 9000, "0.0.0.0").withHttpApp(app).resource
+  } yield server
 
-  override def run(args: List[String]): IO[ExitCode] = server.serve.compile.drain.as(ExitCode.Success)
+  override def run(args: List[String]): IO[ExitCode] =
+    server.use(_ => IO.never).as(ExitCode.Success)
 }

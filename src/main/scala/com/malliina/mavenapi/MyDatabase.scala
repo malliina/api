@@ -11,6 +11,5 @@ object MyDatabase {
 }
 
 class MyDatabase()(implicit ec: ExecutionContext, ctx: ContextShift[IO]) {
-  def load: IO[AppResult] = IO.fromFuture(IO(fetch()))
-  private def fetch(): Future[AppResult] = Future(AppResult.example)
+  def load: IO[AppResult] = IO.pure(AppResult.example)
 }

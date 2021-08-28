@@ -1,6 +1,6 @@
 package com.malliina.mavenapi
 
-import io.circe.{Decoder, Encoder}
+import io.circe.{Codec, Decoder, Encoder}
 import io.circe.generic.semiauto._
 
 case class ArtifactId(id: String) extends AnyVal with PrimitiveId
@@ -25,30 +25,30 @@ trait PrimitiveId extends Any {
 
 trait PrimitiveCompanion[T <: PrimitiveId] {
   def apply(s: String): T
-  implicit val dec = Decoder.decodeString.map[T](s => apply(s))
-  implicit val enc = Encoder.encodeString.contramap[T](_.id)
+  implicit val dec: Decoder[T] = Decoder.decodeString.map[T](s => apply(s))
+  implicit val enc: Encoder[T] = Encoder.encodeString.contramap[T](_.id)
 }
 
 case class MavenDocument(id: String, g: GroupId, a: String, v: String, timestamp: Long)
 
 object MavenDocument {
-  implicit val json = deriveCodec[MavenDocument]
+  implicit val json: Codec[MavenDocument] = deriveCodec[MavenDocument]
 }
 
 case class MavenResponse(docs: Seq[MavenDocument], start: Int, numFound: Int)
 
 object MavenResponse {
-  implicit val json = deriveCodec[MavenResponse]
+  implicit val json: Codec[MavenResponse] = deriveCodec[MavenResponse]
 }
 
 case class MavenSearchResponse(response: MavenResponse)
 
 object MavenSearchResponse {
-  implicit val json = deriveCodec[MavenSearchResponse]
+  implicit val json: Codec[MavenSearchResponse] = deriveCodec[MavenSearchResponse]
 }
 
 case class MavenSearchResults(results: Seq[MavenDocument])
 
 object MavenSearchResults {
-  implicit val json = deriveCodec[MavenSearchResults]
+  implicit val json: Codec[MavenSearchResults] = deriveCodec[MavenSearchResults]
 }
