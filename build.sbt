@@ -15,7 +15,7 @@ val mavenapi = project
     scalaVersion := "3.0.1",
     libraryDependencies ++= Seq("blaze-server", "blaze-client", "dsl", "circe").map { m =>
       "org.http4s" %% s"http4s-$m" % "0.22.2"
-    } ++ Seq("generic, parser").map { m =>
+    } ++ Seq("generic", "parser").map { m =>
       "io.circe" %% s"circe-$m" % "0.14.1"
     } ++ Seq("classic", "core").map { m =>
       "ch.qos.logback" % s"logback-$m" % "1.2.5"
