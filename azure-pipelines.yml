@@ -30,7 +30,7 @@ steps:
       command: login
       containerRegistry: $(ContainerRegistry)
 
-  - script: sbt docker:publish
+  - script: sbt "set scalaJSStage in Global := FullOptStage" "project backend" docker:publish
     displayName: 'Push to ACR'
 
   - task: AzureRMWebAppDeployment@4
