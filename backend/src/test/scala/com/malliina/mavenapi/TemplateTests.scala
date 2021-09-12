@@ -5,6 +5,7 @@ import cats.effect.*
 import munit.FunSuite
 import org.http4s.*
 import org.http4s.circe.*
+import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
 import org.http4s.implicits.*
 import io.circe.Decoder
 import scala.concurrent.ExecutionContext
@@ -15,20 +16,17 @@ class TemplateTests extends FunSuite:
   val serviceFixture = resourceFixture(Service(ec).map(_.service.orNotFound))
 
   serviceFixture.test("can make request") { tr =>
-    val pingRequest = Request[IO](Method.GET, uri"/ping")
+    val pingRequest = Request[IO](Method.GET, uri"/health")
     val response = tr.resource.run(pingRequest).unsafeRunSync()
     assertEquals(response.status, Status.Ok)
-    val body = response.as[String].unsafeRunSync()
-    assertEquals(body, Service.pong)
+    val body = response.as[AppMeta].unsafeRunSync()
   }
 
   serviceFixture.test("interop with Future") { tr =>
     implicit val dec: EntityDecoder[IO, AppResult] = jsonOf[IO, AppResult]
-    val request = Request[IO](Method.GET, uri"/items")
+    val request = Request[IO](Method.GET, uri"/")
     val response = tr.resource.run(request).unsafeRunSync()
     assertEquals(response.status, Status.Ok)
-    val result = response.as[AppResult].unsafeRunSync()
-    assertEquals(result, AppResult.example)
   }
 
   case class TestResource[T](resource: T, close: IO[Unit])

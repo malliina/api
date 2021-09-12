@@ -46,7 +46,6 @@ class Service(maven: MavenCentralClient, http: HttpClient, data: MyDatabase):
               Ok(pages.search(ok, res.results))
             }
       )
-
     case req @ POST -> Root =>
       req.decode[UrlForm] { form =>
         val a = form.getFirst("artifact").filter(_.trim.nonEmpty).map(ArtifactId.apply)
