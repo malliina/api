@@ -2,7 +2,6 @@ package com.malliina.mavenapi.html
 
 import cats.Show
 import com.malliina.http.FullUrl
-import com.malliina.live.LiveReload
 import com.malliina.mavenapi.{AssetsSource, HashedAssetsSource, MavenDocument, MavenQuery, MavenSearchResults}
 import org.http4s.Uri
 import scalatags.Text.all.*
@@ -10,7 +9,7 @@ import scalatags.text.Builder
 
 object Pages:
   def apply(): Pages =
-    val absoluteScripts = FullUrl.build(LiveReload.script).toSeq
+    val absoluteScripts = Nil // FullUrl.build(LiveReload.script).toSeq
     new Pages(Nil, absoluteScripts, HashedAssetsSource)
 
 class Pages(scripts: Seq[String], absoluteScripts: Seq[FullUrl], assets: AssetsSource):

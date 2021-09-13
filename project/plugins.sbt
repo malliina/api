@@ -7,7 +7,7 @@ Seq(
   "com.malliina" % "sbt-bundler" % utilsVersion,
   "com.malliina" % "sbt-packager" % "2.9.0",
   "com.malliina" % "sbt-filetree" % "0.4.1",
-  "com.malliina" % "live-reload" % "0.2.4",
+  // "com.malliina" % "live-reload" % "0.2.4",
   "org.scalameta" % "sbt-scalafmt" % "2.4.3",
   "io.spray" % "sbt-revolver" % "0.9.1",
   "com.typesafe.sbt" % "sbt-native-packager" % "1.7.5",

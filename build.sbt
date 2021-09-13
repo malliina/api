@@ -64,7 +64,7 @@ val frontend = project
 
 val backend = project
   .in(file("backend"))
-  .enablePlugins(FileTreePlugin, JavaServerAppPackaging, BuildInfoPlugin, ServerPlugin, LiveReloadPlugin)
+  .enablePlugins(FileTreePlugin, JavaServerAppPackaging, BuildInfoPlugin, ServerPlugin)
   .settings(
     clientProject := frontend,
     libraryDependencies ++= Seq("blaze-server", "blaze-client", "dsl", "circe").map { m =>
