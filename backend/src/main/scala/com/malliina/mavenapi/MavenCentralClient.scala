@@ -3,6 +3,7 @@ package com.malliina.mavenapi
 import cats.effect.IO
 import cats.data.NonEmptyList
 import cats.implicits.*
+import io.circe.Json
 import org.http4s.Method.GET
 import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
 import org.http4s.client.dsl.io.*
@@ -28,6 +29,10 @@ class MavenCentralClient(http: HttpClient):
 
   val baseUrl = uri"https://search.maven.org/solrsearch/select"
 
+  def searchWildcard(q: String): IO[Json] =
+    val url = baseUrl.withQueryParams(Map("q" -> q, "rows" -> "20", "wt" -> "json"))
+    http.run[Json](GET(url))
+
   def search(q: MavenQuery): IO[MavenSearchResults] =
     val scala3 = search2(q.copy(scalaVersion = ScalaVersion.scala3))
     val scala213 = search2(q.copy(scalaVersion = ScalaVersion.scala213))
@@ -48,7 +53,8 @@ class MavenCentralClient(http: HttpClient):
           "core" -> "gav"
         )
       )
-    log.debug(s"Fetch '$url'.")
+
+    log.info(s"Fetch '$url'.")
     http.run[MavenSearchResponse](GET(url)).map { res =>
       MavenSearchResults(res.response.docs)
     }

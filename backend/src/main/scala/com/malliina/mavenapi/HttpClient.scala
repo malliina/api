@@ -7,8 +7,8 @@ import org.http4s.client.Client
 import org.http4s.client.dsl.io.*
 import org.http4s.headers.*
 import org.http4s.implicits.*
-import org.http4s.{AuthScheme, Credentials, EntityDecoder, Request}
-
+import org.http4s.{AuthScheme, Credentials, EntityDecoder, Request, Response}
+import cats.effect.unsafe.implicits.global
 import scala.concurrent.ExecutionContext
 
 object HttpClient:
@@ -25,7 +25,7 @@ class HttpClient(http: Client[IO]):
     run[String](request)
 
   def run[T](req: Request[IO])(implicit ev: EntityDecoder[IO, T]): IO[T] =
-    http.run(req).use { res =>
+    http.run(req).use { (res: Response[IO]) =>
       if res.status.isSuccess then
         res.attemptAs[T].value.flatMap { e =>
           e.fold(err => IO.raiseError(err), t => IO.pure(t))

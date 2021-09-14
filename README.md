@@ -3,7 +3,9 @@
 
 # mavenapi
 
-Experimental web app.
+Experimental web app at https://mavenapi.malliina.com.
+
+https://blog.sonatype.com/2011/06/you-dont-need-a-browser-to-use-maven-central/
 
 ## Development
 
