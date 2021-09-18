@@ -1,5 +1,9 @@
 trigger:
-  - master
+  branches:
+    include:
+      - master
+
+pr: none
 
 pool:
   vmImage: 'Ubuntu 18.04'
