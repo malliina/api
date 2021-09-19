@@ -15,6 +15,8 @@ case class ScalaVersion(id: String) extends AnyVal with PrimitiveId
 object ScalaVersion extends PrimitiveCompanion[ScalaVersion]:
   val scala213 = apply("2.13")
   val scala3 = apply("3")
+  val sjs1scala213 = apply("sjs1_2.13")
+  val sjs1scala3 = apply("sjs1_3")
   val key = "sv"
 
 case class MavenQuery(

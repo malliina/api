@@ -1,8 +1,9 @@
 package com.malliina.mavenapi
 
-import cats.effect.IO
 import cats.data.NonEmptyList
+import cats.effect.IO
 import cats.implicits.*
+import com.malliina.mavenapi.ScalaVersion.*
 import io.circe.Json
 import org.http4s.Method.GET
 import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
@@ -34,14 +35,12 @@ class MavenCentralClient(http: HttpClient):
     http.run[Json](GET(url))
 
   def search(q: MavenQuery): IO[MavenSearchResults] =
-    val scala3 = search2(q.copy(scalaVersion = ScalaVersion.scala3))
-    val scala213 = search2(q.copy(scalaVersion = ScalaVersion.scala213))
     NonEmptyList
-      .of(scala3, scala213)
-      .traverse(identity)
+      .of(scala3, scala213, sjs1scala213, sjs1scala3)
+      .traverse(sv => searchByVersion(q.copy(scalaVersion = sv)))
       .map(list => MavenSearchResults(list.toList.flatMap(_.results).sortBy(_.timestamp).reverse))
 
-  def search2(q: MavenQuery): IO[MavenSearchResults] =
+  def searchByVersion(q: MavenQuery): IO[MavenSearchResults] =
     val group = q.group.map(g => s"""g:"$g"""")
     val artifact = q.scalaArtifactName.map(a => s"""a:"$a"""")
     val searchQuery = (group.toList ++ artifact.toList).mkString(" AND ")
