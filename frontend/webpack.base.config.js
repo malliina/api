@@ -18,13 +18,18 @@ const WebApp = merge(ScalaJS, {
         use: [
           MiniCssExtractPlugin.loader,
           { loader: 'css-loader', options: { importLoaders: 1, url: true } }
-        ],
-        include: [ path.resolve(__dirname, 'node_modules') ]
+        ]
       },
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
         use: [
           { loader: 'url-loader', options: { limit: 8192, name: 'static/fonts/[name]-[hash].[ext]' } }
+        ]
+      },
+      {
+        test: /\.(png|jpg|jpeg)$/,
+        use: [
+          { loader: 'file-loader', options: { name: '[folder]/[name].[ext]' } }
         ]
       },
       {
