@@ -27,6 +27,7 @@ class Pages(scripts: Seq[String], absoluteScripts: Seq[FullUrl], assets: AssetsS
     head(
       meta(charset := "utf-8"),
       deviceWidthViewport,
+      link(rel := "shortcut icon", `type` := "image/png", href := at("img/jag-16x16.png")),
       cssLink(at("vendors.css")),
       cssLink(at("fonts.css")),
       cssLink(at("styles.css")),

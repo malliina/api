@@ -89,7 +89,8 @@ val backend = project
     dockerRepository := Option("malliinacr.azurecr.io"),
     dockerExposedPorts ++= Seq(prodPort),
     buildInfoPackage := "com.malliina.mavenapi",
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, "gitHash" -> gitHash)
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, "gitHash" -> gitHash),
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "public"
   )
 
 val mavenapi = project
