@@ -1,9 +1,9 @@
-package com.malliina.mavenapi.http4s
+package com.malliina.http4s
 
 import cats.data.NonEmptyList
 import cats.effect.kernel.Sync
 import cats.implicits.*
-import com.malliina.mavenapi.http4s.StaticService.log
+import com.malliina.http4s.StaticService.log
 import com.malliina.mvn.assets.HashedAssets
 import com.malliina.values.UnixPath
 import org.http4s.CacheDirective.{`max-age`, `no-cache`, `public`}

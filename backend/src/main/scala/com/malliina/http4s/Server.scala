@@ -1,9 +1,9 @@
-package com.malliina.mavenapi.http4s
+package com.malliina.http4s
 
 import cats.data.Kleisli
 import cats.effect.{ExitCode, IO, IOApp}
-import com.malliina.mavenapi.http4s.StaticService
-import com.malliina.mavenapi.http4s.BasicService
+import com.malliina.http4s.StaticService
+import com.malliina.http4s.BasicService
 import org.http4s.{Request, Response}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router

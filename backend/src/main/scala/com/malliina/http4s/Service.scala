@@ -1,12 +1,12 @@
-package com.malliina.mavenapi.http4s
+package com.malliina.http4s
 
 import cats.data.NonEmptyList
 import cats.effect.*
 import cats.implicits.*
 import com.malliina.mavenapi.AppImplicits.*
 import com.malliina.mavenapi.html.Pages
-import com.malliina.mavenapi.http4s.AppServer.ec
-import com.malliina.mavenapi.http4s.Service.pong
+import com.malliina.http4s.AppServer.ec
+import com.malliina.http4s.Service.pong
 import com.malliina.mavenapi.{MavenQuery, html as _, *}
 import io.circe.syntax.*
 import org.http4s.blaze.server.BlazeServerBuilder

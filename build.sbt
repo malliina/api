@@ -69,12 +69,16 @@ val backend = project
     clientProject := frontend,
     libraryDependencies ++= Seq("blaze-server", "blaze-client", "dsl", "circe").map { m =>
       "org.http4s" %% s"http4s-$m" % "0.23.3"
+    } ++ Seq("doobie-core", "doobie-hikari").map { d =>
+      "org.tpolecat" %% d % "1.0.0-RC1"
     } ++ Seq("generic", "parser").map { m =>
       "io.circe" %% s"circe-$m" % "0.14.1"
     } ++ Seq("classic", "core").map { m =>
       "ch.qos.logback" % s"logback-$m" % "1.2.5"
     } ++ Seq(
-      "com.malliina" %% "primitives" % "3.0.0",
+	  "com.typesafe" % "config" % "1.4.1",
+	  "org.flywaydb" % "flyway-core" % "7.15.0",
+      "com.malliina" %% "mobile-push-io" % "3.1.1-SNAPSHOT",
       ("com.lihaoyi" %% "scalatags" % "0.9.4").cross(CrossVersion.for3Use2_13),
       "org.slf4j" % "slf4j-api" % "1.7.32",
       "org.scalameta" %% "munit" % munitVersion % Test
@@ -93,7 +97,7 @@ val backend = project
     Compile / unmanagedResourceDirectories += baseDirectory.value / "public"
   )
 
-val mavenapi = project
+val api = project
   .in(file("."))
   .aggregate(frontend, backend)
   .settings(

@@ -1,6 +1,6 @@
 package com.malliina.mavenapi
 
-import com.malliina.mavenapi.http4s.Service
+import com.malliina.http4s.Service
 import cats.effect.*
 import munit.FunSuite
 import org.http4s.*

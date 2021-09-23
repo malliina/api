@@ -1,4 +1,4 @@
-package com.malliina.mavenapi.http4s
+package com.malliina.http4s
 
 import cats.Applicative
 import cats.effect.IO

@@ -1,4 +1,4 @@
-package com.malliina.mavenapi.http4s
+package com.malliina.http4s
 
 import cats.data.NonEmptyList
 import com.malliina.mavenapi.{ArtifactId, GroupId, MavenQuery, ScalaVersion}
