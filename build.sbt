@@ -79,7 +79,7 @@ val backend = project
 	  "com.typesafe" % "config" % "1.4.1",
 	  "mysql" % "mysql-connector-java" % "5.1.49",
 	  "org.flywaydb" % "flyway-core" % "7.15.0",
-      "com.malliina" %% "mobile-push-io" % "3.1.1-SNAPSHOT",
+      "com.malliina" %% "mobile-push-io" % "3.1.0",
       ("com.lihaoyi" %% "scalatags" % "0.9.4").cross(CrossVersion.for3Use2_13),
       "org.slf4j" % "slf4j-api" % "1.7.32",
       "org.scalameta" %% "munit" % munitVersion % Test
