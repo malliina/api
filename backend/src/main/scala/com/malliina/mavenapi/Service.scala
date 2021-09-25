@@ -1,19 +1,19 @@
-package com.malliina.http4s
+package com.malliina.mavenapi
 
 import cats.data.NonEmptyList
 import cats.effect.*
 import cats.implicits.*
-import com.malliina.mavenapi.AppImplicits.*
-import com.malliina.mavenapi.html.Pages
+import com.malliina.http4s.AppImplicits.*
 import com.malliina.http4s.AppServer.ec
-import com.malliina.http4s.Service.pong
+import com.malliina.mavenapi.Service.pong
+import com.malliina.http4s.parsers
+import com.malliina.mavenapi.html.Pages
 import com.malliina.mavenapi.{MavenQuery, html as _, *}
 import io.circe.syntax.*
 import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.Uri
-import org.http4s.server.Router
-import org.http4s.{HttpRoutes, UrlForm}
 import org.http4s.headers.{Accept, Location, `Cache-Control`, `WWW-Authenticate`}
+import org.http4s.server.Router
+import org.http4s.{HttpRoutes, Uri, UrlForm}
 import org.slf4j.LoggerFactory
 import scalatags.Text.all.*
 

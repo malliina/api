@@ -1,6 +1,5 @@
 package com.malliina.mavenapi
 
-import com.malliina.http4s.Service
 import cats.effect.*
 import munit.FunSuite
 import org.http4s.*
@@ -8,6 +7,7 @@ import org.http4s.circe.*
 import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
 import org.http4s.implicits.*
 import io.circe.Decoder
+
 import scala.concurrent.ExecutionContext
 import cats.effect.unsafe.implicits.global
 

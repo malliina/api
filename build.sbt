@@ -77,6 +77,7 @@ val backend = project
       "ch.qos.logback" % s"logback-$m" % "1.2.5"
     } ++ Seq(
 	  "com.typesafe" % "config" % "1.4.1",
+	  "mysql" % "mysql-connector-java" % "5.1.49",
 	  "org.flywaydb" % "flyway-core" % "7.15.0",
       "com.malliina" %% "mobile-push-io" % "3.1.1-SNAPSHOT",
       ("com.lihaoyi" %% "scalatags" % "0.9.4").cross(CrossVersion.for3Use2_13),
