@@ -68,20 +68,21 @@ val backend = project
   .settings(
     clientProject := frontend,
     libraryDependencies ++= Seq("blaze-server", "blaze-client", "dsl", "circe").map { m =>
-      "org.http4s" %% s"http4s-$m" % "0.23.3"
+      "org.http4s" %% s"http4s-$m" % "0.23.4"
     } ++ Seq("doobie-core", "doobie-hikari").map { d =>
       "org.tpolecat" %% d % "1.0.0-RC1"
     } ++ Seq("generic", "parser").map { m =>
       "io.circe" %% s"circe-$m" % "0.14.1"
     } ++ Seq("classic", "core").map { m =>
-      "ch.qos.logback" % s"logback-$m" % "1.2.5"
+      "ch.qos.logback" % s"logback-$m" % "1.2.6"
     } ++ Seq(
-	  "com.typesafe" % "config" % "1.4.1",
-	  "mysql" % "mysql-connector-java" % "5.1.49",
-	  "org.flywaydb" % "flyway-core" % "7.15.0",
+  	  "com.typesafe" % "config" % "1.4.1",
+  	  "mysql" % "mysql-connector-java" % "5.1.49",
+  	  "org.flywaydb" % "flyway-core" % "7.15.0",
       "com.malliina" %% "mobile-push-io" % "3.1.0",
       ("com.lihaoyi" %% "scalatags" % "0.9.4").cross(CrossVersion.for3Use2_13),
       "org.slf4j" % "slf4j-api" % "1.7.32",
+      "com.malliina" %% "logstreams-client" % "2.0.2",
       "org.scalameta" %% "munit" % munitVersion % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
@@ -95,7 +96,13 @@ val backend = project
     dockerExposedPorts ++= Seq(prodPort),
     buildInfoPackage := "com.malliina.mavenapi",
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, "gitHash" -> gitHash),
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "public"
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "public",
+    Universal / javaOptions ++= {
+      Seq(
+        "-J-Xmx1024m",
+        "-Dlogback.configurationFile=logback-prod.xml"
+      )
+    }
   )
 
 val api = project
