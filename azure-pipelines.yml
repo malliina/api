@@ -24,17 +24,14 @@ steps:
       jdkArchitectureOption: 'x64'
       jdkSourceOption: 'PreInstalled'
 
-  - script: sbt test
-    displayName: 'Compile'
-
   - task: Docker@2
     displayName: Login to ACR
     inputs:
       command: login
       containerRegistry: $(ContainerRegistry)
 
-  - script: sbt "set scalaJSStage in Global := FullOptStage" "project backend" docker:publish
-    displayName: 'Push to ACR'
+  - script: sbt "set scalaJSStage in Global := FullOptStage" test "project backend" docker:publish
+    displayName: 'Test, build and push to ACR'
 
   - task: AzureRMWebAppDeployment@4
     displayName: Azure App Service Deploy
