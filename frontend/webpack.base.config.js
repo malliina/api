@@ -8,8 +8,7 @@ const cssDir = path.resolve(rootDir, 'src/main/resources/css');
 const WebApp = merge(ScalaJS, {
   entry: {
     styles: [path.resolve(cssDir, './mavenapi.js')],
-    fonts: [path.resolve(cssDir, './fonts.js')],
-    vendors: [path.resolve(cssDir, './vendors.js')]
+    fonts: [path.resolve(cssDir, './fonts.js')]
   },
   module: {
     rules: [

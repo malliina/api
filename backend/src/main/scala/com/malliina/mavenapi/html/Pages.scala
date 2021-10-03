@@ -9,13 +9,20 @@ import scalatags.Text.all.*
 import scalatags.text.Builder
 
 object Pages:
-  def apply(): Pages =
+  def apply(isProd: Boolean = sys.env.get("MODE").contains("prod")): Pages =
+    val opt = if (isProd) then "opt" else "fastopt"
     val isLiveReloadEnabled = !LiveReload.script.contains("12345")
     val absoluteScripts =
       if isLiveReloadEnabled then FullUrl.build(LiveReload.script).toSeq else Nil
-    new Pages(Nil, absoluteScripts, HashedAssetsSource)
+    val css = Seq(s"frontend-$opt.css", "fonts.css", "styles.css")
+    new Pages(Nil, absoluteScripts, css, HashedAssetsSource)
 
-class Pages(scripts: Seq[String], absoluteScripts: Seq[FullUrl], assets: AssetsSource):
+class Pages(
+  scripts: Seq[String],
+  absoluteScripts: Seq[FullUrl],
+  cssFiles: Seq[String],
+  assets: AssetsSource
+):
   implicit def showAttrValue[T](implicit s: Show[T]): AttrValue[T] =
     (t: Builder, a: Attr, v: T) => t.setAttr(a.name, Builder.GenericAttrValueSource(s.show(v)))
   implicit val uriAttrValue: AttrValue[Uri] = new AttrValue[Uri]:
@@ -28,9 +35,7 @@ class Pages(scripts: Seq[String], absoluteScripts: Seq[FullUrl], assets: AssetsS
       meta(charset := "utf-8"),
       deviceWidthViewport,
       link(rel := "shortcut icon", `type` := "image/png", href := at("img/jag-16x16.png")),
-      cssLink(at("vendors.css")),
-      cssLink(at("fonts.css")),
-      cssLink(at("styles.css")),
+      cssFiles.map(file => cssLink(at(file))),
       absoluteScripts.map { url =>
         script(src.:=(url)(urlAttr), defer)
       }
