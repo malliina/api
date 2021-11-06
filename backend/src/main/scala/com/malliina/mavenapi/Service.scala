@@ -24,10 +24,10 @@ object Service:
 
   def apply(ec: ExecutionContext): Resource[IO, Service] =
     for http <- HttpClient(ec)
-    yield apply(http, ec)
+    yield apply(http)
 
-  def apply(http: HttpClient, ec: ExecutionContext): Service =
-    val db = MyDatabase(ec)
+  def apply(http: HttpClient): Service =
+    val db = MyDatabase()
     new Service(MavenCentralClient(http), http, db)
 
 class Service(maven: MavenCentralClient, http: HttpClient, data: MyDatabase):

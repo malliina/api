@@ -5,7 +5,7 @@ import com.malliina.pill.db.DatabaseConf
 import com.malliina.values.ErrorMessage
 import com.typesafe.config.{Config, ConfigFactory}
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 
 sealed trait AppMode:
   def isProd = this == AppMode.Prod
@@ -20,7 +20,7 @@ object AppMode:
     case other  => Left(ErrorMessage("Must be 'prod' or 'dev'."))
   }
 
-case class PillConf(mode: AppMode, db: DatabaseConf)
+case class PillConf(mode: AppMode, db: DatabaseConf, apnsPrivateKey: Path)
 
 object PillConf:
   val appDir = Paths.get(sys.props("user.home")).resolve(".pill")
@@ -32,6 +32,9 @@ object PillConf:
       user <- c.read[String]("user")
       pass <- c.read[String]("pass")
     yield DatabaseConf(url, user, pass)
+  }
+  implicit val pathConfig: ConfigReadable[Path] = ConfigReadable.string.map { s =>
+    Paths.get(s)
   }
   private def pillConf = ConfigFactory.load(localConfig).resolve().getConfig("pill")
 
@@ -48,4 +51,5 @@ object PillConf:
     for
       mode <- c.read[AppMode]("mode")
       db <- c.read[DatabaseConf]("db")
-    yield PillConf(mode, db)
+      apnsPrivateKey <- c.read[Path]("push.apns.privateKey")
+    yield PillConf(mode, db, apnsPrivateKey)

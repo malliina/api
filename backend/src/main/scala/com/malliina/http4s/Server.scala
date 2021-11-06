@@ -2,10 +2,11 @@ package com.malliina.http4s
 
 import cats.data.Kleisli
 import cats.effect.{ExitCode, IO, IOApp}
+import com.malliina.http.io.HttpClientIO
 import com.malliina.http4s.{BasicService, StaticService}
 import com.malliina.mavenapi.Service
 import com.malliina.pill.db.{DoobieDatabase, PillService}
-import com.malliina.pill.{PillConf, PillRoutes}
+import com.malliina.pill.{PillConf, PillRoutes, Push}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
 import org.http4s.server.middleware.{GZip, HSTS}
@@ -20,6 +21,8 @@ object AppServer extends IOApp:
     for
       service <- Service(ec)
       conf = PillConf.unsafe()
+      http = HttpClientIO()
+      push = Push(conf.apnsPrivateKey, http)
       db <- DoobieDatabase(conf.db)
       pill = PillRoutes(PillService(db))
     yield GZip {
@@ -35,7 +38,7 @@ object AppServer extends IOApp:
     }
   val server = for
     app <- appResource
-    server <- BlazeServerBuilder[IO](ec)
+    server <- BlazeServerBuilder[IO]
       .bindHttp(port = 9000, "0.0.0.0")
       .withHttpApp(app)
       .withIdleTimeout(60.seconds)

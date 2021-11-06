@@ -12,7 +12,7 @@ inThisBuild(
   Seq(
     organization := "com.malliina",
     version := "0.0.1",
-    scalaVersion := "3.0.2"
+    scalaVersion := "3.1.0"
   )
 )
 
@@ -20,13 +20,10 @@ val frontend = project
   .in(file("frontend"))
   .enablePlugins(NodeJsPlugin, ClientPlugin)
   .disablePlugins(RevolverPlugin)
-  //  .dependsOn(crossJs)
-  //  .settings(commonSettings)
   .settings(
     assetsPackage := "com.malliina.mvn.assets",
     libraryDependencies ++= Seq(
-      ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13),
-      ("be.doeraene" %%% "scalajs-jquery" % "1.0.0").cross(CrossVersion.for3Use2_13),
+      ("org.scala-js" %%% "scalajs-dom" % "2.0.0").cross(CrossVersion.for3Use2_13),
       "org.scalameta" %%% "munit" % munitVersion % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
@@ -35,10 +32,9 @@ val frontend = project
     scalaJSUseMainModuleInitializer := true,
     webpackBundlingMode := BundlingMode.LibraryOnly(),
     Compile / npmDependencies ++= Seq(
-      "@fortawesome/fontawesome-free" -> "5.15.3",
-      "bootstrap" -> "4.6.0",
-      "jquery" -> "3.6.0",
-      "popper.js" -> "1.16.1"
+      "@fortawesome/fontawesome-free" -> "5.15.4",
+      "@popperjs/core" -> "2.10.2",
+      "bootstrap" -> "5.1.3"
     ),
     Compile / npmDevDependencies ++= Seq(
       "autoprefixer" -> "10.2.5",
@@ -47,7 +43,7 @@ val frontend = project
       "file-loader" -> "6.2.0",
       "less" -> "4.1.1",
       "less-loader" -> "7.3.0",
-      "mini-css-extract-plugin" -> "1.4.1",
+      "mini-css-extract-plugin" -> "1.6.2",
       "postcss" -> "8.2.9",
       "postcss-import" -> "14.0.1",
       "postcss-loader" -> "4.2.0",
@@ -64,11 +60,17 @@ val frontend = project
 
 val backend = project
   .in(file("backend"))
-  .enablePlugins(FileTreePlugin, JavaServerAppPackaging, BuildInfoPlugin, ServerPlugin, LiveRevolverPlugin)
+  .enablePlugins(
+    FileTreePlugin,
+    JavaServerAppPackaging,
+    BuildInfoPlugin,
+    ServerPlugin,
+    LiveRevolverPlugin
+  )
   .settings(
     clientProject := frontend,
     libraryDependencies ++= Seq("blaze-server", "blaze-client", "dsl", "circe").map { m =>
-      "org.http4s" %% s"http4s-$m" % "0.23.4"
+      "org.http4s" %% s"http4s-$m" % "0.23.6"
     } ++ Seq("doobie-core", "doobie-hikari").map { d =>
       "org.tpolecat" %% d % "1.0.0-RC1"
     } ++ Seq("generic", "parser").map { m =>
@@ -76,11 +78,11 @@ val backend = project
     } ++ Seq("classic", "core").map { m =>
       "ch.qos.logback" % s"logback-$m" % "1.2.6"
     } ++ Seq(
-  	  "com.typesafe" % "config" % "1.4.1",
-  	  "mysql" % "mysql-connector-java" % "5.1.49",
-  	  "org.flywaydb" % "flyway-core" % "7.15.0",
+      "com.typesafe" % "config" % "1.4.1",
+      "mysql" % "mysql-connector-java" % "5.1.49",
+      "org.flywaydb" % "flyway-core" % "7.15.0",
       "com.malliina" %% "mobile-push-io" % "3.1.0",
-      ("com.lihaoyi" %% "scalatags" % "0.9.4").cross(CrossVersion.for3Use2_13),
+      ("com.lihaoyi" %% "scalatags" % "0.10.0").cross(CrossVersion.for3Use2_13),
       "org.slf4j" % "slf4j-api" % "1.7.32",
       "com.malliina" %% "logstreams-client" % "2.0.2",
       "org.scalameta" %% "munit" % munitVersion % Test
