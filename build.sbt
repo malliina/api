@@ -28,6 +28,8 @@ val frontend = project
     ),
     testFrameworks += new TestFramework("munit.Framework"),
     webpack / version := "5.65.0",
+    webpackCliVersion := "4.9.1",
+    startWebpackDevServer / version := "4.5.0",
     webpackEmitSourceMaps := false,
     scalaJSUseMainModuleInitializer := true,
     webpackBundlingMode := BundlingMode.LibraryOnly(),
