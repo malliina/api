@@ -17,7 +17,7 @@ class PillRoutes(db: PillService[IO]) extends AppImplicits[IO]:
       Ok(Json.obj("c" -> "d".asJson))
     case req @ POST -> Root =>
       req.decodeJson[PillInput].flatMap { in =>
-        db.save(in).flatMap { row =>
+        db.enable(in).flatMap { row =>
           Ok(row.asJson)
         }
       }

@@ -4,4 +4,4 @@ import cats.Monad
 import cats.effect.IO
 
 class PillService[F[_]: Monad](db: DatabaseRunner[F]):
-  def save(in: PillInput): F[PillRow] = ???
+  def enable(in: PillInput): F[PillRow] = ???

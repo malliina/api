@@ -60,4 +60,5 @@ class DoobieDatabase(tx: HikariTransactor[IO]) extends DatabaseRunner[IO]:
   def run[T](io: ConnectionIO[T]): IO[T] = io.transact(tx)
 
 trait DatabaseRunner[F[_]]:
+  def logHandler: LogHandler
   def run[T](io: ConnectionIO[T]): F[T]
