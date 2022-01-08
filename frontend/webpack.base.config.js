@@ -20,25 +20,30 @@ const WebApp = merge(ScalaJS, {
         ]
       },
       {
-        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
-        use: [
-          { loader: 'url-loader', options: { limit: 8192, name: 'static/fonts/[name]-[hash].[ext]' } }
-        ]
-      },
-      {
-        test: /\.(png|jpg|jpeg)$/,
-        use: [
-          { loader: 'file-loader', options: { name: '[folder]/[name].[ext]' } }
-        ]
-      },
-      {
         test: /\.less$/,
         use: [
           MiniCssExtractPlugin.loader,
-          { loader: 'css-loader', options: { importLoaders: 1, url: false } },
+          { loader: 'css-loader', options: { importLoaders: 1, url: true } },
           'postcss-loader',
           'less-loader'
         ]
+      },
+      {
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+        type: 'asset',
+        generator: {
+          filename: 'static/fonts/[name]-[hash][ext]'
+        }
+      },
+      {
+        test: /\.(png|svg)$/,
+        type: 'asset/resource',
+        include: [
+          path.resolve(rootDir, 'src/main/resources')
+        ],
+        generator: {
+          filename: 'img/[name][ext]'
+        }
       }
     ]
   },

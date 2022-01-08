@@ -42,7 +42,6 @@ val frontend = project
       "autoprefixer" -> "10.4.1",
       "cssnano" -> "5.0.14",
       "css-loader" -> "6.5.1",
-      "file-loader" -> "6.2.0",
       "less" -> "4.1.2",
       "less-loader" -> "10.2.0",
       "mini-css-extract-plugin" -> "2.4.5",
@@ -51,7 +50,6 @@ val frontend = project
       "postcss-loader" -> "6.2.1",
       "postcss-preset-env" -> "7.2.0",
       "style-loader" -> "3.3.1",
-      "url-loader" -> "4.1.1",
       "webpack-merge" -> "5.8.0"
     ),
     fastOptJS / webpackConfigFile := Some(baseDirectory.value / "webpack.dev.config.js"),

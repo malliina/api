@@ -33,7 +33,7 @@ class StaticService[F[_]: Sync] extends BasicService[F]:
         if isCacheable then NonEmptyList.of(`max-age`(365.days), `public`)
         else NonEmptyList.of(`no-cache`())
       val res = s"/${HashedAssets.prefix}/$file"
-      log.debug(s"Searching for '$file' at resource '$res'...")
+      log.info(s"Searching for '$file' at resource '$res'...")
       StaticFile
         .fromResource(res, Option(req))
         .map(_.putHeaders(`Cache-Control`(cacheHeaders)))
