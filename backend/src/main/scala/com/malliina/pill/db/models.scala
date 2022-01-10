@@ -20,11 +20,6 @@ object MobileOS extends StringEnumCompanion[MobileOS]:
   def unsafe(s: String): MobileOS =
     build(s).fold(e => throw new Exception(e.message), identity)
 
-case class PillInput(os: MobileOS, token: PushToken)
-
-object PillInput:
-  implicit val codec: Codec[PillInput] = deriveCodec[PillInput]
-
 case class PillRowId(id: Long) extends WrappedId
 object PillRowId extends IdCompanion[PillRowId]
 
