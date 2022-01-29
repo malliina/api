@@ -6,7 +6,7 @@
         </encoder>
     </appender>
     <appender name="LOGSTREAMS" class="com.malliina.logstreams.client.FS2Appender">
-        <endpoint>${LOGSTREAMS_HOST:-wss://logs.malliina.com/ws/sources}</endpoint>
+        <endpoint>${LOGSTREAMS_HOST:-wss://logs-api.malliina.com/ws/sources}</endpoint>
         <enabled>true</enabled>
         <username>${LOGSTREAMS_USER:-api}</username>
         <password>${LOGSTREAMS_PASS}</password>
