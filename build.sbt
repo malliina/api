@@ -12,7 +12,7 @@ inThisBuild(
   Seq(
     organization := "com.malliina",
     version := "0.0.1",
-    scalaVersion := "3.1.0"
+    scalaVersion := "3.1.1"
   )
 )
 
@@ -70,9 +70,9 @@ val backend = project
   .settings(
     clientProject := frontend,
     libraryDependencies ++= Seq("blaze-server", "blaze-client", "dsl", "circe").map { m =>
-      "org.http4s" %% s"http4s-$m" % "0.23.7"
+      "org.http4s" %% s"http4s-$m" % "0.23.8"
     } ++ Seq("doobie-core", "doobie-hikari").map { d =>
-      "org.tpolecat" %% d % "1.0.0-RC1"
+      "org.tpolecat" %% d % "1.0.0-RC2"
     } ++ Seq("generic", "parser").map { m =>
       "io.circe" %% s"circe-$m" % "0.14.1"
     } ++ Seq("classic", "core").map { m =>
@@ -82,8 +82,8 @@ val backend = project
       "mysql" % "mysql-connector-java" % "5.1.49",
       "org.flywaydb" % "flyway-core" % "7.15.0",
       "com.malliina" %% "mobile-push-io" % "3.1.0",
-      "com.lihaoyi" %% "scalatags" % "0.11.0",
-      "org.slf4j" % "slf4j-api" % "1.7.32",
+      "com.lihaoyi" %% "scalatags" % "0.11.1",
+      "org.slf4j" % "slf4j-api" % "1.7.33",
       "com.malliina" %% "logstreams-client" % "2.0.2",
       "org.scalameta" %% "munit" % munitVersion % Test
     ),

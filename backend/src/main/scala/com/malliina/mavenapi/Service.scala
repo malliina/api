@@ -23,14 +23,14 @@ object Service:
   val pong = "pong"
 
   def apply(ec: ExecutionContext): Resource[IO, Service] =
-    for http <- HttpClient(ec)
+    for http <- MavenCentralClient.resource
     yield apply(http)
 
-  def apply(http: HttpClient): Service =
+  def apply(http: MavenCentralClient): Service =
     val db = MyDatabase()
-    new Service(MavenCentralClient(http), http, db)
+    new Service(http, db)
 
-class Service(maven: MavenCentralClient, http: HttpClient, data: MyDatabase):
+class Service(maven: MavenCentralClient, data: MyDatabase):
   private val log = LoggerFactory.getLogger(getClass)
 
   val pages = Pages()

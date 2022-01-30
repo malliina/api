@@ -10,7 +10,7 @@ import scalatags.text.Builder
 
 object Pages:
   def apply(isProd: Boolean = sys.env.get("MODE").contains("prod")): Pages =
-    val opt = if (isProd) then "opt" else "fastopt"
+    val opt = if isProd then "opt" else "fastopt"
     val isLiveReloadEnabled = !LiveReload.script.contains("12345")
     val absoluteScripts =
       if isLiveReloadEnabled then FullUrl.build(LiveReload.script).toSeq else Nil
@@ -33,6 +33,7 @@ class Pages(
   def search(q: MavenQuery, results: Seq[MavenDocument]) = html(lang := "en")(
     head(
       meta(charset := "utf-8"),
+      tag("title")("Search artifacts"),
       deviceWidthViewport,
       link(rel := "shortcut icon", `type` := "image/png", href := at("img/jag-16x16.png")),
       cssFiles.map(file => cssLink(at(file))),

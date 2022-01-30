@@ -1,8 +1,10 @@
 package com.malliina.mavenapi
 
 import cats.data.NonEmptyList
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import cats.implicits.*
+import com.malliina.http.FullUrl
+import com.malliina.http.io.HttpClientIO
 import com.malliina.mavenapi.ScalaVersion.*
 import io.circe.Json
 import org.http4s.Method.GET
@@ -13,7 +15,8 @@ import org.http4s.{QueryParamEncoder, QueryParameterValue}
 import org.slf4j.LoggerFactory
 
 object MavenCentralClient:
-  def apply(http: HttpClient): MavenCentralClient = new MavenCentralClient(http)
+  val httpResource = cats.effect.kernel.Resource.make(IO(HttpClientIO()))(c => IO(c.close()))
+  val resource: Resource[IO, MavenCentralClient] = httpResource.map(h => MavenCentralClient(h))
 
   implicit class QueryEncoderOps[T](enc: QueryParamEncoder[T]):
     def map(f: String => String): QueryParamEncoder[T] = (value: T) =>
@@ -25,14 +28,14 @@ object MavenCentralClient:
   * @see
   *   https://blog.sonatype.com/2011/06/you-dont-need-a-browser-to-use-maven-central/
   */
-class MavenCentralClient(http: HttpClient):
+class MavenCentralClient(http: HttpClientIO):
   private val log = LoggerFactory.getLogger(getClass)
 
-  val baseUrl = uri"https://search.maven.org/solrsearch/select"
+  val baseUrl = FullUrl.https("search.maven.org", "/solrsearch/select")
 
   def searchWildcard(q: String): IO[Json] =
-    val url = baseUrl.withQueryParams(Map("q" -> q, "rows" -> "20", "wt" -> "json"))
-    http.run[Json](GET(url))
+    val url = baseUrl.withQuery("q" -> q, "rows" -> "20", "wt" -> "json")
+    http.getAs[Json](url)
 
   def search(q: MavenQuery): IO[MavenSearchResults] =
     NonEmptyList
@@ -44,16 +47,12 @@ class MavenCentralClient(http: HttpClient):
     val group = q.group.map(g => s"""g:"$g"""")
     val artifact = q.scalaArtifactName.map(a => s"""a:"$a"""")
     val searchQuery = (group.toList ++ artifact.toList).mkString(" AND ")
-    val url =
-      baseUrl.withQueryParams(
-        Map(
-          "q" -> searchQuery,
-          "rows" -> "20",
-          "core" -> "gav"
-        )
-      )
-
-    log.info(s"Fetch '$url'.")
-    http.run[MavenSearchResponse](GET(url)).map { res =>
+    val url = baseUrl.withQuery(
+      "q" -> searchQuery,
+      "rows" -> "20",
+      "core" -> "gav"
+    )
+    log.info(s"Fetching '$url'...")
+    http.getAs[MavenSearchResponse](url).map { res =>
       MavenSearchResults(res.response.docs)
     }
