@@ -4,7 +4,6 @@ import cats.data.NonEmptyList
 import cats.effect.*
 import cats.implicits.*
 import com.malliina.http4s.AppImplicits.*
-import com.malliina.http4s.AppServer.ec
 import com.malliina.mavenapi.Service.pong
 import com.malliina.http4s.parsers
 import com.malliina.mavenapi.html.Pages
@@ -22,7 +21,7 @@ import scala.concurrent.ExecutionContext
 object Service:
   val pong = "pong"
 
-  def apply(ec: ExecutionContext): Resource[IO, Service] =
+  def apply(): Resource[IO, Service] =
     for http <- MavenCentralClient.resource
     yield apply(http)
 

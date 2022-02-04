@@ -16,10 +16,9 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 
 object AppServer extends IOApp:
-  val ec: ExecutionContext = ExecutionContext.global
   val appResource =
     for
-      service <- Service(ec)
+      service <- Service()
       conf = PillConf.unsafe()
       http = HttpClientIO()
       push = Push(conf.apnsPrivateKey, http)
@@ -44,6 +43,7 @@ object AppServer extends IOApp:
       .withIdleTimeout(60.seconds)
       .withResponseHeaderTimeout(30.seconds)
       .withServiceErrorHandler(ErrorHandler.handler)
+      .withBanner(Nil)
       .resource
   yield server
 

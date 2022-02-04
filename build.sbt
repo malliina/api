@@ -32,7 +32,6 @@ val frontend = project
     startWebpackDevServer / version := "4.5.0",
     webpackEmitSourceMaps := false,
     scalaJSUseMainModuleInitializer := true,
-    webpackBundlingMode := BundlingMode.LibraryOnly(),
     Compile / npmDependencies ++= Seq(
       "@fortawesome/fontawesome-free" -> "5.15.4",
       "@popperjs/core" -> "2.11.0",
@@ -97,13 +96,30 @@ val backend = project
     dockerRepository := Option("malliinacr.azurecr.io"),
     dockerExposedPorts ++= Seq(prodPort),
     buildInfoPackage := "com.malliina.mavenapi",
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, "gitHash" -> gitHash),
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      scalaVersion,
+      "gitHash" -> gitHash,
+      "assetsDir" -> (frontend / assetsDir).value.resolve((frontend / assetsPrefix).value)
+    ),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "public",
     Universal / javaOptions ++= {
       Seq(
         "-J-Xmx1024m",
         "-Dlogback.configurationFile=logback-prod.xml"
       )
+    },
+    Docker / mappings ++= {
+      val dockerInstallDir = (Docker / defaultLinuxInstallLocation).value
+      NativePackagerHelper
+        .directory(
+          (frontend / assetsDir).value.resolve((frontend / assetsPrefix).value).toFile
+        )
+        .map { case (file, path) =>
+          val unixPath = path.replace('\\', '/')
+          (file, s"$dockerInstallDir/$unixPath")
+        }
     }
   )
 

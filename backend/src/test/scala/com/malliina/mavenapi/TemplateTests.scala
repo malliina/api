@@ -13,7 +13,7 @@ import cats.effect.unsafe.implicits.global
 
 class TemplateTests extends FunSuite:
   implicit val ec: ExecutionContext = ExecutionContext.global
-  val serviceFixture = resourceFixture(Service(ec).map(_.service.orNotFound))
+  val serviceFixture = resourceFixture(Service().map(_.service.orNotFound))
 
   serviceFixture.test("can make request") { tr =>
     val pingRequest = Request[IO](Method.GET, uri"/health")
@@ -34,6 +34,7 @@ class TemplateTests extends FunSuite:
   def resourceFixture[T](res: Resource[IO, T]) = FunFixture[TestResource[T]](
     setup = options =>
       val (t, finalizer) = res.allocated.unsafeRunSync()
-      TestResource(t, finalizer),
+      TestResource(t, finalizer)
+    ,
     teardown = tr => tr.close.unsafeRunSync()
   )
