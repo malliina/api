@@ -6,7 +6,6 @@ import cats.effect.kernel.Sync
 import cats.implicits.*
 import com.malliina.http4s.StaticService.log
 import com.malliina.mavenapi.BuildInfo
-import com.malliina.mvn.assets.HashedAssets
 import com.malliina.values.UnixPath
 import com.malliina.util.AppLogger
 import org.http4s.CacheDirective.{`max-age`, `no-cache`, `public`}
@@ -33,7 +32,6 @@ class StaticService[F[_]: Async] extends BasicService[F]:
       val cacheHeaders =
         if isCacheable then NonEmptyList.of(`max-age`(365.days), `public`)
         else NonEmptyList.of(`no-cache`())
-      val res = s"/${HashedAssets.prefix}/$file"
       log.info(s"Searching for '$file' in '$publicDir'...")
 //      StaticFile.fromResource(res, Option(req))
       StaticFile

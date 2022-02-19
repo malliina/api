@@ -1,13 +1,14 @@
 scalaVersion := "2.12.15"
 
-val utilsVersion = "1.2.6"
+val utilsVersion = "1.2.11-SNAPSHOT"
 
 Seq(
   "com.malliina" % "sbt-nodejs" % utilsVersion,
   "com.malliina" % "sbt-bundler" % utilsVersion,
+  "com.malliina" % "sbt-docker-bundler" % utilsVersion,
   "com.malliina" % "sbt-packager" % "2.9.0",
   "com.malliina" % "sbt-filetree" % "0.4.1",
-  "com.malliina" % "live-reload" % "0.2.6",
+  "com.malliina" % "live-reload" % "0.2.7-SNAPSHOT",
   "org.scalameta" % "sbt-scalafmt" % "2.4.6",
   "io.spray" % "sbt-revolver" % "0.9.1",
   "com.typesafe.sbt" % "sbt-native-packager" % "1.8.1",

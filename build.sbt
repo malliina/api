@@ -1,10 +1,10 @@
 import com.typesafe.sbt.packager.docker.DockerVersion
 import sbtbuildinfo.BuildInfoKey
 import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
+import spray.revolver.GlobalState
 import scala.sys.process.Process
 import scala.util.Try
-
-val prodPort = 9000
+import com.malliina.bundler
 
 val munitVersion = "0.7.29"
 
@@ -61,9 +61,8 @@ val backend = project
   .in(file("backend"))
   .enablePlugins(
     FileTreePlugin,
-    JavaServerAppPackaging,
     BuildInfoPlugin,
-    ServerPlugin,
+    DockerServerPlugin,
     LiveRevolverPlugin
   )
   .settings(
@@ -82,53 +81,45 @@ val backend = project
       "org.flywaydb" % "flyway-core" % "7.15.0",
       "com.malliina" %% "mobile-push-io" % "3.1.0",
       "com.lihaoyi" %% "scalatags" % "0.11.1",
-      "org.slf4j" % "slf4j-api" % "1.7.33",
+      "org.slf4j" % "slf4j-api" % "1.7.35",
       "com.malliina" %% "logstreams-client" % "2.0.2",
       "org.scalameta" %% "munit" % munitVersion % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
-    dockerVersion := Option(DockerVersion(19, 3, 5, None)),
-    dockerBaseImage := "openjdk:11",
-    Docker / daemonUser := "mavenapi",
-    Docker / version := gitHash,
-    Compile / doc / sources := Seq.empty,
-    Docker / packageName := "mavenapi",
     dockerRepository := Option("malliinacr.azurecr.io"),
-    dockerExposedPorts ++= Seq(prodPort),
     buildInfoPackage := "com.malliina.mavenapi",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
       scalaVersion,
       "gitHash" -> gitHash,
-      "assetsDir" -> (frontend / assetsDir).value.resolve((frontend / assetsPrefix).value)
+      "assetsDir" -> (frontend / assetsRoot).value,
+      "mode" -> (if ((Global / scalaJSStage).value == FullOptStage) "prod" else "dev")
     ),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "public",
-    Universal / javaOptions ++= {
-      Seq(
-        "-J-Xmx1024m",
-        "-Dlogback.configurationFile=logback-prod.xml"
-      )
-    },
-    Docker / mappings ++= {
-      val dockerInstallDir = (Docker / defaultLinuxInstallLocation).value
-      NativePackagerHelper
-        .directory(
-          (frontend / assetsDir).value.resolve((frontend / assetsPrefix).value).toFile
-        )
-        .map { case (file, path) =>
-          val unixPath = path.replace('\\', '/')
-          (file, s"$dockerInstallDir/$unixPath")
-        }
-    }
+    Universal / javaOptions ++= Seq(
+      "-J-Xmx1024m",
+      "-Dlogback.configurationFile=logback-prod.xml"
+    ),
+    start := Def.taskIf {
+      if (start.inputFileChanges.hasChanges) {
+        refreshBrowsers.value
+      } else {
+        Def.task(streams.value.log.info("No backend changes."))
+      }
+    }.dependsOn(start).value,
+    (frontend / start) := Def.taskIf {
+      if ((frontend / start).inputFileChanges.hasChanges) {
+        refreshBrowsers.value
+      } else {
+        Def.task(streams.value.log.info("No frontend changes.")).value
+      }
+    }.dependsOn(frontend / start).value
   )
 
 val api = project
   .in(file("."))
   .aggregate(frontend, backend)
-  .settings(
-    start := (backend / start).value
-  )
 
 def gitHash: String =
   sys.env
