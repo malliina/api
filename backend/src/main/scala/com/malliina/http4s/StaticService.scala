@@ -25,7 +25,7 @@ class StaticService[F[_]: Async] extends BasicService[F]:
     List(".html", ".js", ".map", ".css", ".png", ".ico") ++ fontExtensions
 
   val publicDir = fs2.io.file.Path(BuildInfo.assetsDir)
-  val routes = HttpRoutes.of[F] {
+  val routes: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ GET -> rest if supportedStaticExtensions.exists(rest.toString.endsWith) =>
       val file = UnixPath(rest.segments.mkString("/"))
       val isCacheable = file.value.count(_ == '.') == 2
@@ -33,7 +33,6 @@ class StaticService[F[_]: Async] extends BasicService[F]:
         if isCacheable then NonEmptyList.of(`max-age`(365.days), `public`)
         else NonEmptyList.of(`no-cache`())
       log.info(s"Searching for '$file' in '$publicDir'...")
-//      StaticFile.fromResource(res, Option(req))
       StaticFile
         .fromPath(publicDir.resolve(file.value), Option(req))
         .map(_.putHeaders(`Cache-Control`(cacheHeaders)))

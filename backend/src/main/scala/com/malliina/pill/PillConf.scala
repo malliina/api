@@ -1,6 +1,7 @@
 package com.malliina.pill
 
 import com.malliina.config.{ConfigException, ConfigReadable}
+import com.malliina.mavenapi.BuildInfo
 import com.malliina.pill.db.DatabaseConf
 import com.malliina.values.ErrorMessage
 import com.typesafe.config.{Config, ConfigFactory}
@@ -36,7 +37,12 @@ object PillConf:
   implicit val pathConfig: ConfigReadable[Path] = ConfigReadable.string.map { s =>
     Paths.get(s)
   }
-  private def pillConf = ConfigFactory.load(localConfig).resolve().getConfig("pill")
+  val isProd = BuildInfo.mode == "prod"
+  private def pillConf =
+    val conf =
+      if isProd then ConfigFactory.load("application-prod.conf").resolve()
+      else ConfigFactory.load(localConfig).resolve()
+    conf.getConfig("pill")
 
   implicit class ConfigOps(c: Config) extends AnyVal:
     def read[T](key: String)(implicit r: ConfigReadable[T]): Either[ErrorMessage, T] =

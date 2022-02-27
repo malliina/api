@@ -1,10 +1,7 @@
-import com.typesafe.sbt.packager.docker.DockerVersion
 import sbtbuildinfo.BuildInfoKey
 import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
-import spray.revolver.GlobalState
 import scala.sys.process.Process
 import scala.util.Try
-import com.malliina.bundler
 
 val munitVersion = "0.7.29"
 
@@ -12,7 +9,15 @@ inThisBuild(
   Seq(
     organization := "com.malliina",
     version := "0.0.1",
-    scalaVersion := "3.1.1"
+    scalaVersion := "3.1.1",
+    assemblyMergeStrategy := {
+      case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.rename
+      case PathList("META-INF", "versions", xs @ _*) => MergeStrategy.rename
+      case PathList("com", "malliina", xs @ _*)         => MergeStrategy.first
+      case x =>
+        val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
+        oldStrategy(x)
+    }
   )
 )
 
@@ -62,13 +67,13 @@ val backend = project
   .enablePlugins(
     FileTreePlugin,
     BuildInfoPlugin,
-    DockerServerPlugin,
+    ServerPlugin,
     LiveRevolverPlugin
   )
   .settings(
     clientProject := frontend,
     libraryDependencies ++= Seq("blaze-server", "blaze-client", "dsl", "circe").map { m =>
-      "org.http4s" %% s"http4s-$m" % "0.23.8"
+      "org.http4s" %% s"http4s-$m" % "0.23.10"
     } ++ Seq("doobie-core", "doobie-hikari").map { d =>
       "org.tpolecat" %% d % "1.0.0-RC2"
     } ++ Seq("generic", "parser").map { m =>
@@ -79,14 +84,13 @@ val backend = project
       "com.typesafe" % "config" % "1.4.1",
       "mysql" % "mysql-connector-java" % "5.1.49",
       "org.flywaydb" % "flyway-core" % "7.15.0",
-      "com.malliina" %% "mobile-push-io" % "3.1.0",
+      "com.malliina" %% "mobile-push-io" % "3.4.1",
       "com.lihaoyi" %% "scalatags" % "0.11.1",
-      "org.slf4j" % "slf4j-api" % "1.7.35",
-      "com.malliina" %% "logstreams-client" % "2.0.2",
+      "org.slf4j" % "slf4j-api" % "1.7.36",
+      "com.malliina" %% "logstreams-client" % "2.1.1",
       "org.scalameta" %% "munit" % munitVersion % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
-    dockerRepository := Option("malliinacr.azurecr.io"),
     buildInfoPackage := "com.malliina.mavenapi",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
@@ -94,6 +98,7 @@ val backend = project
       scalaVersion,
       "gitHash" -> gitHash,
       "assetsDir" -> (frontend / assetsRoot).value,
+      "publicFolder" -> (frontend / assetsPrefix).value,
       "mode" -> (if ((Global / scalaJSStage).value == FullOptStage) "prod" else "dev")
     ),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "public",
@@ -114,7 +119,10 @@ val backend = project
       } else {
         Def.task(streams.value.log.info("No frontend changes.")).value
       }
-    }.dependsOn(frontend / start).value
+    }.dependsOn(frontend / start).value,
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "public",
+    Compile / unmanagedResourceDirectories += (frontend / Compile / assetsRoot).value.getParent.toFile,
+    assembly / assemblyJarName := "app.jar"
   )
 
 val api = project

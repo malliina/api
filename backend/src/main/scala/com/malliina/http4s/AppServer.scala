@@ -16,6 +16,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 
 object AppServer extends IOApp:
+  val serverPort: Int = sys.env.get("SERVER_PORT").flatMap(_.toIntOption).getOrElse(9000)
   val appResource =
     for
       service <- Service()
@@ -38,7 +39,7 @@ object AppServer extends IOApp:
   val server = for
     app <- appResource
     server <- BlazeServerBuilder[IO]
-      .bindHttp(port = 9000, "0.0.0.0")
+      .bindHttp(port = serverPort, "0.0.0.0")
       .withHttpApp(app)
       .withIdleTimeout(60.seconds)
       .withResponseHeaderTimeout(30.seconds)
