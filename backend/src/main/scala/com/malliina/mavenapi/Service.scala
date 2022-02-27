@@ -8,6 +8,7 @@ import com.malliina.mavenapi.Service.pong
 import com.malliina.http4s.parsers
 import com.malliina.mavenapi.html.Pages
 import com.malliina.mavenapi.{MavenQuery, html as _, *}
+import com.malliina.util.AppLogger
 import io.circe.syntax.*
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.headers.{Accept, Location, `Cache-Control`, `WWW-Authenticate`}
@@ -30,7 +31,7 @@ object Service:
     new Service(http, db)
 
 class Service(maven: MavenCentralClient, data: MyDatabase):
-  private val log = LoggerFactory.getLogger(getClass)
+  private val log = AppLogger(getClass)
 
   val pages = Pages()
   val service: HttpRoutes[IO] = HttpRoutes.of[IO] {
