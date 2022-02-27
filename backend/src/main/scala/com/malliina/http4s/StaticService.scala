@@ -32,9 +32,11 @@ class StaticService[F[_]: Async] extends BasicService[F]:
       val cacheHeaders =
         if isCacheable then NonEmptyList.of(`max-age`(365.days), `public`)
         else NonEmptyList.of(`no-cache`())
-      log.info(s"Searching for '$file' in '$publicDir'...")
+      val resourcePath = s"${BuildInfo.publicFolder}/${file.value}"
+      log.info(s"Searching for $resourcePath in resources or else '$file' in '$publicDir'...")
       StaticFile
-        .fromPath(publicDir.resolve(file.value), Option(req))
+        .fromResource(resourcePath, Option(req))
+        .orElse(StaticFile.fromPath(publicDir.resolve(file.value), Option(req)))
         .map(_.putHeaders(`Cache-Control`(cacheHeaders)))
         .fold(onNotFound(req))(_.pure[F])
         .flatten
