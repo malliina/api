@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  AZURE_RG: rg-fnxr3ec3ms6mu
+  AZURE_WEBAPP_NAME: api-nuqmhn2cxlhle
+  AZURE_WEBAPP_PACKAGE_PATH: ${{ github.workspace }}
+  AZURE_SLOT: staging
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@master
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Set up Scala
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: "adopt@1.11"
+      - name: Build with sbt
+        run: |
+          ls -al
+          sbt "set scalaJSStage in Global := FullOptStage" compile
+          sbt "set scalaJSStage in Global := FullOptStage" backend/assembly
+          ls -al
+      - name: Deploy to Azure WebApp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: ${{ env.AZURE_SLOT }}
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/backend/target/scala-*/app.jar'
+      - name: Swap to production
+        run: |
+          az webapp deployment slot swap -g '${{ env.AZURE_RG }}' -n '${{ env.AZURE_WEBAPP_NAME }}' --slot '${{ env.AZURE_SLOT }}' --target-slot production
+      - name: Azure logout
+        run: |
+          az logout

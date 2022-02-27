@@ -3,7 +3,7 @@ package com.malliina.mavenapi.html
 import cats.Show
 import com.malliina.http.FullUrl
 import com.malliina.live.LiveReload
-import com.malliina.mavenapi.{AssetsSource, HashedAssetsSource, MavenDocument, MavenQuery, MavenSearchResults}
+import com.malliina.mavenapi.{AssetsSource, DirectAssets, HashedAssetsSource, MavenDocument, MavenQuery, MavenSearchResults}
 import org.http4s.Uri
 import scalatags.Text.all.*
 import scalatags.text.Builder
@@ -15,7 +15,8 @@ object Pages:
     val absoluteScripts =
       if isLiveReloadEnabled then FullUrl.build(LiveReload.script).toSeq else Nil
     val css = Seq(s"frontend-$opt.css", "fonts.css", "styles.css")
-    new Pages(Nil, absoluteScripts, css, HashedAssetsSource)
+    val assetsFinder = if isProd then HashedAssetsSource else DirectAssets
+    new Pages(Nil, absoluteScripts, css, assetsFinder)
 
 class Pages(
   scripts: Seq[String],

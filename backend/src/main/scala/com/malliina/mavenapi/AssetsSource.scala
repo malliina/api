@@ -12,4 +12,5 @@ object DirectAssets extends AssetsSource:
 object HashedAssetsSource extends AssetsSource:
   override def at(file: String): Uri =
     val optimal = HashedAssets.assets.getOrElse(file, file)
+//    val optimal = file
     Uri.unsafeFromString(s"/assets/$optimal")

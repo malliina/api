@@ -6,7 +6,6 @@ import cats.effect.kernel.Sync
 import cats.implicits.*
 import com.malliina.http4s.StaticService.log
 import com.malliina.mavenapi.BuildInfo
-import com.malliina.mvn.assets.HashedAssets
 import com.malliina.values.UnixPath
 import com.malliina.util.AppLogger
 import org.http4s.CacheDirective.{`max-age`, `no-cache`, `public`}
@@ -26,16 +25,14 @@ class StaticService[F[_]: Async] extends BasicService[F]:
     List(".html", ".js", ".map", ".css", ".png", ".ico") ++ fontExtensions
 
   val publicDir = fs2.io.file.Path(BuildInfo.assetsDir)
-  val routes = HttpRoutes.of[F] {
+  val routes: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ GET -> rest if supportedStaticExtensions.exists(rest.toString.endsWith) =>
       val file = UnixPath(rest.segments.mkString("/"))
       val isCacheable = file.value.count(_ == '.') == 2
       val cacheHeaders =
         if isCacheable then NonEmptyList.of(`max-age`(365.days), `public`)
         else NonEmptyList.of(`no-cache`())
-      val res = s"/${HashedAssets.prefix}/$file"
       log.info(s"Searching for '$file' in '$publicDir'...")
-//      StaticFile.fromResource(res, Option(req))
       StaticFile
         .fromPath(publicDir.resolve(file.value), Option(req))
         .map(_.putHeaders(`Cache-Control`(cacheHeaders)))

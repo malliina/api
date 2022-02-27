@@ -5,8 +5,6 @@ import cats.effect.IO
 import com.malliina.http4s.AppImplicits.*
 import com.malliina.mavenapi.Errors
 import com.malliina.util.AppLogger
-import io.circe.Json
-import io.circe.syntax.EncoderOps
 import org.http4s.circe.CirceEntityEncoder.circeEntityEncoder
 import org.http4s.headers.{Connection, `Content-Length`}
 import org.http4s.{Headers, Request, Response, Status}
@@ -19,6 +17,6 @@ object ErrorHandler:
 
   def handler: Request[IO] => PartialFunction[Throwable, IO[Response[IO]]] =
     req => { case NonFatal(t) =>
-      log.error(s"Server error: ${req.method} ${req.pathInfo}. Exception $t", t)
+      log.error(s"Server errors: ${req.method} ${req.pathInfo}. Exception $t", t)
       InternalServerError(Errors("Server error."))
     }
