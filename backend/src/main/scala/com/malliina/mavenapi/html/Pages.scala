@@ -15,7 +15,7 @@ object Pages:
     val absoluteScripts =
       if isLiveReloadEnabled then FullUrl.build(LiveReload.script).toSeq else Nil
     val css = Seq(s"frontend-$opt.css", "fonts.css", "styles.css")
-    val assetsFinder = if isProd then HashedAssetsSource else DirectAssets
+    val assetsFinder = AssetsSource(isProd)
     new Pages(Nil, absoluteScripts, css, assetsFinder)
 
 class Pages(
