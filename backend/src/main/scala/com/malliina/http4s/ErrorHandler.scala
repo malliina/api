@@ -1,7 +1,8 @@
 package com.malliina.http4s
 
 import cats.Monad
-import cats.effect.IO
+import cats.effect.{Async, IO}
+import com.malliina.http.ResponseException
 import com.malliina.http4s.AppImplicits.*
 import com.malliina.mavenapi.Errors
 import com.malliina.util.AppLogger
@@ -12,11 +13,14 @@ import org.typelevel.ci.CIStringSyntax
 
 import scala.util.control.NonFatal
 
-object ErrorHandler:
+class ErrorHandler[F[_]: Async] extends BasicService[F]:
   private val log = AppLogger(getClass)
 
-  def handler: Request[IO] => PartialFunction[Throwable, IO[Response[IO]]] =
-    req => { case NonFatal(t) =>
-      log.error(s"Server errors: ${req.method} ${req.pathInfo}. Exception $t", t)
-      InternalServerError(Errors("Server error."))
-    }
+  def partial: PartialFunction[Throwable, F[Response[F]]] =
+    case re: ResponseException =>
+      val error = re.error
+      log.error(s"HTTP ${error.code} for '${error.url}'. Body: '${error.response.asString}'.")
+      serverError
+    case NonFatal(t) =>
+      log.error(s"Server error.", t)
+      serverError

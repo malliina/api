@@ -9,7 +9,6 @@ import com.malliina.mavenapi.ScalaVersion.*
 import io.circe.Json
 import org.http4s.Method.GET
 import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
-import org.http4s.client.dsl.io.*
 import org.http4s.implicits.*
 import org.http4s.{QueryParamEncoder, QueryParameterValue}
 import org.slf4j.LoggerFactory

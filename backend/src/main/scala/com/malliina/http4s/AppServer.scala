@@ -1,23 +1,26 @@
 package com.malliina.http4s
 
 import cats.data.Kleisli
+import cats.effect.kernel.Resource
 import cats.effect.{ExitCode, IO, IOApp}
+import com.comcast.ip4s.{Port, host, port}
 import com.malliina.http.io.HttpClientIO
 import com.malliina.http4s.{BasicService, StaticService}
 import com.malliina.mavenapi.Service
 import com.malliina.pill.db.{DoobieDatabase, PillService}
 import com.malliina.pill.{PillConf, PillRoutes, Push}
-import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.server.Router
+import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.server.{Router, Server}
 import org.http4s.server.middleware.{GZip, HSTS}
-import org.http4s.{HttpRoutes, Request, Response}
+import org.http4s.{Http, HttpRoutes, Request, Response}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 
 object AppServer extends IOApp:
-  val serverPort: Int = sys.env.get("SERVER_PORT").flatMap(_.toIntOption).getOrElse(9000)
-  val appResource =
+  private val serverPort: Port =
+    sys.env.get("SERVER_PORT").flatMap(s => Port.fromString(s)).getOrElse(port"9000")
+  private val appResource: Resource[IO, Http[IO, IO]] =
     for
       service <- Service()
       conf = PillConf.unsafe()
@@ -36,16 +39,17 @@ object AppServer extends IOApp:
         }
       }
     }
-  val server = for
+  val server: Resource[IO, Server] = for
     app <- appResource
-    server <- BlazeServerBuilder[IO]
-      .bindHttp(port = serverPort, "0.0.0.0")
+    server <- EmberServerBuilder
+      .default[IO]
+      .withHost(host"0.0.0.0")
+      .withPort(serverPort)
       .withHttpApp(app)
       .withIdleTimeout(60.seconds)
-      .withResponseHeaderTimeout(30.seconds)
-      .withServiceErrorHandler(ErrorHandler.handler)
-      .withBanner(Nil)
-      .resource
+      .withRequestHeaderReceiveTimeout(30.seconds)
+      .withErrorHandler(ErrorHandler[IO].partial)
+      .build
   yield server
 
   def orNotFound(rs: HttpRoutes[IO]): Kleisli[IO, Request[IO], Response[IO]] =

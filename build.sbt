@@ -32,11 +32,6 @@ val frontend = project
       "org.scalameta" %%% "munit" % munitVersion % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
-    webpack / version := "5.65.0",
-    webpackCliVersion := "4.9.1",
-    startWebpackDevServer / version := "4.5.0",
-    webpackEmitSourceMaps := false,
-    scalaJSUseMainModuleInitializer := true,
     Compile / npmDependencies ++= Seq(
       "@fortawesome/fontawesome-free" -> "5.15.4",
       "@popperjs/core" -> "2.11.0",
@@ -55,11 +50,7 @@ val frontend = project
       "postcss-preset-env" -> "7.2.0",
       "style-loader" -> "3.3.1",
       "webpack-merge" -> "5.8.0"
-    ),
-    fastOptJS / webpackConfigFile := Some(baseDirectory.value / "webpack.dev.config.js"),
-    fullOptJS / webpackConfigFile := Some(baseDirectory.value / "webpack.prod.config.js"),
-    Compile / fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly(),
-    Compile / fullOptJS / webpackBundlingMode := BundlingMode.Application
+    )
   )
 
 val backend = project
@@ -72,7 +63,7 @@ val backend = project
   )
   .settings(
     clientProject := frontend,
-    libraryDependencies ++= Seq("blaze-server", "blaze-client", "dsl", "circe").map { m =>
+    libraryDependencies ++= Seq("ember-server", "dsl", "circe").map { m =>
       "org.http4s" %% s"http4s-$m" % "0.23.10"
     } ++ Seq("doobie-core", "doobie-hikari").map { d =>
       "org.tpolecat" %% d % "1.0.0-RC2"
@@ -81,7 +72,7 @@ val backend = project
     } ++ Seq("classic", "core").map { m =>
       "ch.qos.logback" % s"logback-$m" % "1.2.10"
     } ++ Seq(
-      "com.typesafe" % "config" % "1.4.1",
+      "com.typesafe" % "config" % "1.4.2",
       "mysql" % "mysql-connector-java" % "5.1.49",
       "org.flywaydb" % "flyway-core" % "7.15.0",
       "com.malliina" %% "mobile-push-io" % "3.4.1",
