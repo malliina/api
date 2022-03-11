@@ -8,7 +8,7 @@ import com.malliina.http.io.HttpClientIO
 import com.malliina.http4s.{BasicService, StaticService}
 import com.malliina.mavenapi.Service
 import com.malliina.pill.db.{DoobieDatabase, PillService}
-import com.malliina.pill.{PillConf, PillRoutes, Push}
+import com.malliina.pill.{PillConf, PillRoutes, Push, PushService}
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.{Router, Server}
 import org.http4s.server.middleware.{GZip, HSTS}
@@ -22,10 +22,10 @@ object AppServer extends IOApp:
     sys.env.get("SERVER_PORT").flatMap(s => Port.fromString(s)).getOrElse(port"9000")
   private val appResource: Resource[IO, Http[IO, IO]] =
     for
-      service <- Service()
+      http <- HttpClientIO.resource
+      service = Service(http)
       conf = PillConf.unsafe()
-      http = HttpClientIO()
-      push = Push(conf.apnsPrivateKey, http)
+      push = if conf.apnsEnabled then Push(conf.apnsPrivateKey, http) else PushService.noop[IO]
       db <- DoobieDatabase(conf.db)
       pill = PillRoutes(PillService(db))
     yield GZip {

@@ -14,9 +14,6 @@ import org.http4s.{QueryParamEncoder, QueryParameterValue}
 import org.slf4j.LoggerFactory
 
 object MavenCentralClient:
-  val httpResource = cats.effect.kernel.Resource.make(IO(HttpClientIO()))(c => IO(c.close()))
-  val resource: Resource[IO, MavenCentralClient] = httpResource.map(h => MavenCentralClient(h))
-
   implicit class QueryEncoderOps[T](enc: QueryParamEncoder[T]):
     def map(f: String => String): QueryParamEncoder[T] = (value: T) =>
       QueryParameterValue(f(enc.encode(value).value))

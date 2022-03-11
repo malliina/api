@@ -2,6 +2,7 @@ package com.malliina.mavenapi
 
 import cats.effect.*
 import munit.FunSuite
+import com.malliina.http.io.HttpClientIO
 import org.http4s.*
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
@@ -13,7 +14,9 @@ import cats.effect.unsafe.implicits.global
 
 class TemplateTests extends FunSuite:
   implicit val ec: ExecutionContext = ExecutionContext.global
-  val serviceFixture = resourceFixture(Service().map(_.service.orNotFound))
+  val serviceFixture = resourceFixture(
+    HttpClientIO.resource.map(http => Service(http).service.orNotFound)
+  )
 
   serviceFixture.test("can make request") { tr =>
     val pingRequest = Request[IO](Method.GET, uri"/health")

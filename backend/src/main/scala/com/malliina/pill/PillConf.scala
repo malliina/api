@@ -21,7 +21,8 @@ object AppMode:
     case other  => Left(ErrorMessage("Must be 'prod' or 'dev'."))
   }
 
-case class PillConf(mode: AppMode, db: DatabaseConf, apnsPrivateKey: Path)
+case class PillConf(mode: AppMode, db: DatabaseConf, apnsPrivateKey: Path):
+  def apnsEnabled = apnsPrivateKey.toString != "changeme"
 
 object PillConf:
   val appDir = Paths.get(sys.props("user.home")).resolve(".pill")
