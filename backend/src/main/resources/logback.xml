@@ -6,9 +6,9 @@
     </appender>
     <appender name="LOGSTREAMS" class="com.malliina.logstreams.client.FS2Appender">
         <endpoint>${LOGSTREAMS_HOST:-wss://logs.malliina.com/ws/sources}</endpoint>
-        <enabled>${LOGSTREAMS_ENABLED:-true}</enabled>
+        <enabled>${LOGSTREAMS_ENABLED:-false}</enabled>
         <username>${LOGSTREAMS_USER:-api}</username>
-        <password>changeme</password>
+        <password>${LOGSTREAMS_PASS:-changeme}</password>
     </appender>
     <logger name="org.http4s.blaze.channel.nio1.NIO1SocketServerGroup" level="WARN"/>
     <root level="INFO">
