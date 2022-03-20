@@ -9,16 +9,18 @@ import com.malliina.http4s.{BasicService, StaticService}
 import com.malliina.mavenapi.Service
 import com.malliina.pill.db.{DoobieDatabase, PillService}
 import com.malliina.pill.{PillConf, PillRoutes, Push, PushService}
+import com.malliina.util.AppLogger
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.{Router, Server}
 import org.http4s.server.middleware.{GZip, HSTS}
 import org.http4s.{Http, HttpApp, HttpRoutes, Request, Response}
-
+import com.malliina.storage.StorageLong
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 
 object AppServer extends IOApp:
+  private val log = AppLogger(getClass)
   private val serverPort: Port =
     sys.env.get("SERVER_PORT").flatMap(s => Port.fromString(s)).getOrElse(port"9000")
   private val appResource: Resource[IO, Http[IO, IO]] =
@@ -40,6 +42,7 @@ object AppServer extends IOApp:
         }
       }
     }
+  def maxMemory = Runtime.getRuntime.maxMemory().bytes
   // Restarting ember-server takes 30 seconds (with sbt-revolver), so not using this.
   val emberServer: Resource[IO, Server] = for
     app <- appResource
@@ -63,6 +66,7 @@ object AppServer extends IOApp:
       .withServiceErrorHandler(ErrorHandler[IO].handler)
       .withBanner(Nil)
       .resource
+    _ = log.info(s"Started server with max memory of $maxMemory")
   yield server
 
   def orNotFound(rs: HttpRoutes[IO]): Kleisli[IO, Request[IO], Response[IO]] =
