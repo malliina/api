@@ -20,14 +20,14 @@ import scalatags.Text.all.*
 import scala.concurrent.ExecutionContext
 
 object Service:
+  private val log = AppLogger(getClass)
   val pong = "pong"
 
-  def apply(http: HttpClientIO): Service =
+  def default(http: HttpClientIO): Service =
     val db = MyDatabase()
-    new Service(MavenCentralClient(http), db)
+    Service(MavenCentralClient(http), db)
 
 class Service(maven: MavenCentralClient, data: MyDatabase):
-  private val log = AppLogger(getClass)
 
   val pages = Pages()
   val service: HttpRoutes[IO] = HttpRoutes.of[IO] {

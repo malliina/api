@@ -10,9 +10,10 @@ import com.malliina.mavenapi.Service
 import com.malliina.pill.db.{DoobieDatabase, PillService}
 import com.malliina.pill.{PillConf, PillRoutes, Push, PushService}
 import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.{Router, Server}
 import org.http4s.server.middleware.{GZip, HSTS}
-import org.http4s.{Http, HttpRoutes, Request, Response}
+import org.http4s.{Http, HttpApp, HttpRoutes, Request, Response}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
@@ -23,7 +24,7 @@ object AppServer extends IOApp:
   private val appResource: Resource[IO, Http[IO, IO]] =
     for
       http <- HttpClientIO.resource
-      service = Service(http)
+      service = Service.default(http)
       conf = PillConf.unsafe()
       push = if conf.apnsEnabled then Push(conf.apnsPrivateKey, http) else PushService.noop[IO]
       db <- DoobieDatabase(conf.db)
@@ -39,7 +40,8 @@ object AppServer extends IOApp:
         }
       }
     }
-  val server: Resource[IO, Server] = for
+  // Restarting ember-server takes 30 seconds (with sbt-revolver), so not using this.
+  val emberServer: Resource[IO, Server] = for
     app <- appResource
     server <- EmberServerBuilder
       .default[IO]
@@ -51,9 +53,20 @@ object AppServer extends IOApp:
       .withErrorHandler(ErrorHandler[IO].partial)
       .build
   yield server
+  val blazeServer = for
+    app <- appResource
+    server <- BlazeServerBuilder[IO]
+      .bindHttp(port = serverPort.value, "0.0.0.0")
+      .withHttpApp(app)
+      .withIdleTimeout(60.seconds)
+      .withResponseHeaderTimeout(30.seconds)
+      .withServiceErrorHandler(ErrorHandler[IO].handler)
+      .withBanner(Nil)
+      .resource
+  yield server
 
   def orNotFound(rs: HttpRoutes[IO]): Kleisli[IO, Request[IO], Response[IO]] =
     Kleisli(req => rs.run(req).getOrElseF(BasicService.notFound(req)))
 
   override def run(args: List[String]): IO[ExitCode] =
-    server.use(_ => IO.never).as(ExitCode.Success)
+    blazeServer.use(_ => IO.never).as(ExitCode.Success)
