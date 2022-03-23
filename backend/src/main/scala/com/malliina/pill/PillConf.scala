@@ -28,13 +28,6 @@ object PillConf:
   val appDir = Paths.get(sys.props("user.home")).resolve(".pill")
   val localConfFile = appDir.resolve("pill.conf")
   val localConfig = ConfigFactory.parseFile(localConfFile.toFile).withFallback(ConfigFactory.load())
-  implicit val databaseConfig: ConfigReadable[DatabaseConf] = ConfigReadable.config.emap { c =>
-    for
-      url <- c.read[String]("url")
-      user <- c.read[String]("user")
-      pass <- c.read[String]("pass")
-    yield DatabaseConf(url, user, pass)
-  }
   implicit val pathConfig: ConfigReadable[Path] = ConfigReadable.string.map { s =>
     Paths.get(s)
   }
