@@ -33,7 +33,6 @@ val frontend = project
     ),
     testFrameworks += new TestFramework("munit.Framework"),
     Compile / npmDependencies ++= Seq(
-      "@fortawesome/fontawesome-free" -> "5.15.4",
       "@popperjs/core" -> "2.11.0",
       "bootstrap" -> "5.1.3"
     ),
