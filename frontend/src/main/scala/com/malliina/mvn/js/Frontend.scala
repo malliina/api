@@ -7,8 +7,9 @@ object Frontend:
   val bootstrapJs = Bootstrap
   val bootstrapCss = BootstrapCss
 
+  // No JS is included in the HTML as none is needed, so this is not actually run currently
   def main(args: Array[String]): Unit =
-    println("Hello")
+    println("Hello!")
 
 @js.native
 @JSImport("bootstrap", JSImport.Namespace)

@@ -9,7 +9,7 @@ import scalatags.Text.all.*
 import scalatags.text.Builder
 
 object Pages:
-  def apply(isProd: Boolean = BuildInfo.mode == "prod"): Pages =
+  def apply(isProd: Boolean = BuildInfo.isProd): Pages =
     val opt = if isProd then "opt" else "fastopt"
     val isLiveReloadEnabled = !LiveReload.script.contains("12345")
     val absoluteScripts =

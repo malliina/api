@@ -21,6 +21,8 @@ inThisBuild(
   )
 )
 
+val isProd = settingKey[Boolean]("isProd")
+
 val frontend = project
   .in(file("frontend"))
   .enablePlugins(NodeJsPlugin, ClientPlugin)
@@ -49,7 +51,8 @@ val frontend = project
       "postcss-preset-env" -> "7.2.0",
       "style-loader" -> "3.3.1",
       "webpack-merge" -> "5.8.0"
-    )
+    ),
+    isProd := (Global / scalaJSStage).value == FullOptStage
   )
 
 val backend = project
@@ -90,12 +93,8 @@ val backend = project
       "gitHash" -> gitHash,
       "assetsDir" -> (frontend / assetsRoot).value,
       "publicFolder" -> (frontend / assetsPrefix).value,
-      "mode" -> (if ((Global / scalaJSStage).value == FullOptStage) "prod" else "dev")
-    ),
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "public",
-    Universal / javaOptions ++= Seq(
-      "-J-Xmx1024m",
-      "-Dlogback.configurationFile=logback-prod.xml"
+      "mode" -> (if ((frontend / isProd).value) "prod" else "dev"),
+      "isProd" -> (frontend / isProd).value
     ),
     start := Def.taskIf {
       if (start.inputFileChanges.hasChanges) {
@@ -111,10 +110,12 @@ val backend = project
         Def.task(streams.value.log.info("No frontend changes.")).value
       }
     }.dependsOn(frontend / start).value,
-    Compile / unmanagedResourceDirectories ++= Seq(
-      baseDirectory.value / "public",
-      (frontend / Compile / assetsRoot).value.getParent.toFile
-    ),
+    Compile / unmanagedResourceDirectories ++= {
+      val prodAssets =
+        if ((frontend / isProd).value) List((frontend / Compile / assetsRoot).value.getParent.toFile)
+        else Nil
+      (baseDirectory.value / "public") +: prodAssets
+    },
     assembly / assemblyJarName := "app.jar",
     liveReloadPort := 10102
   )

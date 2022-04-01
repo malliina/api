@@ -6,7 +6,6 @@ Seq(
   "com.malliina" % "sbt-nodejs" % utilsVersion,
   "com.malliina" % "sbt-bundler" % utilsVersion,
   "com.malliina" % "sbt-filetree" % "0.4.1",
-//  "com.malliina" % "live-reload" % "0.2.7-SNAPSHOT",
   "org.scalameta" % "sbt-scalafmt" % "2.4.6",
   "io.spray" % "sbt-revolver" % "0.9.1",
   "com.github.sbt" % "sbt-native-packager" % "1.9.7",

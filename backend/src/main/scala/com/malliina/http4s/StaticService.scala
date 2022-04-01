@@ -8,7 +8,7 @@ import com.malliina.http4s.StaticService.log
 import com.malliina.mavenapi.BuildInfo
 import com.malliina.values.UnixPath
 import com.malliina.util.AppLogger
-import org.http4s.CacheDirective.{`max-age`, `no-cache`, `public`}
+import org.http4s.CacheDirective.{`max-age`, `no-cache`, `public`, `no-store`, `must-revalidate`}
 import org.http4s.headers.`Cache-Control`
 import org.http4s.{Header, HttpRoutes, Request, StaticFile}
 import org.slf4j.LoggerFactory
@@ -33,12 +33,13 @@ class StaticService[F[_]: Async] extends BasicService[F]:
       val isCacheable = file.value.count(_ == '.') == 2
       val cacheHeaders =
         if isCacheable then NonEmptyList.of(`max-age`(365.days), `public`)
-        else NonEmptyList.of(`no-cache`())
+        else NonEmptyList.of(`no-cache`(), `no-store`, `must-revalidate`)
       val resourcePath = s"${BuildInfo.publicFolder}/${file.value}"
-      log.info(s"Searching for $resourcePath in resources or else '$file' in '$publicDir'...")
-      StaticFile
-        .fromResource(resourcePath, Option(req))
-        .orElse(StaticFile.fromPath(publicDir.resolve(file.value), Option(req)))
+      log.debug(s"Searching for $resourcePath in resources or else '$file' in '$publicDir'...")
+      val search =
+        if BuildInfo.isProd then StaticFile.fromResource(resourcePath, Option(req))
+        else StaticFile.fromPath(publicDir.resolve(file.value), Option(req))
+      search
         .map(_.putHeaders(`Cache-Control`(cacheHeaders), allowAllOrigins))
         .fold(onNotFound(req))(_.pure[F])
         .flatten
