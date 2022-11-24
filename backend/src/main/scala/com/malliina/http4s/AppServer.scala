@@ -11,7 +11,6 @@ import com.malliina.pill.db.{DoobieDatabase, PillService}
 import com.malliina.pill.{PillConf, PillRoutes, Push, PushService}
 import com.malliina.util.AppLogger
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.{Router, Server}
 import org.http4s.server.middleware.{GZip, HSTS}
 import org.http4s.{Http, HttpApp, HttpRoutes, Request, Response}
@@ -42,8 +41,6 @@ object AppServer extends IOApp:
         }
       }
     }
-  def maxMemory = Runtime.getRuntime.maxMemory().bytes
-  // Restarting ember-server takes 30 seconds (with sbt-revolver), so not using this.
   val emberServer: Resource[IO, Server] = for
     app <- appResource
     server <- EmberServerBuilder
@@ -54,23 +51,12 @@ object AppServer extends IOApp:
       .withIdleTimeout(60.seconds)
       .withRequestHeaderReceiveTimeout(30.seconds)
       .withErrorHandler(ErrorHandler[IO].partial)
+      .withShutdownTimeout(1.millis)
       .build
-  yield server
-  val blazeServer = for
-    app <- appResource
-    server <- BlazeServerBuilder[IO]
-      .bindHttp(port = serverPort.value, "0.0.0.0")
-      .withHttpApp(app)
-      .withIdleTimeout(60.seconds)
-      .withResponseHeaderTimeout(30.seconds)
-      .withServiceErrorHandler(ErrorHandler[IO].handler)
-      .withBanner(Nil)
-      .resource
-    _ = log.info(s"Started server with max memory of $maxMemory")
   yield server
 
   def orNotFound(rs: HttpRoutes[IO]): Kleisli[IO, Request[IO], Response[IO]] =
     Kleisli(req => rs.run(req).getOrElseF(BasicService.notFound(req)))
 
   override def run(args: List[String]): IO[ExitCode] =
-    blazeServer.use(_ => IO.never).as(ExitCode.Success)
+    emberServer.use(_ => IO.never).as(ExitCode.Success)

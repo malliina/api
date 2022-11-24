@@ -42,10 +42,10 @@ object PillConf:
     def read[T](key: String)(implicit r: ConfigReadable[T]): Either[ErrorMessage, T] =
       r.read(key, c)
     def unsafe[T: ConfigReadable](key: String): T =
-      c.read[T](key).fold(err => throw new IllegalArgumentException(err.message), identity)
+      c.read[T](key).fold(err => throw IllegalArgumentException(err.message), identity)
 
   def unsafe(c: Config = pillConf): PillConf =
-    apply(c).fold(err => throw new ConfigException(err), identity)
+    apply(c).fold(err => throw ConfigException(err), identity)
 
   def apply(c: Config): Either[ErrorMessage, PillConf] =
     for

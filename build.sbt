@@ -65,8 +65,8 @@ val backend = project
   )
   .settings(
     clientProject := frontend,
-    libraryDependencies ++= Seq("ember-server", "blaze-server", "dsl", "circe").map { m =>
-      "org.http4s" %% s"http4s-$m" % "0.23.11"
+    libraryDependencies ++= Seq("ember-server", "dsl", "circe").map { m =>
+      "org.http4s" %% s"http4s-$m" % "0.23.16"
     } ++ Seq("core", "hikari").map { m =>
       "org.tpolecat" %% s"doobie-$m" % "1.0.0-RC2"
     } ++ Seq("generic", "parser").map { m =>
