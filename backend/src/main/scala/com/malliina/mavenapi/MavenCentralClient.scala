@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.implicits.*
 import com.malliina.http.FullUrl
-import com.malliina.http.io.HttpClientIO
+import com.malliina.http.io.{HttpClientF2, HttpClientIO}
 import com.malliina.mavenapi.ScalaVersion.*
 import io.circe.Json
 import org.http4s.Method.GET
@@ -24,7 +24,7 @@ object MavenCentralClient:
   * @see
   *   https://blog.sonatype.com/2011/06/you-dont-need-a-browser-to-use-maven-central/
   */
-class MavenCentralClient(http: HttpClientIO):
+class MavenCentralClient(http: HttpClientF2[IO]):
   private val log = LoggerFactory.getLogger(getClass)
 
   val baseUrl = FullUrl.https("search.maven.org", "/solrsearch/select")

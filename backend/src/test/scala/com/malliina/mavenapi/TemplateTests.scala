@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext
 
 class TemplateTests extends munit.CatsEffectSuite:
   val serviceFixture = ResourceFixture(
-    HttpClientIO.resource.map(http => Service.default(http).service.orNotFound)
+    HttpClientIO.resource[IO].map(http => Service.default(http).service.orNotFound)
   )
 
   serviceFixture.test("can make request") { tr =>

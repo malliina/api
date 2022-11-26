@@ -3,7 +3,7 @@ package com.malliina.mavenapi
 import cats.data.NonEmptyList
 import cats.effect.*
 import cats.implicits.*
-import com.malliina.http.io.HttpClientIO
+import com.malliina.http.io.{HttpClientF2, HttpClientIO}
 import com.malliina.http4s.AppImplicits.*
 import com.malliina.mavenapi.Service.pong
 import com.malliina.http4s.parsers
@@ -23,12 +23,11 @@ object Service:
   private val log = AppLogger(getClass)
   val pong = "pong"
 
-  def default(http: HttpClientIO): Service =
+  def default(http: HttpClientF2[IO]): Service =
     val db = MyDatabase()
     Service(MavenCentralClient(http), db)
 
 class Service(maven: MavenCentralClient, data: MyDatabase):
-
   val pages = Pages()
   val service: HttpRoutes[IO] = HttpRoutes.of[IO] {
     case req @ GET -> Root =>

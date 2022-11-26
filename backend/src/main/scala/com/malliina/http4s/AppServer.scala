@@ -17,6 +17,7 @@ import org.http4s.{Http, HttpApp, HttpRoutes, Request, Response}
 import com.malliina.storage.StorageLong
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
+import cats.effect.IO.asyncForIO
 
 object AppServer extends IOApp:
   private val log = AppLogger(getClass)
