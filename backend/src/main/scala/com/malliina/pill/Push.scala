@@ -17,7 +17,7 @@ object Push:
   // App bundle id
   val topic = APNSTopic("com.skogberglabs.pill")
 
-  def apply[F[+_]: Monad](file: Path, http: HttpClient[F]): Push[F] =
+  def default[F[+_]: Monad](file: Path, http: HttpClient[F]): Push[F] =
     new Push(APNSTokenConf(file, keyId, teamId), http)
 
 class Push[F[+_]: Monad](conf: APNSTokenConf, http: HttpClient[F]) extends PushService[F]:
@@ -33,7 +33,7 @@ trait PushService[F[+_]: Monad]:
   def push(msg: APNSRequest, to: APNSToken): F[APNSResult]
 
 object PushService:
-  def noop[F[+_]: Monad] = new PushService[F]:
+  def noop[F[+_]: Monad]: PushService[F] = new PushService[F]:
     override def push(msg: APNSRequest, to: APNSToken): F[APNSResult] =
       val result = APNSResult(to, Left(APNSError.default("Not implemented.")))
       Monad[F].pure(result)

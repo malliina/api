@@ -34,5 +34,3 @@ trait AppImplicits[F[_]]
   with CirceInstances
   with MyScalatagsInstances
   with Extractors
-
-object AppImplicits extends AppImplicits[IO]

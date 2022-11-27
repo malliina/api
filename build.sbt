@@ -70,7 +70,7 @@ val backend = project
     } ++ Seq("core", "hikari").map { m =>
       "org.tpolecat" %% s"doobie-$m" % "1.0.0-RC2"
     } ++ Seq("generic", "parser").map { m =>
-      "io.circe" %% s"circe-$m" % "0.14.1"
+      "io.circe" %% s"circe-$m" % "0.14.3"
     } ++ Seq("classic", "core").map { m =>
       "ch.qos.logback" % s"logback-$m" % "1.2.11"
     } ++ Seq(
