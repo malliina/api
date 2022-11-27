@@ -2,7 +2,7 @@ import sbtbuildinfo.BuildInfoKey
 import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
 import scala.sys.process.Process
 import scala.util.Try
-
+import com.comcast.ip4s.IpLiteralSyntax
 val munitVersion = "0.7.29"
 
 inThisBuild(
@@ -70,17 +70,17 @@ val backend = project
     } ++ Seq("core", "hikari").map { m =>
       "org.tpolecat" %% s"doobie-$m" % "1.0.0-RC2"
     } ++ Seq("generic", "parser").map { m =>
-      "io.circe" %% s"circe-$m" % "0.14.1"
+      "io.circe" %% s"circe-$m" % "0.14.3"
     } ++ Seq("classic", "core").map { m =>
       "ch.qos.logback" % s"logback-$m" % "1.2.11"
     } ++ Seq(
       "com.typesafe" % "config" % "1.4.2",
       "mysql" % "mysql-connector-java" % "5.1.49",
       "org.flywaydb" % "flyway-core" % "7.15.0",
-      "com.malliina" %% "mobile-push-io" % "3.4.2",
-      "com.lihaoyi" %% "scalatags" % "0.11.1",
+      "com.malliina" %% "mobile-push-io" % "3.6.1",
+      "com.lihaoyi" %% "scalatags" % "0.12.0",
       "org.slf4j" % "slf4j-api" % "1.7.36",
-      "com.malliina" %% "logstreams-client" % "2.1.6",
+      "com.malliina" %% "logstreams-client" % "2.3.0",
       "org.scalameta" %% "munit" % munitVersion % Test,
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
     ),
@@ -103,13 +103,13 @@ val backend = project
         Def.task(streams.value.log.info("No backend changes."))
       }
     }.dependsOn(start).value,
-    (frontend / start) := Def.taskIf {
-      if ((frontend / start).inputFileChanges.hasChanges) {
+    (frontend / Compile / start) := Def.taskIf {
+      if ((frontend / Compile / start).inputFileChanges.hasChanges) {
         refreshBrowsers.value
       } else {
         Def.task(streams.value.log.info("No frontend changes.")).value
       }
-    }.dependsOn(frontend / start).value,
+    }.dependsOn(frontend / Compile / start).value,
     Compile / unmanagedResourceDirectories ++= {
       val prodAssets =
         if ((frontend / isProd).value) List((frontend / Compile / assetsRoot).value.getParent.toFile)
@@ -117,7 +117,7 @@ val backend = project
       (baseDirectory.value / "public") +: prodAssets
     },
     assembly / assemblyJarName := "app.jar",
-    liveReloadPort := 10102
+    liveReloadPort := port"10102"
   )
 
 val api = project

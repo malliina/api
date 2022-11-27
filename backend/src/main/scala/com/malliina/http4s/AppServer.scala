@@ -1,8 +1,9 @@
 package com.malliina.http4s
 
+import cats.Monad
 import cats.data.Kleisli
 import cats.effect.kernel.Resource
-import cats.effect.{ExitCode, IO, IOApp}
+import cats.effect.{Async, ExitCode, IO, IOApp}
 import com.comcast.ip4s.{Port, host, port}
 import com.malliina.http.io.HttpClientIO
 import com.malliina.http4s.{BasicService, StaticService}
@@ -15,6 +16,7 @@ import org.http4s.server.{Router, Server}
 import org.http4s.server.middleware.{GZip, HSTS}
 import org.http4s.{Http, HttpApp, HttpRoutes, Request, Response}
 import com.malliina.storage.StorageLong
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 
@@ -22,13 +24,14 @@ object AppServer extends IOApp:
   private val log = AppLogger(getClass)
   private val serverPort: Port =
     sys.env.get("SERVER_PORT").flatMap(s => Port.fromString(s)).getOrElse(port"9000")
-  private val appResource: Resource[IO, Http[IO, IO]] =
+  private def appResource[F[+_]: Async]: Resource[F, Http[F, F]] =
     for
-      http <- HttpClientIO.resource
-      service = Service.default(http)
+      http <- HttpClientIO.resource[F]
+      service = Service.default[F](http)
       conf = PillConf.unsafe()
-      push = if conf.apnsEnabled then Push(conf.apnsPrivateKey, http) else PushService.noop[IO]
-      db <- DoobieDatabase(conf.db)
+      push =
+        if conf.apnsEnabled then Push.default[F](conf.apnsPrivateKey, http) else PushService.noop[F]
+      db <- DoobieDatabase.default(conf.db)
       pill = PillRoutes(PillService(db))
     yield GZip {
       HSTS {
@@ -36,27 +39,27 @@ object AppServer extends IOApp:
           Router(
             "/" -> service.service,
             "/pill" -> pill.service,
-            "/assets" -> StaticService[IO].routes
+            "/assets" -> StaticService[F].routes
           )
         }
       }
     }
-  val emberServer: Resource[IO, Server] = for
+  def emberServer[F[+_]: Async]: Resource[F, Server] = for
     app <- appResource
     server <- EmberServerBuilder
-      .default[IO]
+      .default[F]
       .withHost(host"0.0.0.0")
       .withPort(serverPort)
       .withHttpApp(app)
       .withIdleTimeout(60.seconds)
       .withRequestHeaderReceiveTimeout(30.seconds)
-      .withErrorHandler(ErrorHandler[IO].partial)
+      .withErrorHandler(ErrorHandler[F].partial)
       .withShutdownTimeout(1.millis)
       .build
   yield server
 
-  def orNotFound(rs: HttpRoutes[IO]): Kleisli[IO, Request[IO], Response[IO]] =
-    Kleisli(req => rs.run(req).getOrElseF(BasicService.notFound(req)))
+  def orNotFound[F[_]: Monad](rs: HttpRoutes[F]): Kleisli[F, Request[F], Response[F]] =
+    Kleisli(req => rs.run(req).getOrElseF(BasicService[F].notFound(req)))
 
   override def run(args: List[String]): IO[ExitCode] =
-    emberServer.use(_ => IO.never).as(ExitCode.Success)
+    emberServer[IO].use(_ => IO.never).as(ExitCode.Success)

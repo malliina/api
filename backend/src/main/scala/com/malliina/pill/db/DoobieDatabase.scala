@@ -1,6 +1,6 @@
 package com.malliina.pill.db
 
-import cats.effect.IO
+import cats.effect.Async
 import cats.effect.kernel.Resource
 import com.malliina.util.AppLogger
 import com.malliina.pill.db.DoobieDatabase.log
@@ -20,16 +20,16 @@ import scala.concurrent.duration.DurationInt
 object DoobieDatabase:
   private val log = AppLogger(getClass)
 
-  def apply(conf: DatabaseConf): Resource[IO, DatabaseRunner[IO]] =
-    migratedResource(conf).map { tx => new DoobieDatabase(tx) }
+  def default[F[_]: Async](conf: DatabaseConf): Resource[F, DatabaseRunner[F]] =
+    migratedResource(conf).map { tx => DoobieDatabase(tx) }
 
-  private def migratedResource(conf: DatabaseConf): Resource[IO, HikariTransactor[IO]] =
+  private def migratedResource[F[_]: Async](conf: DatabaseConf): Resource[F, HikariTransactor[F]] =
     Resource.pure(migrate(conf)).flatMap { _ => resource(hikariConf(conf)) }
 
-  private def resource(conf: HikariConfig): Resource[IO, HikariTransactor[IO]] =
+  private def resource[F[_]: Async](conf: HikariConfig): Resource[F, HikariTransactor[F]] =
     for
-      ec <- ExecutionContexts.fixedThreadPool[IO](32) // our connect EC
-      tx <- HikariTransactor.fromHikariConfig[IO](conf, ec)
+      ec <- ExecutionContexts.fixedThreadPool[F](32) // our connect EC
+      tx <- HikariTransactor.fromHikariConfig[F](conf, ec)
     yield tx
 
   private def migrate(conf: DatabaseConf): MigrateResult =
@@ -47,7 +47,7 @@ object DoobieDatabase:
     log.info(s"Connecting to '${conf.url}'...")
     hikari
 
-class DoobieDatabase(tx: HikariTransactor[IO]) extends DatabaseRunner[IO]:
+class DoobieDatabase[F[_]: Async](tx: HikariTransactor[F]) extends DatabaseRunner[F]:
   implicit val logHandler: LogHandler = LogHandler {
     case Success(sql, args, exec, processing) =>
       log.info(s"OK '$sql' exec ${exec.toMillis} ms processing ${processing.toMillis} ms.")
@@ -57,7 +57,7 @@ class DoobieDatabase(tx: HikariTransactor[IO]) extends DatabaseRunner[IO]:
       log.error(s"Exec failed '$sql' in $exec.'", failure)
   }
 
-  def run[T](io: ConnectionIO[T]): IO[T] = io.transact(tx)
+  def run[T](io: ConnectionIO[T]): F[T] = io.transact(tx)
 
 trait DatabaseRunner[F[_]]:
   def logHandler: LogHandler

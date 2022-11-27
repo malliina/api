@@ -3,10 +3,9 @@ package com.malliina.mavenapi
 import cats.data.NonEmptyList
 import cats.effect.*
 import cats.implicits.*
-import com.malliina.http.io.HttpClientIO
-import com.malliina.http4s.AppImplicits.*
+import com.malliina.http.io.HttpClientF2
 import com.malliina.mavenapi.Service.pong
-import com.malliina.http4s.parsers
+import com.malliina.http4s.{AppImplicits, parsers}
 import com.malliina.mavenapi.html.Pages
 import com.malliina.mavenapi.{MavenQuery, html as _, *}
 import com.malliina.util.AppLogger
@@ -23,14 +22,13 @@ object Service:
   private val log = AppLogger(getClass)
   val pong = "pong"
 
-  def default(http: HttpClientIO): Service =
+  def default[F[_]: Async](http: HttpClientF2[F]): Service[F] =
     val db = MyDatabase()
-    Service(MavenCentralClient(http), db)
+    Service[F](MavenCentralClient[F](http), db)
 
-class Service(maven: MavenCentralClient, data: MyDatabase):
-
+class Service[F[_]: Async](maven: MavenCentralClient[F], data: MyDatabase) extends AppImplicits[F]:
   val pages = Pages()
-  val service: HttpRoutes[IO] = HttpRoutes.of[IO] {
+  val service: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ GET -> Root =>
       val e = parsers.parseMavenQuery(req.uri.query)
       e.fold(

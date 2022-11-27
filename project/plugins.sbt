@@ -1,6 +1,6 @@
-scalaVersion := "2.12.15"
+scalaVersion := "2.12.17"
 
-val utilsVersion = "1.2.13"
+val utilsVersion = "1.3.0"
 
 Seq(
   "com.malliina" % "sbt-nodejs" % utilsVersion,
@@ -12,6 +12,6 @@ Seq(
   "com.eed3si9n" % "sbt-buildinfo" % "0.10.0",
   "org.portable-scala" % "sbt-scalajs-crossproject" % "1.1.0",
   "org.scala-js" % "sbt-scalajs" % "1.9.0",
-  "ch.epfl.scala" % "sbt-scalajs-bundler" % "0.21.0-RC1",
+  "ch.epfl.scala" % "sbt-scalajs-bundler" % "0.21.1",
   "com.eed3si9n" % "sbt-assembly" % "1.2.0"
 ) map addSbtPlugin

@@ -3,7 +3,6 @@ package com.malliina.http4s
 import cats.Monad
 import cats.effect.{Async, IO}
 import com.malliina.http.ResponseException
-import com.malliina.http4s.AppImplicits.*
 import com.malliina.http4s.ErrorHandler.log
 import com.malliina.mavenapi.Errors
 import com.malliina.pill.PillRoutes.noCache
@@ -18,7 +17,7 @@ import scala.util.control.NonFatal
 object ErrorHandler:
   private val log = AppLogger(getClass)
 
-class ErrorHandler[F[_]: Async] extends BasicService[F]:
+class ErrorHandler[F[_]: Async] extends BasicService[F] with AppImplicits[F]:
   def handler: Request[F] => PartialFunction[Throwable, F[Response[F]]] =
     req => partial
 

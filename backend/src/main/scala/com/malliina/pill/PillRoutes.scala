@@ -2,6 +2,7 @@ package com.malliina.pill
 
 import cats.Monad
 import cats.effect.*
+import cats.syntax.all.*
 import com.malliina.http4s.AppImplicits
 import com.malliina.pill.PillRoutes.noCache
 import com.malliina.pill.db.{DatabaseRunner, DoobieDatabase, PillService, PushToken}
@@ -15,11 +16,11 @@ import org.http4s.headers.{Accept, Location, `Cache-Control`, `WWW-Authenticate`
 object PillRoutes:
   val noCache = `Cache-Control`(`no-cache`(), `no-store`, `must-revalidate`)
 
-class PillRoutes(db: PillService[IO]) extends AppImplicits[IO]:
-  implicit def jsonResponses[A: Encoder]: EntityEncoder[IO, A] =
-    jsonEncoderOf[IO, A]
+class PillRoutes[F[_]: Monad: Concurrent](db: PillService[F]) extends AppImplicits[F]:
+  implicit def jsonResponses[A: Encoder]: EntityEncoder[F, A] =
+    jsonEncoderOf[F, A]
 
-  val service: HttpRoutes[IO] = HttpRoutes.of[IO] {
+  val service: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ GET -> Root =>
       Ok(Json.obj("a" -> "b".asJson))
     case req @ GET -> Root / "what" =>
