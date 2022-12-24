@@ -30,7 +30,7 @@ val frontend = project
   .settings(
     assetsPackage := "com.malliina.mvn.assets",
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "2.1.0",
+      "org.scala-js" %%% "scalajs-dom" % "2.3.0",
       "org.scalameta" %%% "munit" % munitVersion % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
@@ -80,7 +80,7 @@ val backend = project
       "com.malliina" %% "mobile-push-io" % "3.6.1",
       "com.lihaoyi" %% "scalatags" % "0.12.0",
       "org.slf4j" % "slf4j-api" % "1.7.36",
-      "com.malliina" %% "logstreams-client" % "2.3.0",
+      "com.malliina" %% "logstreams-client" % "2.4.1",
       "org.scalameta" %% "munit" % munitVersion % Test,
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
     ),
