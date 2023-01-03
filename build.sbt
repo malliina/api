@@ -30,7 +30,7 @@ val frontend = project
   .settings(
     assetsPackage := "com.malliina.mvn.assets",
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "2.1.0",
+      "org.scala-js" %%% "scalajs-dom" % "2.3.0",
       "org.scalameta" %%% "munit" % munitVersion % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
@@ -76,7 +76,7 @@ val backend = project
     } ++ Seq(
       "com.typesafe" % "config" % "1.4.2",
       "mysql" % "mysql-connector-java" % "8.0.31",
-      "org.flywaydb" % "flyway-core" % "9.10.2",
+      "org.flywaydb" % "flyway-core" % "7.15.0",
       "com.malliina" %% "mobile-push-io" % "3.6.1",
       "com.lihaoyi" %% "scalatags" % "0.12.0",
       "com.malliina" %% "logstreams-client" % "2.4.1",
