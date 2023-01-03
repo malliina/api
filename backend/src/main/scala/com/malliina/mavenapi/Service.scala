@@ -24,10 +24,10 @@ object Service:
   val pong = "pong"
 
   def default[F[_]: Async: Parallel](http: HttpClientF2[F]): Service[F] =
-    val db = MyDatabase()
+    val db = MyDatabase[F]
     Service[F](MavenCentralClient[F](http), db)
 
-class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatabase)
+class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatabase[F])
   extends AppImplicits[F]:
   private val pages = Pages()
   val service: HttpRoutes[F] = HttpRoutes.of[F] {

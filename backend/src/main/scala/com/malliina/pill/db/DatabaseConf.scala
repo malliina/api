@@ -6,7 +6,7 @@ import com.malliina.pill.PillConf.ConfigOps
 case class DatabaseConf(url: String, user: String, pass: String)
 
 object DatabaseConf:
-  val MySQLDriver = "com.mysql.jdbc.Driver"
+  val MySQLDriver = "com.mysql.cj.jdbc.Driver"
   val DefaultDriver = MySQLDriver
 
   implicit val config: ConfigReadable[DatabaseConf] = ConfigReadable.config.emap { obj =>

@@ -36,14 +36,15 @@ class MavenCentralClient[F[_]: Async: Parallel](http: HttpClientF2[F]):
     http.getAs[Json](url)
 
   def search(q: MavenQuery): F[MavenSearchResults] =
-    NonEmptyList
+    (NonEmptyList
       .of(scala3, scala213, sjs1scala213, sjs1scala3)
-      .parTraverse(sv => searchByVersion(q.copy(scalaVersion = sv)))
+      .map(sv => q.copy(scalaVersion = Option(sv))) ++ List(q.copy(scalaVersion = None)))
+      .parTraverse(query => searchByVersion(query))
       .map(list => MavenSearchResults(list.toList.flatMap(_.results).sortBy(_.timestamp).reverse))
 
   private def searchByVersion(q: MavenQuery): F[MavenSearchResults] =
     val group = q.group.map(g => s"""g:"$g"""")
-    val artifact = q.scalaArtifactName.map(a => s"""a:"$a"""")
+    val artifact = q.artifactName.map(a => s"""a:"$a"""")
     val searchQuery = (group.toList ++ artifact.toList).mkString(" AND ")
     val url = baseUrl.withQuery(
       "q" -> searchQuery,
@@ -52,7 +53,6 @@ class MavenCentralClient[F[_]: Async: Parallel](http: HttpClientF2[F]):
     )
     log.info(s"Fetching '$url'...")
     http.getAs[MavenSearchResponse](url).map { res =>
-
-      log.info(s"Found ${res.response.numFound} of '$url'.")
+      log.info(s"Found ${res.response.numFound} artifacts from '$url'.")
       MavenSearchResults(res.response.docs)
     }

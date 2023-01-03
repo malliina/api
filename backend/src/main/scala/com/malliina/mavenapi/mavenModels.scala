@@ -30,9 +30,13 @@ object ScalaVersion extends StringCompanion[ScalaVersion]:
 case class MavenQuery(
   group: Option[GroupId],
   artifact: Option[ArtifactId],
-  scalaVersion: ScalaVersion
+  scalaVersion: Option[ScalaVersion]
 ):
-  def scalaArtifactName = artifact.map(a => s"${a}_$scalaVersion")
+  def artifactName = scalaArtifactName.orElse(artifact.map(_.id))
+  private def scalaArtifactName = for
+    a <- artifact
+    sv <- scalaVersion
+  yield s"${a}_$sv"
   def isEmpty = group.isEmpty && artifact.isEmpty
   def describe = (group, artifact) match
     case (Some(g), Some(a)) => s"artifact $a in $g"
@@ -40,7 +44,11 @@ case class MavenQuery(
     case (None, Some(a))    => s"artifact $a"
     case (None, None)       => "no query"
 
-case class MavenDocument(id: String, g: GroupId, a: String, v: String, timestamp: Long)
+case class MavenDocument(id: String, g: GroupId, a: String, v: String, timestamp: Long):
+  private val isScala = a.contains('_')
+  private val artifactName = a.takeWhile(_ != '_')
+  private val sep = if isScala then "%%" else "%"
+  val sbt = s"$g $sep $artifactName % $v"
 
 object MavenDocument:
   implicit val json: Codec[MavenDocument] = deriveCodec[MavenDocument]

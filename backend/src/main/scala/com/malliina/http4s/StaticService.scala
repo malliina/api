@@ -21,12 +21,12 @@ object StaticService:
   private val log = AppLogger(getClass)
 
 class StaticService[F[_]: Async] extends BasicService[F]:
-  val fontExtensions = List(".woff", ".woff2", ".eot", ".ttf")
-  val supportedStaticExtensions =
-    List(".html", ".js", ".map", ".css", ".png", ".ico") ++ fontExtensions
+  private val fontExtensions = List(".woff", ".woff2", ".eot", ".ttf")
+  private val supportedStaticExtensions =
+    List(".html", ".js", ".map", ".css", ".png", ".ico", ".svg") ++ fontExtensions
 
   private val allowAllOrigins = Header.Raw(ci"Access-Control-Allow-Origin", "*")
-  val publicDir = fs2.io.file.Path(BuildInfo.assetsDir)
+  private val publicDir = fs2.io.file.Path(BuildInfo.assetsDir)
   val routes: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ GET -> rest if supportedStaticExtensions.exists(rest.toString.endsWith) =>
       val file = UnixPath(rest.segments.mkString("/"))

@@ -37,7 +37,7 @@ const WebApp = merge(ScalaJS, {
       },
       {
         test: /\.(png|svg)$/,
-        type: 'asset/resource',
+        type: 'asset/resource', // emits file
         include: [
           path.resolve(rootDir, 'src/main/resources')
         ],

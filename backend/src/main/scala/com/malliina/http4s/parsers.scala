@@ -45,7 +45,7 @@ object parsers:
   def parseMavenQuery(q: Query): Either[NonEmptyList[ParseFailure], MavenQuery] = for
     g <- parseOpt2[GroupId](q, GroupId.key)
     a <- parseOpt2[ArtifactId](q, ArtifactId.key)
-    sv <- parseOrDefault[ScalaVersion](q, ScalaVersion.key, ScalaVersion.scala213)
+    sv <- parseOpt2[ScalaVersion](q, ScalaVersion.key)
   yield MavenQuery(g, a, sv)
 
   def parseFailure(message: String) = ParseFailure(message, message)

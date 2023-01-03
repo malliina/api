@@ -28,7 +28,7 @@ object DoobieDatabase:
 
   private def resource[F[_]: Async](conf: HikariConfig): Resource[F, HikariTransactor[F]] =
     for
-      ec <- ExecutionContexts.fixedThreadPool[F](32) // our connect EC
+      ec <- ExecutionContexts.fixedThreadPool[F](32)
       tx <- HikariTransactor.fromHikariConfig[F](conf, ec)
     yield tx
 
