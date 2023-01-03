@@ -12,7 +12,7 @@ inThisBuild(
     scalaVersion := "3.1.1",
     assemblyMergeStrategy := {
       case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.rename
-      case PathList("META-INF", "versions", xs @ _*) => MergeStrategy.rename
+      case PathList("META-INF", "versions", xs @ _*) => MergeStrategy.first
       case PathList("com", "malliina", xs @ _*)         => MergeStrategy.first
       case x =>
         val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
@@ -75,12 +75,11 @@ val backend = project
       "ch.qos.logback" % s"logback-$m" % "1.2.11"
     } ++ Seq(
       "com.typesafe" % "config" % "1.4.2",
-      "mysql" % "mysql-connector-java" % "5.1.49",
-      "org.flywaydb" % "flyway-core" % "7.15.0",
+      "mysql" % "mysql-connector-java" % "8.0.31",
+      "org.flywaydb" % "flyway-core" % "9.10.2",
       "com.malliina" %% "mobile-push-io" % "3.6.1",
       "com.lihaoyi" %% "scalatags" % "0.12.0",
-      "org.slf4j" % "slf4j-api" % "1.7.36",
-      "com.malliina" %% "logstreams-client" % "2.3.0",
+      "com.malliina" %% "logstreams-client" % "2.4.1",
       "org.scalameta" %% "munit" % munitVersion % Test,
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
     ),
