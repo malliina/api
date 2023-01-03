@@ -1,5 +1,6 @@
 package com.malliina.mavenapi
 
+import cats.Parallel
 import cats.data.NonEmptyList
 import cats.effect.*
 import cats.implicits.*
@@ -22,12 +23,13 @@ object Service:
   private val log = AppLogger(getClass)
   val pong = "pong"
 
-  def default[F[_]: Async](http: HttpClientF2[F]): Service[F] =
+  def default[F[_]: Async: Parallel](http: HttpClientF2[F]): Service[F] =
     val db = MyDatabase()
     Service[F](MavenCentralClient[F](http), db)
 
-class Service[F[_]: Async](maven: MavenCentralClient[F], data: MyDatabase) extends AppImplicits[F]:
-  val pages = Pages()
+class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatabase)
+  extends AppImplicits[F]:
+  private val pages = Pages()
   val service: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ GET -> Root =>
       val e = parsers.parseMavenQuery(req.uri.query)

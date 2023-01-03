@@ -1,6 +1,6 @@
 package com.malliina.http4s
 
-import cats.Monad
+import cats.{Monad, Parallel}
 import cats.data.Kleisli
 import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
@@ -27,7 +27,7 @@ object AppServer extends IOApp:
   private val log = AppLogger(getClass)
   private val serverPort: Port =
     sys.env.get("SERVER_PORT").flatMap(s => Port.fromString(s)).getOrElse(port"9000")
-  private def appResource[F[+_]: Async]: Resource[F, Http[F, F]] =
+  private def appResource[F[+_]: Async: Parallel]: Resource[F, Http[F, F]] =
     for
       http <- HttpClientIO.resource[F]
       dispatcher <- Dispatcher[F]
@@ -49,7 +49,7 @@ object AppServer extends IOApp:
         }
       }
     }
-  private def emberServer[F[+_]: Async]: Resource[F, Server] = for
+  private def emberServer[F[+_]: Async: Parallel]: Resource[F, Server] = for
     app <- appResource
     server <- EmberServerBuilder
       .default[F]
