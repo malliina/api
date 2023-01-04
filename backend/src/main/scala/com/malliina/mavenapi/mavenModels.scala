@@ -48,7 +48,7 @@ case class MavenDocument(id: String, g: GroupId, a: String, v: String, timestamp
   private val isScala = a.contains('_')
   private val artifactName = a.takeWhile(_ != '_')
   private val sep = if isScala then "%%" else "%"
-  val sbt = s"$g $sep $artifactName % $v"
+  val sbt = s""""$g" $sep "$artifactName" % "$v""""
 
 object MavenDocument:
   implicit val json: Codec[MavenDocument] = deriveCodec[MavenDocument]
