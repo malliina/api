@@ -3,17 +3,19 @@ import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
 import scala.sys.process.Process
 import scala.util.Try
 import com.comcast.ip4s.IpLiteralSyntax
+
 val munitVersion = "0.7.29"
 
 inThisBuild(
   Seq(
     organization := "com.malliina",
     version := "0.0.1",
-    scalaVersion := "3.1.1",
+    scalaVersion := "3.2.1",
     assemblyMergeStrategy := {
       case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.rename
       case PathList("META-INF", "versions", xs @ _*) => MergeStrategy.first
-      case PathList("com", "malliina", xs @ _*)         => MergeStrategy.first
+      case PathList("com", "malliina", xs @ _*) => MergeStrategy.first
+      case PathList("module-info.class") => MergeStrategy.discard
       case x =>
         val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
         oldStrategy(x)
@@ -66,20 +68,18 @@ val backend = project
   .settings(
     clientProject := frontend,
     libraryDependencies ++= Seq("ember-server", "dsl", "circe").map { m =>
-      "org.http4s" %% s"http4s-$m" % "0.23.16"
+      "org.http4s" %% s"http4s-$m" % "0.23.17"
     } ++ Seq("core", "hikari").map { m =>
       "org.tpolecat" %% s"doobie-$m" % "1.0.0-RC2"
     } ++ Seq("generic", "parser").map { m =>
       "io.circe" %% s"circe-$m" % "0.14.3"
-    } ++ Seq("classic", "core").map { m =>
-      "ch.qos.logback" % s"logback-$m" % "1.2.11"
     } ++ Seq(
       "com.typesafe" % "config" % "1.4.2",
       "mysql" % "mysql-connector-java" % "8.0.31",
       "org.flywaydb" % "flyway-core" % "7.15.0",
-      "com.malliina" %% "mobile-push-io" % "3.6.1",
+      "com.malliina" %% "mobile-push-io" % "3.7.1",
       "com.lihaoyi" %% "scalatags" % "0.12.0",
-      "com.malliina" %% "logstreams-client" % "2.4.1",
+      "com.malliina" %% "logstreams-client" % "2.5.0",
       "org.scalameta" %% "munit" % munitVersion % Test,
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
     ),
@@ -95,13 +95,6 @@ val backend = project
       "mode" -> (if ((frontend / isProd).value) "prod" else "dev"),
       "isProd" -> (frontend / isProd).value
     ),
-    start := Def.taskIf {
-      if (start.inputFileChanges.hasChanges) {
-        refreshBrowsers.value
-      } else {
-        Def.task(streams.value.log.info("No backend changes."))
-      }
-    }.dependsOn(start).value,
     (frontend / Compile / start) := Def.taskIf {
       if ((frontend / Compile / start).inputFileChanges.hasChanges) {
         refreshBrowsers.value
