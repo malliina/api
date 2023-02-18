@@ -3,7 +3,7 @@ package com.malliina.pill.db
 import com.malliina.config.ConfigReadable
 import com.malliina.pill.PillConf.ConfigOps
 
-case class DatabaseConf(url: String, user: String, pass: String)
+case class DatabaseConf(url: String, user: String, pass: String, migrateOnStart: Boolean)
 
 object DatabaseConf:
   val MySQLDriver = "com.mysql.cj.jdbc.Driver"
@@ -14,5 +14,6 @@ object DatabaseConf:
       url <- obj.read[String]("url")
       user <- obj.read[String]("user")
       pass <- obj.read[String]("pass")
-    yield DatabaseConf(url, user, pass)
+      migrateOnStart <- obj.read[Boolean]("migrateOnStart")
+    yield DatabaseConf(url, user, pass, migrateOnStart)
   }

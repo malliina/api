@@ -24,7 +24,9 @@ object DoobieDatabase:
     migratedResource(conf).map { tx => DoobieDatabase(tx) }
 
   private def migratedResource[F[_]: Async](conf: DatabaseConf): Resource[F, HikariTransactor[F]] =
-    Resource.pure(migrate(conf)).flatMap { _ => resource(hikariConf(conf)) }
+    val maybeMigration: F[Unit] =
+      if conf.migrateOnStart then Async[F].delay(migrate(conf)) else Async[F].unit
+    Resource.eval(maybeMigration).flatMap { _ => resource(hikariConf(conf)) }
 
   private def resource[F[_]: Async](conf: HikariConfig): Resource[F, HikariTransactor[F]] =
     for
