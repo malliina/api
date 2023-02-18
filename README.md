@@ -10,7 +10,7 @@ https://blog.sonatype.com/2011/06/you-dont-need-a-browser-to-use-maven-central/
 ## Development
 
     sbt
-    ~reStart
+    ~start
     
 Navigate to http://localhost:9000.
 

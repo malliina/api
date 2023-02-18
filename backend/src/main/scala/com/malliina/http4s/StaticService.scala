@@ -26,7 +26,8 @@ class StaticService[F[_]: Async] extends BasicService[F]:
     List(".html", ".js", ".map", ".css", ".png", ".ico", ".svg") ++ fontExtensions
 
   private val allowAllOrigins = Header.Raw(ci"Access-Control-Allow-Origin", "*")
-  private val publicDir = fs2.io.file.Path(BuildInfo.assetsDir)
+  private val assetsDir = fs2.io.file.Path(BuildInfo.assetsDir)
+  private val publicDir = fs2.io.file.Path(BuildInfo.publicDir)
   val routes: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ GET -> rest if supportedStaticExtensions.exists(rest.toString.endsWith) =>
       val file = UnixPath(rest.segments.mkString("/"))
@@ -34,11 +35,20 @@ class StaticService[F[_]: Async] extends BasicService[F]:
       val cacheHeaders =
         if isCacheable then NonEmptyList.of(`max-age`(365.days), `public`)
         else NonEmptyList.of(`no-cache`(), `no-store`, `must-revalidate`)
-      val resourcePath = s"${BuildInfo.publicFolder}/${file.value}"
-      log.debug(s"Searching for $resourcePath in resources or else '$file' in '$publicDir'...")
       val search =
-        if BuildInfo.isProd then StaticFile.fromResource(resourcePath, Option(req))
-        else StaticFile.fromPath(publicDir.resolve(file.value), Option(req))
+        if BuildInfo.isProd then
+          val resourcePath = s"${BuildInfo.publicFolder}/${file.value}"
+          log.debug(s"Searching for resource '$resourcePath'...")
+          StaticFile.fromResource(resourcePath, Option(req))
+        else
+          val assetPath: fs2.io.file.Path = assetsDir.resolve(file.value)
+          val publicPath = publicDir.resolve(file.value)
+          log.debug(
+            s"Searching for file '${assetPath.toNioPath.toAbsolutePath}' or '${publicPath.toNioPath.toAbsolutePath}'..."
+          )
+          StaticFile
+            .fromPath(assetPath, Option(req))
+            .orElse(StaticFile.fromPath(publicPath, Option(req)))
       search
         .map(_.putHeaders(`Cache-Control`(cacheHeaders), allowAllOrigins))
         .fold(onNotFound(req))(_.pure[F])

@@ -30,7 +30,7 @@ object AppServer extends IOApp:
   private def appResource[F[+_]: Async: Parallel]: Resource[F, Http[F, F]] =
     for
       http <- HttpClientIO.resource[F]
-      dispatcher <- Dispatcher[F]
+      dispatcher <- Dispatcher.parallel[F]
       _ <- Resource.eval(LogstreamsUtils.install(dispatcher, http))
       service = Service.default[F](http)
       conf = PillConf.unsafe()
