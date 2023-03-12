@@ -1,6 +1,5 @@
 import resolve from "@rollup/plugin-node-resolve"
 import commonjs from "@rollup/plugin-commonjs"
-import replace from "@rollup/plugin-replace"
 import terser from "@rollup/plugin-terser"
 import url from "@rollup/plugin-url"
 import {scalajs, production, outputDir} from "./target/scalajs.rollup.config.js"
@@ -45,14 +44,10 @@ const config: RollupOptions[] = [
   {
     input: scalajs.input,
     plugins: [
-      replace({
-        "process.env.NODE_ENV": JSON.stringify(production ? "production" : "development"),
-        preventAssignment: true
-      }),
       css(),
-      resolve(), // tells Rollup how to find date-fns in node_modules
-      commonjs(), // converts date-fns to ES modules
-      production && terser() // minify, but only in production
+      resolve({browser: true}),
+      commonjs(),
+      production && terser()
     ],
     output: {
       dir: outputDir,
