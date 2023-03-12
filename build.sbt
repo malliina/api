@@ -3,6 +3,7 @@ import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
 import scala.sys.process.Process
 import scala.util.Try
 import com.comcast.ip4s.IpLiteralSyntax
+import com.malliina.rollup.CommonKeys.start
 
 val munitVersion = "0.7.29"
 
@@ -27,33 +28,14 @@ val isProd = settingKey[Boolean]("isProd")
 
 val frontend = project
   .in(file("frontend"))
-  .enablePlugins(NodeJsPlugin, ClientPlugin)
+  .enablePlugins(NodeJsPlugin, RollupPlugin)
   .disablePlugins(RevolverPlugin)
   .settings(
-    assetsPackage := "com.malliina.mvn.assets",
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "2.4.0",
       "org.scalameta" %%% "munit" % munitVersion % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
-    Compile / npmDependencies ++= Seq(
-      "@popperjs/core" -> "2.11.6",
-      "bootstrap" -> "5.2.3"
-    ),
-    Compile / npmDevDependencies ++= Seq(
-      "autoprefixer" -> "10.4.13",
-      "cssnano" -> "5.1.15",
-      "css-loader" -> "6.7.3",
-      "less" -> "4.1.3",
-      "less-loader" -> "11.1.0",
-      "mini-css-extract-plugin" -> "2.7.2",
-      "postcss" -> "8.4.21",
-      "postcss-import" -> "15.1.0",
-      "postcss-loader" -> "7.0.2",
-      "postcss-preset-env" -> "8.0.1",
-      "style-loader" -> "3.3.1",
-      "webpack-merge" -> "5.8.0"
-    ),
     isProd := (Global / scalaJSStage).value == FullOptStage
   )
 
@@ -67,6 +49,8 @@ val backend = project
   )
   .settings(
     clientProject := frontend,
+    hashPackage := "com.malliina.mvn.assets",
+    hashRoot := Def.settingDyn { clientProject.value / assetsRoot }.value,
     libraryDependencies ++= Seq("ember-server", "dsl", "circe").map { m =>
       "org.http4s" %% s"http4s-$m" % "0.23.18"
     } ++ Seq("core", "hikari").map { m =>
@@ -90,19 +74,21 @@ val backend = project
       version,
       scalaVersion,
       "gitHash" -> gitHash,
-      "assetsDir" -> (frontend / assetsRoot).value,
+      "assetsDir" -> (frontend / assetsRoot).value.toFile,
       "publicDir" -> (Compile / resourceDirectory).value.toPath.resolve("public"),
       "publicFolder" -> (frontend / assetsPrefix).value,
       "mode" -> (if ((frontend / isProd).value) "prod" else "dev"),
       "isProd" -> (frontend / isProd).value
     ),
-    (frontend / Compile / start) := Def.taskIf {
-      if ((frontend / Compile / start).inputFileChanges.hasChanges) {
+    (frontend / Compile / build) := Def.taskIf {
+      if ((frontend / Compile / build).inputFileChanges.hasChanges) {
         refreshBrowsers.value
       } else {
         Def.task(streams.value.log.info("No frontend changes.")).value
       }
-    }.dependsOn(frontend / Compile / start).value,
+    }.dependsOn(frontend / Compile / build).value,
+    start := start.dependsOn(frontend / Compile / build).value,
+    copyFolders += ((Compile / resourceDirectory).value / "public").toPath,
     Compile / unmanagedResourceDirectories ++= {
       val prodAssets =
         if ((frontend / isProd).value) List((frontend / Compile / assetsRoot).value.getParent.toFile)

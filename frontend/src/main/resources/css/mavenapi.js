@@ -1,3 +1,4 @@
-import './mavenapi.less'
-import '../img/jag-16x16.png'
-import '../img/clipboard.svg'
+import "./common.css"
+import "./search.css"
+
+console.log("Styles only.")

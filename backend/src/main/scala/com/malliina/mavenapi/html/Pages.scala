@@ -4,22 +4,19 @@ import cats.Show
 import com.malliina.http.FullUrl
 import com.malliina.live.LiveReload
 import com.malliina.mavenapi.{AssetsSource, BuildInfo, DirectAssets, HashedAssetsSource, MavenDocument, MavenQuery, MavenSearchResults}
+import com.malliina.mvn.assets.HashedAssets
 import org.http4s.Uri
 import scalatags.Text.all.*
 import scalatags.text.Builder
 
 object Pages:
   def apply(isProd: Boolean = BuildInfo.isProd): Pages =
-    val opt = if isProd then "opt" else "fastopt"
     val isLiveReloadEnabled = !LiveReload.script.contains("12345")
     val absoluteScripts =
       if isLiveReloadEnabled then FullUrl.build(LiveReload.script).toSeq else Nil
-    val css = Seq(s"frontend-$opt.css", "fonts.css", "styles.css")
+    val css = Seq(s"frontend.css", "fonts.css", "styles.css")
     val assetsFinder = AssetsSource(isProd)
-    val assetPrefix = s"frontend-$opt"
-    val appScripts =
-      if isProd then Seq(s"$assetPrefix-bundle.js")
-      else Seq(s"$assetPrefix-library.js", s"$assetPrefix-loader.js", s"$assetPrefix.js")
+    val appScripts = Seq(s"frontend.js")
     new Pages(appScripts, absoluteScripts, css, assetsFinder)
 
 class Pages(
@@ -41,7 +38,11 @@ class Pages(
         meta(charset := "utf-8"),
         tag("title")("Search artifacts"),
         deviceWidthViewport,
-        link(rel := "shortcut icon", `type` := "image/png", href := at("img/jag-16x16.png")),
+        link(
+          rel := "shortcut icon",
+          `type` := "image/png",
+          href := inlineOrAsset("img/jag-16x16.png")
+        ),
         cssFiles.map(file => cssLink(at(file))),
         absoluteScripts.map { url =>
           script(src.:=(url)(urlAttr), defer)
@@ -114,4 +115,5 @@ class Pages(
   private def cssLink[V: AttrValue](url: V, more: Modifier*) =
     link(rel := "stylesheet", href := url, more)
 
+  private def inlineOrAsset(path: String) = HashedAssets.dataUris.getOrElse(path, at(path).toString)
   private def at(path: String) = assets.at(path)
