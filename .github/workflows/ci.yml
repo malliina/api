@@ -13,5 +13,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+          cache: 'sbt'
       - name: Run tests
         run: sbt test
