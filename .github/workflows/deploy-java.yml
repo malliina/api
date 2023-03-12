@@ -18,13 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: Login via Azure CLI
-        uses: azure/login@v1
+        uses: azure/login@v3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
       - name: Build with sbt
         run: |
           ls -al
