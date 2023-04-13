@@ -29,7 +29,7 @@ object Service:
 
 class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatabase[F])
   extends AppImplicits[F]:
-  private val pages = Pages()
+  private val pages = Pages.default()
   val service: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ GET -> Root =>
       val e = parsers.parseMavenQuery(req.uri.query)

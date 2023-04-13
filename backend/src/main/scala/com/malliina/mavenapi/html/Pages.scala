@@ -10,14 +10,14 @@ import scalatags.Text.all.*
 import scalatags.text.Builder
 
 object Pages:
-  def apply(isProd: Boolean = BuildInfo.isProd): Pages =
+  def default(isProd: Boolean = BuildInfo.isProd): Pages =
     val isLiveReloadEnabled = !LiveReload.script.contains("12345")
     val absoluteScripts =
       if isLiveReloadEnabled then FullUrl.build(LiveReload.script).toSeq else Nil
     val css = Seq(s"frontend.css", "fonts.css", "styles.css")
     val assetsFinder = AssetsSource(isProd)
     val appScripts = Seq(s"frontend.js")
-    new Pages(appScripts, absoluteScripts, css, assetsFinder)
+    Pages(appScripts, absoluteScripts, css, assetsFinder)
 
 class Pages(
   scripts: Seq[String],
