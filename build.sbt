@@ -25,6 +25,8 @@ inThisBuild(
   )
 )
 
+val shared = project.in(file("shared"))
+
 val frontend = project
   .in(file("frontend"))
   .enablePlugins(NodeJsPlugin, RollupPlugin)
@@ -44,6 +46,7 @@ val backend = project
   )
   .settings(
     clientProject := frontend,
+    dependentModule := shared,
     hashPackage := "com.malliina.mvn.assets",
     libraryDependencies ++= Seq("ember-server", "dsl", "circe").map { m =>
       "org.http4s" %% s"http4s-$m" % "0.23.18"
@@ -67,7 +70,8 @@ val backend = project
       scalaVersion
     ),
     assembly / assemblyJarName := "app.jar",
-    liveReloadPort := port"10102"
+    liveReloadPort := port"10102",
+    Compile / resourceDirectories += io.Path.userHome / ".pill"
   )
 
 val api = project
