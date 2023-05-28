@@ -46,7 +46,7 @@ object DoobieDatabase:
     hikari.setPassword(conf.pass)
     hikari.setMaxLifetime(60.seconds.toMillis)
     hikari.setMaximumPoolSize(conf.maxPoolSize)
-    log.info(s"Connecting to '${conf.url}'...")
+    log.info(s"Connecting to '${conf.url}' with pool size ${conf.maxPoolSize} as ${conf.user}...")
     hikari
 
 class DoobieDatabase[F[_]: Async](tx: HikariTransactor[F]) extends DatabaseRunner[F]:
