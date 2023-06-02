@@ -8,7 +8,7 @@ inThisBuild(
   Seq(
     organization := "com.malliina",
     version := "0.0.1",
-    scalaVersion := "3.2.2",
+    scalaVersion := "3.3.0",
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % munitVersion % Test
     ),
@@ -33,7 +33,7 @@ val frontend = project
   .disablePlugins(RevolverPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "2.4.0"
+      "org.scala-js" %%% "scalajs-dom" % "2.6.0"
     )
   )
 
@@ -49,18 +49,18 @@ val backend = project
     dependentModule := shared,
     hashPackage := "com.malliina.mvn.assets",
     libraryDependencies ++= Seq("ember-server", "dsl", "circe").map { m =>
-      "org.http4s" %% s"http4s-$m" % "0.23.18"
+      "org.http4s" %% s"http4s-$m" % "0.23.19"
     } ++ Seq("core", "hikari").map { m =>
       "org.tpolecat" %% s"doobie-$m" % "1.0.0-RC2"
     } ++ Seq("generic", "parser").map { m =>
       "io.circe" %% s"circe-$m" % "0.14.5"
     } ++ Seq(
       "com.typesafe" % "config" % "1.4.2",
-      "mysql" % "mysql-connector-java" % "8.0.32",
+      "mysql" % "mysql-connector-java" % "8.0.33",
       "org.flywaydb" % "flyway-core" % "7.15.0",
-      "com.malliina" %% "mobile-push-io" % "3.7.1",
+      "com.malliina" %% "mobile-push-io" % "3.8.0",
       "com.lihaoyi" %% "scalatags" % "0.12.0",
-      "com.malliina" %% "logstreams-client" % "2.5.0",
+      "com.malliina" %% "logstreams-client" % "2.6.0",
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
     ),
     buildInfoPackage := "com.malliina.mavenapi",
