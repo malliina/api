@@ -32,6 +32,7 @@ class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatab
   private val pages = Pages.default()
   val service: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ GET -> Root =>
+      Service.log.info("Hello, root")
       val e = parsers.parseMavenQuery(req.uri.query)
       e.fold(
         errors => BadRequest(Errors(errors.map(e => SingleError.input(e.sanitized))).asJson),

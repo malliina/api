@@ -25,13 +25,14 @@ import scala.concurrent.duration.DurationInt
 object AppServer extends IOApp:
   LogstreamsUtils.prepLogging()
   private val log = AppLogger(getClass)
+  log.info("Starting server...")
   private val serverPort: Port =
     sys.env.get("SERVER_PORT").flatMap(s => Port.fromString(s)).getOrElse(port"9000")
   private def appResource[F[+_]: Async: Parallel]: Resource[F, Http[F, F]] =
     for
       http <- HttpClientIO.resource[F]
       dispatcher <- Dispatcher.parallel[F]
-      _ <- Resource.eval(LogstreamsUtils.install(dispatcher, http))
+      _ <- LogstreamsUtils.resource(dispatcher, http)
       service = Service.default[F](http)
       conf = PillConf.unsafe()
       push =
