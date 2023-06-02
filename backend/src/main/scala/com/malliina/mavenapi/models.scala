@@ -1,6 +1,8 @@
 package com.malliina.mavenapi
 
 import cats.data.NonEmptyList
+import com.malliina.http.FullUrl
+import fs2.io.net.SocketTimeoutException
 import io.circe.Codec
 import io.circe.generic.semiauto.*
 
@@ -36,3 +38,5 @@ case class Errors(errors: NonEmptyList[SingleError])
 object Errors:
   implicit val json: Codec[Errors] = deriveCodec[Errors]
   def apply(message: String): Errors = Errors(NonEmptyList(SingleError(message, "general"), Nil))
+
+class TimeoutException(val url: FullUrl, val inner: SocketTimeoutException) extends Exception(inner)

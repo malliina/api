@@ -15,6 +15,8 @@ import org.http4s.implicits.*
 import org.http4s.{QueryParamEncoder, QueryParameterValue}
 import org.slf4j.LoggerFactory
 
+import java.net.SocketTimeoutException
+
 object MavenCentralClient:
   implicit class QueryEncoderOps[T](enc: QueryParamEncoder[T]):
     def map(f: String => String): QueryParamEncoder[T] = (value: T) =>
@@ -39,8 +41,16 @@ class MavenCentralClient[F[_]: Async: Parallel](http: HttpClientF2[F]):
     (NonEmptyList
       .of(scala3, scala213, sjs1scala213, sjs1scala3)
       .map(sv => q.copy(scalaVersion = Option(sv))) ++ List(q.copy(scalaVersion = None)))
-      .parTraverse(query => searchByVersion(query))
+      .parTraverse(query => searchByVersionWithRetry(query))
       .map(list => MavenSearchResults(list.toList.flatMap(_.results).sortBy(_.timestamp).reverse))
+
+  private def searchByVersionWithRetry(q: MavenQuery): F[MavenSearchResults] =
+    searchByVersion(q).handleErrorWith {
+      case te: TimeoutException =>
+        log.warn(s"Request timeout for '${te.url}', retrying...")
+        searchByVersion(q)
+      case other => Async[F].raiseError(other)
+    }
 
   private def searchByVersion(q: MavenQuery): F[MavenSearchResults] =
     val group = q.group.map(g => s"""g:"$g"""")
@@ -52,7 +62,13 @@ class MavenCentralClient[F[_]: Async: Parallel](http: HttpClientF2[F]):
       "core" -> "gav"
     )
     log.info(s"Fetching '$url'...")
-    http.getAs[MavenSearchResponse](url).map { res =>
-      log.info(s"Found ${res.response.numFound} artifacts from '$url'.")
-      MavenSearchResults(res.response.docs)
-    }
+    http
+      .getAs[MavenSearchResponse](url)
+      .map { res =>
+        log.info(s"Found ${res.response.numFound} artifacts from '$url'.")
+        MavenSearchResults(res.response.docs)
+      }
+      .adaptError { case ste: SocketTimeoutException =>
+        log.info(s"Request timeout for '$url'.")
+        TimeoutException(url, ste)
+      }
