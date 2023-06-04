@@ -18,25 +18,9 @@ import org.slf4j.LoggerFactory
 
 object LogstreamsUtils:
   def prepLogging(): Unit =
-    val lc = LogbackUtils.loggerContext
-    lc.reset()
-    val ple = PatternLayoutEncoder()
-    ple.setPattern("""%d{HH:mm:ss.SSS} %-5level %logger{72} %msg%n""")
-    ple.setContext(lc)
-    ple.start()
-    val console = new ConsoleAppender[ILoggingEvent]()
-    console.setContext(LogbackUtils.loggerContext)
-    console.setEncoder(ple)
-    if !console.isStarted then console.start()
-    val appender = new AsyncAppender
-    appender.setContext(LogbackUtils.loggerContext)
-    appender.setName("ASYNC")
-    appender.addAppender(console)
-    LogbackUtils.installAppender(appender)
-    val root = lc.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME)
-    root.setLevel(Level.INFO)
-
-    lc.getLogger("org.http4s.ember.server.EmberServerBuilderCompanionPlatform").setLevel(Level.OFF)
+    LogbackUtils.init(levelsByLogger =
+      Map("org.http4s.ember.server.EmberServerBuilderCompanionPlatform" -> Level.OFF)
+    )
 
   def resource[F[_]: Async](d: Dispatcher[F], http: HttpClientF2[F]): Resource[F, Unit] =
     Resource.make(install(d, http))(_ => Sync[F].delay(LogbackUtils.loggerContext.stop()))
