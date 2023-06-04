@@ -22,7 +22,10 @@ inThisBuild(
       case x =>
         val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
         oldStrategy(x)
-    }
+    },
+    scalacOptions ++= Seq(
+      "-Wunused:all"
+    )
   )
 )
 
@@ -56,12 +59,12 @@ val backend = project
     } ++ Seq("generic", "parser").map { m =>
       "io.circe" %% s"circe-$m" % "0.14.5"
     } ++ Seq(
-      "com.typesafe" % "config" % "1.4.2",
+      "com.malliina" %% "mobile-push-io" % "3.8.0",
+      "com.malliina" %% "config" % "3.4.2",
+      "com.malliina" %% "logstreams-client" % "2.6.1",
       "mysql" % "mysql-connector-java" % "8.0.33",
       "org.flywaydb" % "flyway-core" % "7.15.0",
-      "com.malliina" %% "mobile-push-io" % "3.8.0",
       "com.lihaoyi" %% "scalatags" % "0.12.0",
-      "com.malliina" %% "logstreams-client" % "2.6.0",
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
     ),
     buildInfoPackage := "com.malliina.mavenapi",

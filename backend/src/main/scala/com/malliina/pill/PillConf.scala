@@ -31,12 +31,11 @@ object PillConf:
   implicit val pathConfig: ConfigReadable[Path] = ConfigReadable.string.map { s =>
     Paths.get(s)
   }
-  val isProd = BuildInfo.mode == "prod"
   private def pillConf =
     val conf =
-      if isProd then ConfigFactory.load("application-prod.conf").resolve()
-      else ConfigFactory.load(localConfig).resolve()
-    conf.getConfig("pill")
+      if BuildInfo.isProd then ConfigFactory.load("application-prod.conf")
+      else ConfigFactory.load(localConfig)
+    conf.resolve().getConfig("pill")
 
   implicit class ConfigOps(c: Config) extends AnyVal:
     def read[T](key: String)(implicit r: ConfigReadable[T]): Either[ErrorMessage, T] =

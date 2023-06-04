@@ -1,16 +1,10 @@
 package com.malliina.http4s
 
-import cats.Monad
-import cats.effect.{Async, IO}
+import cats.effect.Async
 import com.malliina.http.ResponseException
 import com.malliina.http4s.ErrorHandler.log
-import com.malliina.mavenapi.Errors
-import com.malliina.pill.PillRoutes.noCache
 import com.malliina.util.AppLogger
-import org.http4s.circe.CirceEntityEncoder.circeEntityEncoder
-import org.http4s.headers.{Connection, `Content-Length`}
-import org.http4s.{Headers, Request, Response, Status}
-import org.typelevel.ci.CIStringSyntax
+import org.http4s.{Request, Response}
 
 import scala.util.control.NonFatal
 

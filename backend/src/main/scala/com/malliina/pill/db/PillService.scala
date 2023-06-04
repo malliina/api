@@ -1,8 +1,6 @@
 package com.malliina.pill.db
 
-import cats.implicits.*
 import cats.Monad
-import cats.effect.IO
 import com.malliina.pill.{EnablePillNotifications, DisablePillNotifications}
 import doobie.implicits.*
 import doobie.util.log.LogHandler

@@ -2,7 +2,6 @@ package com.malliina.http4s
 
 import cats.data.NonEmptyList
 import cats.effect.Async
-import cats.effect.kernel.Sync
 import cats.implicits.*
 import com.malliina.http4s.StaticService.log
 import com.malliina.mavenapi.BuildInfo
@@ -11,10 +10,8 @@ import com.malliina.util.AppLogger
 import org.http4s.CacheDirective.{`max-age`, `no-cache`, `public`, `no-store`, `must-revalidate`}
 import org.http4s.headers.`Cache-Control`
 import org.http4s.{Header, HttpRoutes, Request, StaticFile}
-import org.slf4j.LoggerFactory
 import org.typelevel.ci.CIStringSyntax
 
-import java.nio.file.Paths
 import scala.concurrent.duration.DurationInt
 
 object StaticService:

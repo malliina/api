@@ -22,8 +22,8 @@ object Push:
 
 class Push[F[+_]: Monad](conf: APNSTokenConf, http: HttpClient[F]) extends PushService[F]:
   private val client = APNSHttpClientF(conf, http, isSandbox = false)
-  private val message = APNSMessage(APSPayload.background(None, None, None))
-  private val req = APNSRequest.withTopic(Push.topic, message)
+//  private val message = APNSMessage(APSPayload.background(None, None, None))
+//  private val req = APNSRequest.withTopic(Push.topic, message)
 
   def push(msg: APNSRequest, to: APNSToken): F[APNSResult] = client.push(to, msg).map { result =>
     APNSResult(to, result)

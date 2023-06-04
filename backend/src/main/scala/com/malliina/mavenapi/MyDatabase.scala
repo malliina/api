@@ -1,7 +1,6 @@
 package com.malliina.mavenapi
 
 import cats.Applicative
-import cats.effect.IO
 
 object MyDatabase:
   val result = "The result!"

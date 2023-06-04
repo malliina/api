@@ -2,7 +2,7 @@ package com.malliina.mavenapi
 
 import io.circe.{Codec, Decoder, Encoder}
 import io.circe.generic.semiauto.*
-import com.malliina.values.{IdCompanion, WrappedId, WrappedString, StringCompanion}
+import com.malliina.values.{WrappedString, StringCompanion}
 
 case class ArtifactId(id: String) extends AnyVal with WrappedString:
   def value: String = id

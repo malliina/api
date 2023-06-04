@@ -1,7 +1,6 @@
 package com.malliina.http4s
 
 import cats.Applicative
-import cats.effect.IO
 import com.malliina.mavenapi.Errors
 import com.malliina.pill.PillRoutes.noCache
 import org.http4s.{Request, Response}

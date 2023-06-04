@@ -1,6 +1,5 @@
 package com.malliina.pill
 
-import com.malliina.pill.EnablePillNotifications
 import munit.FunSuite
 import io.circe.syntax.EncoderOps
 import com.malliina.pill.db.*

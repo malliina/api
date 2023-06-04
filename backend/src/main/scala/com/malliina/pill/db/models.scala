@@ -1,7 +1,6 @@
 package com.malliina.pill.db
 
 import com.malliina.values.{IdCompanion, WrappedId, WrappedString, StringEnumCompanion, StringCompanion}
-import com.malliina.push.Token
 import io.circe.{Codec, Decoder, Encoder}
 import io.circe.generic.semiauto.deriveCodec
 import java.time.Instant

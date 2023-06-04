@@ -1,8 +1,6 @@
 package com.malliina.http4s
 
-import _root_.scalatags.generic.Frag
-import cats.effect.IO
-import com.malliina.http4s.{AppImplicits, Extractors, MyScalatagsInstances}
+import scalatags.generic.Frag
 import com.malliina.mavenapi.UserId
 import org.http4s.*
 import org.http4s.circe.CirceInstances

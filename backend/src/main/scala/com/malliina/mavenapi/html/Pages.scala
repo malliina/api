@@ -3,7 +3,7 @@ package com.malliina.mavenapi.html
 import cats.Show
 import com.malliina.http.FullUrl
 import com.malliina.live.LiveReload
-import com.malliina.mavenapi.{AssetsSource, BuildInfo, DirectAssets, HashedAssetsSource, MavenDocument, MavenQuery, MavenSearchResults}
+import com.malliina.mavenapi.{AssetsSource, BuildInfo, MavenDocument, MavenQuery}
 import com.malliina.mvn.assets.HashedAssets
 import org.http4s.Uri
 import scalatags.Text.all.*

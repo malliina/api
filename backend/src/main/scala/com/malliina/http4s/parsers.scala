@@ -3,7 +3,6 @@ package com.malliina.http4s
 import cats.data.NonEmptyList
 import com.malliina.mavenapi.{ArtifactId, GroupId, MavenQuery, ScalaVersion}
 import org.http4s.{ParseFailure, Query, QueryParamDecoder, QueryParameterValue}
-import scalatags.Text.all.s
 
 object parsers:
   implicit val group: QueryParamDecoder[GroupId] = idQueryDecoder(GroupId.apply)

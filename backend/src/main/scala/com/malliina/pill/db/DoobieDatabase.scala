@@ -2,16 +2,14 @@ package com.malliina.pill.db
 
 import cats.effect.Async
 import cats.effect.kernel.Resource
-import com.malliina.util.AppLogger
 import com.malliina.pill.db.DoobieDatabase.log
-import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import doobie.DataSourceTransactor
+import com.malliina.util.AppLogger
+import com.zaxxer.hikari.HikariConfig
 import doobie.free.connection.ConnectionIO
 import doobie.hikari.HikariTransactor
 import doobie.implicits.*
 import doobie.util.ExecutionContexts
 import doobie.util.log.{ExecFailure, LogHandler, ProcessingFailure, Success}
-import doobie.util.transactor.Transactor
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
 

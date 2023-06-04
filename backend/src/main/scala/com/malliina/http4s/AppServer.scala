@@ -7,8 +7,7 @@ import cats.effect.std.Dispatcher
 import cats.effect.{Async, ExitCode, IO, IOApp}
 import com.comcast.ip4s.{Port, host, port}
 import com.malliina.http.io.HttpClientIO
-import com.malliina.http4s.{BasicService, StaticService}
-import com.malliina.logback.LogstreamsUtils
+import com.malliina.logback.AppLogging
 import com.malliina.mavenapi.Service
 import com.malliina.pill.db.{DoobieDatabase, PillService}
 import com.malliina.pill.{PillConf, PillRoutes, Push, PushService}
@@ -16,14 +15,12 @@ import com.malliina.util.AppLogger
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.{Router, Server}
 import org.http4s.server.middleware.{GZip, HSTS}
-import org.http4s.{Http, HttpApp, HttpRoutes, Request, Response}
-import com.malliina.storage.StorageLong
+import org.http4s.{Http, HttpRoutes, Request, Response}
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 
 object AppServer extends IOApp:
-  LogstreamsUtils.prepLogging()
+  AppLogging.init()
   private val log = AppLogger(getClass)
   log.info("Starting server...")
   private val serverPort: Port =
@@ -32,7 +29,7 @@ object AppServer extends IOApp:
     for
       http <- HttpClientIO.resource[F]
       dispatcher <- Dispatcher.parallel[F]
-      _ <- LogstreamsUtils.resource(dispatcher, http)
+      _ <- AppLogging.resource(dispatcher, http)
       service = Service.default[F](http)
       conf = PillConf.unsafe()
       push =

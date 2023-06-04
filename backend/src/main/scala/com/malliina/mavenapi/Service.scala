@@ -1,26 +1,17 @@
 package com.malliina.mavenapi
 
 import cats.Parallel
-import cats.data.NonEmptyList
-import cats.effect.*
-import cats.implicits.*
+import cats.effect.Async
+import cats.syntax.all.toFlatMapOps
 import com.malliina.http.io.HttpClientF2
-import com.malliina.mavenapi.Service.pong
 import com.malliina.http4s.{AppImplicits, parsers}
 import com.malliina.mavenapi.html.Pages
-import com.malliina.mavenapi.{MavenQuery, html as _, *}
-import com.malliina.util.AppLogger
-import io.circe.syntax.*
-import org.http4s.headers.{Accept, Location, `Cache-Control`, `WWW-Authenticate`}
-import org.http4s.server.Router
+import com.malliina.mavenapi.{html as _, *}
+import io.circe.syntax.EncoderOps
+import org.http4s.headers.Location
 import org.http4s.{HttpRoutes, Uri, UrlForm}
-import org.slf4j.LoggerFactory
-import scalatags.Text.all.*
-
-import scala.concurrent.ExecutionContext
 
 object Service:
-  private val log = AppLogger(getClass)
   val pong = "pong"
 
   def default[F[_]: Async: Parallel](http: HttpClientF2[F]): Service[F] =
@@ -42,6 +33,10 @@ class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatab
               Ok(pages.search(ok, res.results))
             }
       )
+    case GET -> Root / "db" =>
+      data.load.flatMap { res =>
+        Ok(res.message)
+      }
     case req @ POST -> Root =>
       req.decode[UrlForm] { form =>
         val a = form.getFirst("artifact").filter(_.trim.nonEmpty).map(ArtifactId.apply)
