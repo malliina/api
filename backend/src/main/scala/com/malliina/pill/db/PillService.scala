@@ -2,12 +2,10 @@ package com.malliina.pill.db
 
 import cats.Monad
 import com.malliina.pill.{EnablePillNotifications, DisablePillNotifications}
+import com.malliina.database.DoobieDatabase
 import doobie.implicits.*
-import doobie.util.log.LogHandler
 
-class PillService[F[_]: Monad](db: DatabaseRunner[F]):
-  implicit val logger: LogHandler = db.logHandler
-
+class PillService[F[_]: Monad](db: DoobieDatabase[F]):
   def enable(in: EnablePillNotifications): F[PillRow] = db.run {
     for
       id <- sql"""insert into push_clients(token, device) values(${in.token}, ${in.os})""".update

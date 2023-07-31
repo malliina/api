@@ -9,7 +9,8 @@ import com.comcast.ip4s.{Port, host, port}
 import com.malliina.http.io.HttpClientIO
 import com.malliina.logback.AppLogging
 import com.malliina.mavenapi.Service
-import com.malliina.pill.db.{DoobieDatabase, PillService}
+import com.malliina.database.DoobieDatabase
+import com.malliina.pill.db.PillService
 import com.malliina.pill.{PillConf, PillRoutes, Push, PushService}
 import com.malliina.util.AppLogger
 import org.http4s.ember.server.EmberServerBuilder
@@ -31,7 +32,9 @@ object AppServer extends IOApp:
       dispatcher <- Dispatcher.parallel[F]
       _ <- AppLogging.resource(dispatcher, http)
       service = Service.default[F](http)
-      conf = PillConf.unsafe()
+      conf <- Resource.eval(
+        PillConf.apply().fold(err => Async[F].raiseError(err), c => Async[F].pure(c))
+      )
       push =
         if conf.apnsEnabled then Push.default[F](conf.apnsPrivateKey, http) else PushService.noop[F]
       db <- DoobieDatabase.default(conf.db)

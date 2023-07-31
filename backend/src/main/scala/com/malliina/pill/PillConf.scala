@@ -1,8 +1,9 @@
 package com.malliina.pill
 
-import com.malliina.config.{ConfigException, ConfigReadable}
+import com.malliina.config.{ConfigError, ConfigReadable}
+import com.malliina.config.ConfigReadable.ConfigOps
 import com.malliina.mavenapi.BuildInfo
-import com.malliina.pill.db.DatabaseConf
+import com.malliina.database.Conf
 import com.malliina.values.ErrorMessage
 import com.typesafe.config.{Config, ConfigFactory}
 
@@ -15,19 +16,20 @@ object AppMode:
   case object Prod extends AppMode
   case object Dev extends AppMode
 
-  implicit val reader: ConfigReadable[AppMode] = ConfigReadable.string.emap {
+  implicit val reader: ConfigReadable[AppMode] = ConfigReadable.string.emapParsed {
     case "prod" => Right(Prod)
     case "dev"  => Right(Dev)
     case other  => Left(ErrorMessage("Must be 'prod' or 'dev'."))
   }
 
-case class PillConf(mode: AppMode, db: DatabaseConf, apnsPrivateKey: Path):
+case class PillConf(mode: AppMode, db: Conf, apnsPrivateKey: Path):
   def apnsEnabled = apnsPrivateKey.toString != "changeme"
 
 object PillConf:
-  val appDir = Paths.get(sys.props("user.home")).resolve(".pill")
-  val localConfFile = appDir.resolve("pill.conf")
-  val localConfig = ConfigFactory.parseFile(localConfFile.toFile).withFallback(ConfigFactory.load())
+  private val appDir = Paths.get(sys.props("user.home")).resolve(".pill")
+  private val localConfFile = appDir.resolve("pill.conf")
+  private val localConfig =
+    ConfigFactory.parseFile(localConfFile.toFile).withFallback(ConfigFactory.load())
   implicit val pathConfig: ConfigReadable[Path] = ConfigReadable.string.map { s =>
     Paths.get(s)
   }
@@ -37,18 +39,9 @@ object PillConf:
       else ConfigFactory.load(localConfig)
     conf.resolve().getConfig("pill")
 
-  implicit class ConfigOps(c: Config) extends AnyVal:
-    def read[T](key: String)(implicit r: ConfigReadable[T]): Either[ErrorMessage, T] =
-      r.read(key, c)
-    def unsafe[T: ConfigReadable](key: String): T =
-      c.read[T](key).fold(err => throw IllegalArgumentException(err.message), identity)
-
-  def unsafe(c: Config = pillConf): PillConf =
-    apply(c).fold(err => throw ConfigException(err), identity)
-
-  def apply(c: Config): Either[ErrorMessage, PillConf] =
+  def apply(c: Config = pillConf): Either[ConfigError, PillConf] =
     for
-      mode <- c.read[AppMode]("mode")
-      db <- c.read[DatabaseConf]("db")
-      apnsPrivateKey <- c.read[Path]("push.apns.privateKey")
+      mode <- c.parse[AppMode]("mode")
+      db <- c.parse[Conf]("db")
+      apnsPrivateKey <- c.parse[Path]("push.apns.privateKey")
     yield PillConf(mode, db, apnsPrivateKey)
