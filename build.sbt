@@ -58,8 +58,8 @@ val backend = project
       "io.circe" %% s"circe-$m" % "0.14.5"
     } ++ Seq(
       "com.malliina" %% "mobile-push-io" % "3.8.1",
-      "com.malliina" %% "config" % "3.4.2",
-      "com.malliina" %% "logstreams-client" % "2.6.1",
+      "com.malliina" %% "config" % "3.4.5",
+      "com.malliina" %% "logstreams-client" % "2.6.2",
       "com.malliina" %% "database" % "6.5.5",
       "mysql" % "mysql-connector-java" % "8.0.33",
       "com.lihaoyi" %% "scalatags" % "0.12.0",
