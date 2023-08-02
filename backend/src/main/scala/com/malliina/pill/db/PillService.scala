@@ -1,8 +1,8 @@
 package com.malliina.pill.db
 
 import cats.Monad
-import com.malliina.pill.{EnablePillNotifications, DisablePillNotifications}
 import com.malliina.database.DoobieDatabase
+import com.malliina.pill.{DisablePillNotifications, EnablePillNotifications}
 import doobie.implicits.*
 
 class PillService[F[_]: Monad](db: DoobieDatabase[F]):

@@ -1,21 +1,21 @@
 package com.malliina.http4s
 
-import cats.{Monad, Parallel}
 import cats.data.Kleisli
 import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
 import cats.effect.{Async, ExitCode, IO, IOApp}
+import cats.{Monad, Parallel}
 import com.comcast.ip4s.{Port, host, port}
+import com.malliina.database.DoobieDatabase
 import com.malliina.http.io.HttpClientIO
 import com.malliina.logback.AppLogging
 import com.malliina.mavenapi.Service
-import com.malliina.database.DoobieDatabase
 import com.malliina.pill.db.PillService
 import com.malliina.pill.{PillConf, PillRoutes, Push, PushService}
 import com.malliina.util.AppLogger
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.server.{Router, Server}
 import org.http4s.server.middleware.{GZip, HSTS}
+import org.http4s.server.{Router, Server}
 import org.http4s.{Http, HttpRoutes, Request, Response}
 
 import scala.concurrent.duration.{Duration, DurationInt}

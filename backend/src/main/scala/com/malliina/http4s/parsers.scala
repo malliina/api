@@ -9,7 +9,7 @@ object parsers:
   implicit val artifact: QueryParamDecoder[ArtifactId] = idQueryDecoder(ArtifactId.apply)
   implicit val sv: QueryParamDecoder[ScalaVersion] = idQueryDecoder(ScalaVersion.apply)
 
-  def idQueryDecoder[T](build: String => T): QueryParamDecoder[T] =
+  private def idQueryDecoder[T](build: String => T): QueryParamDecoder[T] =
     QueryParamDecoder.stringQueryParamDecoder.map(build)
 
   def parseOrDefault[T](q: Query, key: String, default: => T)(implicit
@@ -29,7 +29,7 @@ object parsers:
       dec.decode(QueryParameterValue(g)).toEither
     }
 
-  def parseOpt2[T](q: Query, key: String)(implicit
+  private def parseOpt2[T](q: Query, key: String)(implicit
     dec: QueryParamDecoder[T]
   ): Either[NonEmptyList[ParseFailure], Option[T]] =
     q.params

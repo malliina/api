@@ -4,39 +4,31 @@ import cats.data.NonEmptyList
 import com.malliina.http.FullUrl
 import fs2.io.net.SocketTimeoutException
 import io.circe.Codec
-import io.circe.generic.semiauto.*
 
 case class Name(name: String) extends AnyVal
 
 case class UserId(id: String) extends AnyVal
 
-case class Person(name: String, age: Int)
+case class Person(name: String, age: Int) derives Codec.AsObject
 
-object Person:
-  implicit val json: Codec[Person] = deriveCodec[Person]
-
-case class AppResult(message: String)
+case class AppResult(message: String) derives Codec.AsObject
 
 object AppResult:
   val example = AppResult("The result!")
-  implicit val json: Codec[AppResult] = deriveCodec[AppResult]
 
-case class AppMeta(version: String, gitHash: String)
+case class AppMeta(version: String, gitHash: String) derives Codec.AsObject
 
 object AppMeta:
-  implicit val json: Codec[AppMeta] = deriveCodec[AppMeta]
   val meta = AppMeta(BuildInfo.version, BuildInfo.gitHash)
 
-case class SingleError(message: String, key: String)
+case class SingleError(message: String, key: String) derives Codec.AsObject
 
 object SingleError:
-  implicit val json: Codec[SingleError] = deriveCodec[SingleError]
   def input(message: String): SingleError = apply(message, "input")
 
-case class Errors(errors: NonEmptyList[SingleError])
+case class Errors(errors: NonEmptyList[SingleError]) derives Codec.AsObject
 
 object Errors:
-  implicit val json: Codec[Errors] = deriveCodec[Errors]
   def apply(message: String): Errors = Errors(NonEmptyList(SingleError(message, "general"), Nil))
 
 class TimeoutException(val url: FullUrl, val inner: SocketTimeoutException) extends Exception(inner)

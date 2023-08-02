@@ -5,9 +5,9 @@ import cats.effect.Async
 import cats.implicits.*
 import com.malliina.http4s.StaticService.log
 import com.malliina.mavenapi.BuildInfo
-import com.malliina.values.UnixPath
 import com.malliina.util.AppLogger
-import org.http4s.CacheDirective.{`max-age`, `no-cache`, `public`, `no-store`, `must-revalidate`}
+import com.malliina.values.UnixPath
+import org.http4s.CacheDirective.*
 import org.http4s.headers.`Cache-Control`
 import org.http4s.{Header, HttpRoutes, Request, StaticFile}
 import org.typelevel.ci.CIStringSyntax

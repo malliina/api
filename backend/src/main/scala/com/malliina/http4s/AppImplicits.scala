@@ -1,11 +1,11 @@
 package com.malliina.http4s
 
-import scalatags.generic.Frag
 import com.malliina.mavenapi.UserId
 import org.http4s.*
 import org.http4s.circe.CirceInstances
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`Content-Type`
+import scalatags.generic.Frag
 
 trait Extractors:
   object UserIdVar:
