@@ -1,8 +1,8 @@
 package com.malliina.pill.db
 
-import com.malliina.values.{IdCompanion, WrappedId, WrappedString, StringEnumCompanion, StringCompanion}
+import com.malliina.values.{IdCompanion, StringCompanion, StringEnumCompanion, WrappedId, WrappedString}
 import io.circe.{Codec, Decoder, Encoder}
-import io.circe.generic.semiauto.deriveCodec
+
 import java.time.Instant
 
 case class PushToken(value: String) extends AnyVal with WrappedString
@@ -23,6 +23,4 @@ case class PillRowId(id: Long) extends WrappedId
 object PillRowId extends IdCompanion[PillRowId]
 
 case class PillRow(id: PillRowId, token: PushToken, os: MobileOS, added: Instant)
-
-object PillRow:
-  implicit val codec: Codec[PillRow] = deriveCodec[PillRow]
+  derives Codec.AsObject
