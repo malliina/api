@@ -18,9 +18,11 @@ import org.http4s.server.{Router, Server}
 import org.http4s.server.middleware.{GZip, HSTS}
 import org.http4s.{Http, HttpRoutes, Request, Response}
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{Duration, DurationInt}
 
 object AppServer extends IOApp:
+  override def runtimeConfig =
+    super.runtimeConfig.copy(cpuStarvationCheckInitialDelay = Duration.Inf)
   AppLogging.init()
   private val log = AppLogger(getClass)
   log.info("Starting server...")
