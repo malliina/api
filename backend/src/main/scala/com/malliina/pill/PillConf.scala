@@ -4,7 +4,7 @@ import com.malliina.config.{ConfigError, ConfigReadable}
 import com.malliina.config.ConfigReadable.ConfigOps
 import com.malliina.mavenapi.BuildInfo
 import com.malliina.database.Conf
-import com.malliina.values.ErrorMessage
+import com.malliina.values.{AccessToken, ErrorMessage}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import java.nio.file.{Path, Paths}
@@ -22,7 +22,7 @@ object AppMode:
     case other  => Left(ErrorMessage("Must be 'prod' or 'dev'."))
   }
 
-case class PillConf(mode: AppMode, db: Conf, apnsPrivateKey: Path):
+case class PillConf(mode: AppMode, db: Conf, apnsPrivateKey: Path, discoToken: AccessToken):
   def apnsEnabled = apnsPrivateKey.toString != "changeme"
 
 object PillConf:
@@ -44,4 +44,5 @@ object PillConf:
       mode <- c.parse[AppMode]("mode")
       db <- c.parse[Conf]("db")
       apnsPrivateKey <- c.parse[Path]("push.apns.privateKey")
-    yield PillConf(mode, db, apnsPrivateKey)
+      discoToken <- c.parse[AccessToken]("discogs.token")
+    yield PillConf(mode, db, apnsPrivateKey, discoToken)

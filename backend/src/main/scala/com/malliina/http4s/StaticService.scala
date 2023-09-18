@@ -31,7 +31,7 @@ class StaticService[F[_]: Async] extends BasicService[F]:
       val isCacheable = file.value.count(_ == '.') == 2
       val cacheHeaders =
         if isCacheable then NonEmptyList.of(`max-age`(365.days), `public`)
-        else NonEmptyList.of(`no-cache`(), `no-store`, `must-revalidate`)
+        else BasicService.noCacheDirectives
       val search =
         if BuildInfo.isProd then
           val resourcePath = s"${BuildInfo.publicFolder}/${file.value}"

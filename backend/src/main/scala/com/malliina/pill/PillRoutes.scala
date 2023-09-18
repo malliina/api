@@ -4,17 +4,13 @@ import cats.Monad
 import cats.effect.*
 import cats.syntax.all.*
 import com.malliina.http4s.AppImplicits
-import com.malliina.pill.PillRoutes.noCache
+import com.malliina.http4s.BasicService.noCache
 import com.malliina.pill.db.PillService
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, Json}
 import org.http4s.*
-import org.http4s.CacheDirective.*
 import org.http4s.dsl.io.*
 import org.http4s.headers.`Cache-Control`
-
-object PillRoutes:
-  val noCache = `Cache-Control`(`no-cache`(), `no-store`, `must-revalidate`)
 
 class PillRoutes[F[_]: Monad: Concurrent](db: PillService[F]) extends AppImplicits[F]:
   implicit def jsonResponses[A: Encoder]: EntityEncoder[F, A] =

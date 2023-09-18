@@ -10,6 +10,7 @@ import com.malliina.database.DoobieDatabase
 import com.malliina.http.io.HttpClientIO
 import com.malliina.logback.AppLogging
 import com.malliina.mavenapi.Service
+import com.malliina.musicmeta.{CoverService, DiscoClient}
 import com.malliina.pill.db.PillService
 import com.malliina.pill.{PillConf, PillRoutes, Push, PushService}
 import com.malliina.util.AppLogger
@@ -33,10 +34,11 @@ object AppServer extends IOApp:
       http <- HttpClientIO.resource[F]
       dispatcher <- Dispatcher.parallel[F]
       _ <- AppLogging.resource(dispatcher, http)
-      service = Service.default[F](http)
+      maven = Service.default[F](http)
       conf <- Resource.eval(
         PillConf.apply().fold(err => Async[F].raiseError(err), c => Async[F].pure(c))
       )
+      disco = CoverService(DiscoClient(conf.discoToken, http))
       push =
         if conf.apnsEnabled then Push.default[F](conf.apnsPrivateKey, http) else PushService.noop[F]
       db <- DoobieDatabase.default(conf.db)
@@ -45,7 +47,8 @@ object AppServer extends IOApp:
       HSTS {
         orNotFound {
           Router(
-            "/" -> service.service,
+            "/" -> maven.service,
+            "/covers" -> disco.service,
             "/pill" -> pill.service,
             "/assets" -> StaticService[F].routes
           )
