@@ -29,7 +29,8 @@ class Pages(
     (t: Builder, a: Attr, v: T) => t.setAttr(a.name, Builder.GenericAttrValueSource(s.show(v)))
   given AttrValue[Uri] = (t: Builder, a: Attr, v: Uri) =>
     t.setAttr(a.name, Builder.GenericAttrValueSource(v.renderString))
-  implicit val urlAttr: AttrValue[FullUrl] = genericAttr[FullUrl]
+  given urlAttr: AttrValue[FullUrl] = genericAttr[FullUrl]
+
   private val scope = attr("scope")
 
   def search(q: MavenQuery, results: Seq[MavenDocument]) =
@@ -104,13 +105,10 @@ class Pages(
 
   private def deferredJsPath(path: String) =
     script(`type` := "application/javascript", src := at(path), defer)
-
   private def deviceWidthViewport =
     meta(name := "viewport", content := "width=device-width, initial-scale=1.0")
-
   private def cssLink[V: AttrValue](url: V, more: Modifier*) =
     link(rel := "stylesheet", href := url, more)
-
   private def inlineOrAsset(path: String) =
     HashedAssets.dataUris.getOrElse(path, at(path).toString)
   private def at(path: String) = assets.at(path)

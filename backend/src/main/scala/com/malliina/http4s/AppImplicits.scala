@@ -13,7 +13,7 @@ trait Extractors:
       if str.trim.nonEmpty then Option(UserId(str.trim)) else None
 
 trait MyScalatagsInstances:
-  implicit def scalatagsEncoder[F[_], C <: Frag[?, String]](implicit
+  given scalatagsEncoder[F[_], C <: Frag[?, String]](using
     charset: Charset = Charset.`UTF-8`
   ): EntityEncoder[F, C] =
     contentEncoder(MediaType.text.html)
