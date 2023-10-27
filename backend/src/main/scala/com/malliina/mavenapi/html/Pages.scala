@@ -3,7 +3,7 @@ package com.malliina.mavenapi.html
 import cats.Show
 import com.malliina.http.FullUrl
 import com.malliina.live.LiveReload
-import com.malliina.mavenapi.{AssetsSource, BuildInfo, MavenDocument, MavenQuery}
+import com.malliina.mavenapi.{AssetsSource, BuildInfo, FileAssets, MavenDocument, MavenQuery}
 import com.malliina.mvn.assets.HashedAssets
 import org.http4s.Uri
 import scalatags.Text.all.*
@@ -14,9 +14,9 @@ object Pages:
     val isLiveReloadEnabled = !LiveReload.script.contains("12345")
     val absoluteScripts =
       if isLiveReloadEnabled then FullUrl.build(LiveReload.script).toSeq else Nil
-    val css = Seq(s"frontend.css", "fonts.css", "styles.css")
+    val css = Seq(FileAssets.frontend_css, FileAssets.fonts_css, FileAssets.styles_css)
     val assetsFinder = AssetsSource(isProd)
-    val appScripts = Seq(s"frontend.js")
+    val appScripts = Seq(FileAssets.frontend_js)
     Pages(appScripts, absoluteScripts, css, assetsFinder)
 
 class Pages(
@@ -25,9 +25,9 @@ class Pages(
   cssFiles: Seq[String],
   assets: AssetsSource
 ):
-  implicit def showAttrValue[T](implicit s: Show[T]): AttrValue[T] =
+  given showAttrValue[T](using s: Show[T]): AttrValue[T] =
     (t: Builder, a: Attr, v: T) => t.setAttr(a.name, Builder.GenericAttrValueSource(s.show(v)))
-  implicit val uriAttrValue: AttrValue[Uri] = (t: Builder, a: Attr, v: Uri) =>
+  given AttrValue[Uri] = (t: Builder, a: Attr, v: Uri) =>
     t.setAttr(a.name, Builder.GenericAttrValueSource(v.renderString))
   implicit val urlAttr: AttrValue[FullUrl] = genericAttr[FullUrl]
   private val scope = attr("scope")
@@ -41,15 +41,12 @@ class Pages(
         link(
           rel := "shortcut icon",
           `type` := "image/png",
-          href := inlineOrAsset("img/jag-16x16.png")
+          href := inlineOrAsset(FileAssets.img.jag_16x16_png)
         ),
         cssFiles.map(file => cssLink(at(file))),
-        absoluteScripts.map { url =>
-          script(src.:=(url)(urlAttr), defer)
-        },
-        scripts.map { path =>
+        absoluteScripts.map(url => script(src.:=(url)(urlAttr), defer)),
+        scripts.map: path =>
           deferredJsPath(path)
-        }
       ),
       body(`class` := "search-page")(
         div(`class` := "search")(
@@ -90,14 +87,13 @@ class Pages(
                   )
                 ),
                 tbody(
-                  results.map { (result: MavenDocument) =>
+                  results.map: (result: MavenDocument) =>
                     tr(
                       td(result.a),
                       td(result.v),
                       td(code(result.sbt)),
                       td(div(`class` := "clipboard", data("id") := result.sbt))
                     )
-                  }
                 )
               )
             else p(`class` := "mt-3")(s"No results for ${q.describe}")
@@ -115,5 +111,6 @@ class Pages(
   private def cssLink[V: AttrValue](url: V, more: Modifier*) =
     link(rel := "stylesheet", href := url, more)
 
-  private def inlineOrAsset(path: String) = HashedAssets.dataUris.getOrElse(path, at(path).toString)
+  private def inlineOrAsset(path: String) =
+    HashedAssets.dataUris.getOrElse(path, at(path).toString)
   private def at(path: String) = assets.at(path)

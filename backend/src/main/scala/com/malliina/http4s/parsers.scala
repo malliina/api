@@ -18,28 +18,23 @@ object parsers:
     parseOpt[T](q, key).getOrElse(Right(default))
 
   def parse[T](q: Query, key: String)(implicit dec: QueryParamDecoder[T]) =
-    parseOpt[T](q, key).getOrElse(
+    parseOpt[T](q, key).getOrElse:
       Left(NonEmptyList(parseFailure(s"Query key not found: '$key'."), Nil))
-    )
 
   def parseOpt[T](q: Query, key: String)(implicit
     dec: QueryParamDecoder[T]
   ): Option[Either[NonEmptyList[ParseFailure], T]] =
-    q.params.get(key).map { g =>
-      dec.decode(QueryParameterValue(g)).toEither
-    }
+    q.params.get(key).map(g => dec.decode(QueryParameterValue(g)).toEither)
 
   private def parseOpt2[T](q: Query, key: String)(implicit
     dec: QueryParamDecoder[T]
   ): Either[NonEmptyList[ParseFailure], Option[T]] =
     q.params
       .get(key)
-      .map { g =>
+      .map: g =>
         dec.decode(QueryParameterValue(g)).toEither.map(Option.apply)
-      }
-      .getOrElse {
+      .getOrElse:
         Right(None)
-      }
 
   def parseMavenQuery(q: Query): Either[NonEmptyList[ParseFailure], MavenQuery] = for
     g <- parseOpt2[GroupId](q, GroupId.key)

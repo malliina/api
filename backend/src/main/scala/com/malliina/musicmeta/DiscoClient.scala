@@ -25,7 +25,7 @@ class DiscoClient[F[_]: Async](
   http: HttpClientF[F],
   coverDir: Path = DiscoClient.coverDir
 ):
-  val F = Async[F]
+  val F: Async[F] = Async[F]
   private val Authorization = "Authorization"
   Files.createDirectories(coverDir)
   private val iLoveDiscoGsFakeCoverSize = 15378
@@ -43,14 +43,13 @@ class DiscoClient[F[_]: Async](
     val file = coverFile(artist, album)
     if Files.isReadable(file) && Files.size(file) != iLoveDiscoGsFakeCoverSize then F.pure(file)
     else
-      downloadCover(artist, album).flatMap { f =>
+      downloadCover(artist, album).flatMap: f =>
         if Files.size(f) != iLoveDiscoGsFakeCoverSize then F.pure(f)
         else
           log.error(s"Failed to download cover of '$artist' - '$album'.")
           F.raiseError(
             new NoSuchElementException(s"Fake cover of size $iLoveDiscoGsFakeCoverSize bytes.")
           )
-      }
 
   private def downloadCover(artist: String, album: String): F[Path] =
     downloadCover(artist, album, _ => coverFile(artist, album))
@@ -67,12 +66,13 @@ class DiscoClient[F[_]: Async](
     *   http://www.playframework.com/documentation/2.6.x/ScalaWS
     */
   private def downloadFile(url: FullUrl, file: Path): F[StorageSize] =
-    http.download(url, file, Map(Authorization -> authValue)).flatMap { either =>
-      either.fold(
-        err => F.raiseError(new ResponseException(err)),
-        s => F.pure(s)
-      )
-    }
+    http
+      .download(url, file, Map(Authorization -> authValue))
+      .flatMap: either =>
+        either.fold(
+          err => F.raiseError(new ResponseException(err)),
+          s => F.pure(s)
+        )
 
   protected def coverFile(artist: String, album: String): Path =
     // avoids platform-specific file system encoding nonsense
@@ -111,15 +111,15 @@ class DiscoClient[F[_]: Async](
       file
 
   private def albumCoverForSearch(url: FullUrl): F[FullUrl] =
-    http.getAs[CoverSearchResult](url, Map(Authorization -> authValue)).flatMap { result =>
-      result.results.map(_.cover_image).headOption.map(F.pure).getOrElse {
-        F.raiseError(
-          new CoverNotFoundException(
-            s"Unable to find cover image from $url."
-          )
-        )
-      }
-    }
+    http
+      .getAs[CoverSearchResult](url, Map(Authorization -> authValue))
+      .flatMap: result =>
+        result.results
+          .map(_.cover_image)
+          .headOption
+          .map(F.pure)
+          .getOrElse:
+            F.raiseError(CoverNotFoundException(s"Unable to find cover image from $url."))
 
   private def albumIdUrl(artist: String, album: String): FullUrl =
     FullUrl

@@ -41,12 +41,11 @@ class MavenCentralClient[F[_]: Async: Parallel](http: HttpClientF2[F]):
       .map(list => MavenSearchResults(list.toList.flatMap(_.results).sortBy(_.timestamp).reverse))
 
   private def searchByVersionWithRetry(q: MavenQuery): F[MavenSearchResults] =
-    searchByVersion(q).handleErrorWith {
+    searchByVersion(q).handleErrorWith:
       case te: TimeoutException =>
         log.warn(s"Request timeout for '${te.url}', retrying...")
         searchByVersion(q)
       case other => Async[F].raiseError(other)
-    }
 
   private def searchByVersion(q: MavenQuery): F[MavenSearchResults] =
     val group = q.group.map(g => s"""g:"$g"""")
@@ -60,11 +59,10 @@ class MavenCentralClient[F[_]: Async: Parallel](http: HttpClientF2[F]):
     log.info(s"Fetching '$url'...")
     http
       .getAs[MavenSearchResponse](url)
-      .map { res =>
+      .map: res =>
         log.info(s"Found ${res.response.numFound} artifacts from '$url'.")
         MavenSearchResults(res.response.docs)
-      }
-      .adaptError { case ste: SocketTimeoutException =>
-        log.info(s"Request timeout for '$url'.")
-        TimeoutException(url, ste)
-      }
+      .adaptError:
+        case ste: SocketTimeoutException =>
+          log.info(s"Request timeout for '$url'.")
+          TimeoutException(url, ste)

@@ -1,7 +1,6 @@
 package com.malliina.mavenapi
 
 import io.circe.{Codec, Decoder, Encoder}
-import io.circe.generic.semiauto.*
 import com.malliina.values.{WrappedString, StringCompanion}
 
 case class ArtifactId(id: String) extends AnyVal with WrappedString:
@@ -44,26 +43,15 @@ case class MavenQuery(
     case (None, Some(a))    => s"artifact $a"
     case (None, None)       => "no query"
 
-case class MavenDocument(id: String, g: GroupId, a: String, v: String, timestamp: Long):
+case class MavenDocument(id: String, g: GroupId, a: String, v: String, timestamp: Long)
+  derives Codec.AsObject:
   private val isScala = a.contains('_')
   private val artifactName = a.takeWhile(_ != '_')
   private val sep = if isScala then "%%" else "%"
   val sbt = s""""$g" $sep "$artifactName" % "$v""""
 
-object MavenDocument:
-  implicit val json: Codec[MavenDocument] = deriveCodec[MavenDocument]
+case class MavenResponse(docs: Seq[MavenDocument], start: Int, numFound: Int) derives Codec.AsObject
 
-case class MavenResponse(docs: Seq[MavenDocument], start: Int, numFound: Int)
+case class MavenSearchResponse(response: MavenResponse) derives Codec.AsObject
 
-object MavenResponse:
-  implicit val json: Codec[MavenResponse] = deriveCodec[MavenResponse]
-
-case class MavenSearchResponse(response: MavenResponse)
-
-object MavenSearchResponse:
-  implicit val json: Codec[MavenSearchResponse] = deriveCodec[MavenSearchResponse]
-
-case class MavenSearchResults(results: Seq[MavenDocument])
-
-object MavenSearchResults:
-  implicit val json: Codec[MavenSearchResults] = deriveCodec[MavenSearchResults]
+case class MavenSearchResults(results: Seq[MavenDocument]) derives Codec.AsObject

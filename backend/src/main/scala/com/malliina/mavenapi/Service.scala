@@ -21,7 +21,7 @@ object Service:
 class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatabase[F])
   extends AppImplicits[F]:
   private val pages = Pages.default()
-  val service: HttpRoutes[F] = HttpRoutes.of[F] {
+  val service: HttpRoutes[F] = HttpRoutes.of[F]:
     case req @ GET -> Root =>
       val e = parsers.parseMavenQuery(req.uri.query)
       e.fold(
@@ -29,16 +29,15 @@ class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatab
         ok =>
           if ok.isEmpty then Ok(pages.search(ok, Nil))
           else
-            maven.search(ok).flatMap { res =>
-              Ok(pages.search(ok, res.results))
-            }
+            maven
+              .search(ok)
+              .flatMap: res =>
+                Ok(pages.search(ok, res.results))
       )
     case GET -> Root / "db" =>
-      data.load.flatMap { res =>
-        Ok(res.message)
-      }
+      data.load.flatMap(res => Ok(res.message))
     case req @ POST -> Root =>
-      req.decode[UrlForm] { form =>
+      req.decode[UrlForm]: form =>
         val a = form.getFirst("artifact").filter(_.trim.nonEmpty).map(ArtifactId.apply)
         val g = form.getFirst("group").filter(_.trim.nonEmpty).map(GroupId.apply)
         val sv = form.getFirst("scala").filter(_.trim.nonEmpty).map(ScalaVersion.apply)
@@ -48,16 +47,11 @@ class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatab
           .getOrElse(Map.empty) ++ sv.map(v => Map(ScalaVersion.key -> v.id)).getOrElse(Map.empty)
         val dest = baseUri.withQueryParams(map)
         SeeOther(Location(dest))
-      }
     case GET -> Root / "health" => Ok(AppMeta.meta.asJson)
     case req @ GET -> Root / "artifacts" =>
       val e = parsers.parseMavenQuery(req.uri.query)
       e.fold(
         errors => BadRequest(Errors(errors.map(e => SingleError.input(e.sanitized))).asJson),
-        ok =>
-          maven.search(ok).flatMap { res =>
-            Ok(res.asJson)
-          }
+        ok => maven.search(ok).flatMap(res => Ok(res.asJson))
       )
     case req => NotFound(Errors(s"Not found: ${req.method} ${req.uri}.").asJson)
-  }

@@ -29,6 +29,7 @@ object SingleError:
 case class Errors(errors: NonEmptyList[SingleError]) derives Codec.AsObject
 
 object Errors:
-  def apply(message: String): Errors = Errors(NonEmptyList(SingleError(message, "general"), Nil))
+  def apply(message: String): Errors =
+    Errors(NonEmptyList(SingleError(message, "general"), Nil))
 
 class TimeoutException(val url: FullUrl, val inner: SocketTimeoutException) extends Exception(inner)
