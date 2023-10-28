@@ -16,7 +16,7 @@ object AppMode:
   case object Prod extends AppMode
   case object Dev extends AppMode
 
-  implicit val reader: ConfigReadable[AppMode] = ConfigReadable.string.emapParsed:
+  given ConfigReadable[AppMode] = ConfigReadable.string.emapParsed:
     case "prod" => Right(Prod)
     case "dev"  => Right(Dev)
     case other  => Left(ErrorMessage("Must be 'prod' or 'dev'."))
@@ -29,7 +29,7 @@ object PillConf:
   private val localConfFile = appDir.resolve("pill.conf")
   private val localConfig =
     ConfigFactory.parseFile(localConfFile.toFile).withFallback(ConfigFactory.load())
-  implicit val pathConfig: ConfigReadable[Path] = ConfigReadable.string.map(s => Paths.get(s))
+  given ConfigReadable[Path] = ConfigReadable.string.map(s => Paths.get(s))
   private def pillConf =
     val conf =
       if BuildInfo.isProd then ConfigFactory.load("application-prod.conf")

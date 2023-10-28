@@ -24,6 +24,7 @@ object ScalaVersion extends StringCompanion[ScalaVersion]:
   val scala3 = apply("3")
   val sjs1scala213 = apply("sjs1_2.13")
   val sjs1scala3 = apply("sjs1_3")
+  val sbt1 = apply("2.12_1.0")
   val key = "sv"
 
 case class MavenQuery(

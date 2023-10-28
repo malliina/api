@@ -5,9 +5,9 @@ import com.malliina.mavenapi.{ArtifactId, GroupId, MavenQuery, ScalaVersion}
 import org.http4s.{ParseFailure, Query, QueryParamDecoder, QueryParameterValue}
 
 object parsers:
-  implicit val group: QueryParamDecoder[GroupId] = idQueryDecoder(GroupId.apply)
-  implicit val artifact: QueryParamDecoder[ArtifactId] = idQueryDecoder(ArtifactId.apply)
-  implicit val sv: QueryParamDecoder[ScalaVersion] = idQueryDecoder(ScalaVersion.apply)
+  given QueryParamDecoder[GroupId] = idQueryDecoder(GroupId.apply)
+  given QueryParamDecoder[ArtifactId] = idQueryDecoder(ArtifactId.apply)
+  given QueryParamDecoder[ScalaVersion] = idQueryDecoder(ScalaVersion.apply)
 
   private def idQueryDecoder[T](build: String => T): QueryParamDecoder[T] =
     QueryParamDecoder.stringQueryParamDecoder.map(build)

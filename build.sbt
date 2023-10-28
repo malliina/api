@@ -1,7 +1,6 @@
 import sbtbuildinfo.BuildInfoKey
 import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
 import com.comcast.ip4s.IpLiteralSyntax
-import com.malliina.sbt.filetree.DirMap
 
 val munitVersion = "0.7.29"
 
@@ -44,11 +43,7 @@ val frontend = project
 
 val backend = project
   .in(file("backend"))
-  .enablePlugins(
-    FileTreePlugin,
-    ServerPlugin,
-    LiveRevolverPlugin
-  )
+  .enablePlugins(ServerPlugin)
   .settings(
     clientProject := frontend,
     dependentModule := shared,
@@ -69,10 +64,7 @@ val backend = project
     buildInfoKeys ++= Seq[BuildInfoKey](name, version, scalaVersion),
     assembly / assemblyJarName := "app.jar",
     liveReloadPort := port"10102",
-    Compile / resourceDirectories += io.Path.userHome / ".pill",
-    fileTreeSources := Seq(
-      DirMap((frontend / assetsRoot).value.toFile, "com.malliina.mavenapi.FileAssets")
-    )
+    Compile / resourceDirectories += io.Path.userHome / ".pill"
   )
 
 val api = project

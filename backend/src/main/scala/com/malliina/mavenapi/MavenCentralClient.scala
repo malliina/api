@@ -35,7 +35,7 @@ class MavenCentralClient[F[_]: Async: Parallel](http: HttpClientF2[F]):
 
   def search(q: MavenQuery): F[MavenSearchResults] =
     (NonEmptyList
-      .of(scala3, scala213, sjs1scala213, sjs1scala3)
+      .of(scala3, scala213, sjs1scala213, sjs1scala3, sbt1)
       .map(sv => q.copy(scalaVersion = Option(sv))) ++ List(q.copy(scalaVersion = None)))
       .parTraverse(query => searchByVersionWithRetry(query))
       .map(list => MavenSearchResults(list.toList.flatMap(_.results).sortBy(_.timestamp).reverse))
