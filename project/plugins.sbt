@@ -1,6 +1,6 @@
 scalaVersion := "2.12.18"
 
-val utilsVersion = "1.6.27"
+val utilsVersion = "1.6.29"
 
 Seq(
   "com.malliina" % "sbt-nodejs" % utilsVersion,
