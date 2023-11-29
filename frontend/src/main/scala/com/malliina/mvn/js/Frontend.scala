@@ -10,10 +10,10 @@ object Frontend:
   val bootstrapCss = BootstrapCss
 
   def main(args: Array[String]): Unit =
-    println("Hello!!!")
+    println("Hello!")
     if has("search-page") then Search() else ()
 
-  def has(feature: String) = dom.document.body.classList.contains(feature)
+  private def has(feature: String) = dom.document.body.classList.contains(feature)
 
 @js.native
 @JSImport("bootstrap", JSImport.Namespace)

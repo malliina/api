@@ -9,14 +9,8 @@ import com.malliina.http.io.HttpClientF2
 import com.malliina.mavenapi.ScalaVersion.*
 import com.malliina.util.AppLogger
 import io.circe.Json
-import org.http4s.{QueryParamEncoder, QueryParameterValue}
 
 import java.net.SocketTimeoutException
-
-object MavenCentralClient:
-  implicit class QueryEncoderOps[T](enc: QueryParamEncoder[T]):
-    def map(f: String => String): QueryParamEncoder[T] = (value: T) =>
-      QueryParameterValue(f(enc.encode(value).value))
 
 /** @param http
   *   http client
