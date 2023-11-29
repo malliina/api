@@ -3,13 +3,17 @@ package com.malliina.mavenapi.html
 import cats.Show
 import com.malliina.http.FullUrl
 import com.malliina.live.LiveReload
+import com.malliina.mavenapi.html.Pages.{scope, urlAttr}
+import com.malliina.mavenapi.html.Pages.given
 import com.malliina.mavenapi.{AssetsSource, BuildInfo, MavenDocument, MavenQuery}
-import com.malliina.mvn.assets.{HashedAssets, FileAssets}
+import com.malliina.mvn.assets.{FileAssets, HashedAssets}
 import org.http4s.Uri
 import scalatags.Text.all.*
 import scalatags.text.Builder
 
 object Pages:
+  private val scope = attr("scope")
+
   def default(isProd: Boolean = BuildInfo.isProd): Pages =
     val isLiveReloadEnabled = !LiveReload.script.contains("12345")
     val absoluteScripts =
@@ -19,20 +23,18 @@ object Pages:
     val appScripts = Seq(FileAssets.frontend_js)
     Pages(appScripts, absoluteScripts, css, assetsFinder)
 
-class Pages(
-  scripts: Seq[String],
-  absoluteScripts: Seq[FullUrl],
-  cssFiles: Seq[String],
-  assets: AssetsSource
-):
   given showAttrValue[T](using s: Show[T]): AttrValue[T] =
     (t: Builder, a: Attr, v: T) => t.setAttr(a.name, Builder.GenericAttrValueSource(s.show(v)))
   given AttrValue[Uri] = (t: Builder, a: Attr, v: Uri) =>
     t.setAttr(a.name, Builder.GenericAttrValueSource(v.renderString))
   given urlAttr: AttrValue[FullUrl] = genericAttr[FullUrl]
 
-  private val scope = attr("scope")
-
+class Pages(
+  scripts: Seq[String],
+  absoluteScripts: Seq[FullUrl],
+  cssFiles: Seq[String],
+  assets: AssetsSource
+):
   def search(q: MavenQuery, results: Seq[MavenDocument]) =
     html(lang := "en")(
       head(
