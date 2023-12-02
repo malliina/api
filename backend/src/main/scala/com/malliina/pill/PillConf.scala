@@ -1,27 +1,15 @@
 package com.malliina.pill
 
-import com.malliina.config.{ConfigError, ConfigReadable}
 import com.malliina.config.ConfigReadable.ConfigOps
-import com.malliina.mavenapi.BuildInfo
+import com.malliina.config.{ConfigError, ConfigReadable}
 import com.malliina.database.Conf
-import com.malliina.values.{AccessToken, ErrorMessage}
+import com.malliina.mavenapi.BuildInfo
+import com.malliina.values.{AccessToken, Password}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import java.nio.file.{Path, Paths}
 
-sealed trait AppMode:
-  def isProd = this == AppMode.Prod
-
-object AppMode:
-  case object Prod extends AppMode
-  case object Dev extends AppMode
-
-  given ConfigReadable[AppMode] = ConfigReadable.string.emapParsed:
-    case "prod" => Right(Prod)
-    case "dev"  => Right(Dev)
-    case other  => Left(ErrorMessage("Must be 'prod' or 'dev'."))
-
-case class PillConf(mode: AppMode, db: Conf, apnsPrivateKey: Path, discoToken: AccessToken):
+case class PillConf(db: Conf, apnsPrivateKey: Path, discoToken: AccessToken):
   def apnsEnabled = apnsPrivateKey.toString != "changeme"
 
 object PillConf:
@@ -37,9 +25,31 @@ object PillConf:
     conf.resolve().getConfig("pill")
 
   def apply(c: Config = pillConf): Either[ConfigError, PillConf] =
+    val isProd = BuildInfo.isProd
     for
-      mode <- c.parse[AppMode]("mode")
-      db <- c.parse[Conf]("db")
+      dbPass <- c.parse[Password]("db.pass")
       apnsPrivateKey <- c.parse[Path]("push.apns.privateKey")
       discoToken <- c.parse[AccessToken]("discogs.token")
-    yield PillConf(mode, db, apnsPrivateKey, discoToken)
+    yield PillConf(
+      if isProd then prodDatabaseConf(dbPass) else devDatabaseConf(dbPass),
+      apnsPrivateKey,
+      discoToken
+    )
+
+  private def prodDatabaseConf(password: Password) = Conf(
+    "jdbc:mysql://database8-nuqmhn2cxlhle.mysql.database.azure.com:3306/pill",
+    "pill",
+    password.pass,
+    Conf.MySQLDriver,
+    2,
+    autoMigrate = true
+  )
+
+  private def devDatabaseConf(password: Password) = Conf(
+    "jdbc:mysql://localhost:3307/pill",
+    "pill",
+    password.pass,
+    Conf.MySQLDriver,
+    2,
+    autoMigrate = false
+  )
