@@ -20,7 +20,9 @@ object Pages:
       if isLiveReloadEnabled then FullUrl.build(LiveReload.script).toSeq else Nil
     val css = Seq(FileAssets.frontend_css, FileAssets.fonts_css, FileAssets.styles_css)
     val assetsFinder = AssetsSource(isProd)
-    val appScripts = Seq(FileAssets.frontend_js)
+    val appScripts =
+      if isProd then Seq(FileAssets.frontend_js)
+      else Seq(FileAssets.frontend_js, FileAssets.frontend_loader_js, FileAssets.main_js)
     Pages(appScripts, absoluteScripts, css, assetsFinder)
 
   given showAttrValue[T](using s: Show[T]): AttrValue[T] =

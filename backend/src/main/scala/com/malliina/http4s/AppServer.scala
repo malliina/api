@@ -43,18 +43,15 @@ object AppServer extends IOApp:
         if conf.apnsEnabled then Push.default[F](conf.apnsPrivateKey, http) else PushService.noop[F]
       db <- DoobieDatabase.default(conf.db)
       pill = PillRoutes(PillService(db))
-    yield GZip {
-      HSTS {
-        orNotFound {
+    yield GZip:
+      HSTS:
+        orNotFound:
           Router(
             "/" -> maven.service,
             "/covers" -> disco.service,
             "/pill" -> pill.service,
             "/assets" -> StaticService[F].routes
           )
-        }
-      }
-    }
   private def emberServer[F[+_]: Async: Parallel]: Resource[F, Server] = for
     app <- appResource
     server <- EmberServerBuilder
