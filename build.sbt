@@ -49,7 +49,7 @@ val backend = project
     dependentModule := shared,
     hashPackage := "com.malliina.mvn.assets",
     libraryDependencies ++= Seq("ember-server", "dsl", "circe").map { m =>
-      "org.http4s" %% s"http4s-$m" % "0.23.24"
+      "org.http4s" %% s"http4s-$m" % "0.23.25"
     } ++ Seq("generic", "parser").map(m => "io.circe" %% s"circe-$m" % "0.14.6") ++ Seq(
       "com.malliina" %% "mobile-push-io" % "3.9.0",
       "com.malliina" %% "config" % "3.5.2",
