@@ -96,7 +96,15 @@ class Pages(
                       td(result.a),
                       td(result.v),
                       td(code(result.sbt)),
-                      td(div(`class` := "clipboard", data("id") := result.sbt))
+                      td(
+                        div(
+                          cls := "clipboard",
+                          data("id") := result.sbt,
+                          data("bs-toggle") := "popover",
+                          data("bs-title") := "Copied",
+                          data("bs-content") := result.sbt
+                        )
+                      )
                     )
                 )
               )
