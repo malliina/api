@@ -9,8 +9,15 @@ import com.typesafe.config.{Config, ConfigFactory}
 
 import java.nio.file.{Path, Paths}
 
-case class PillConf(db: Conf, apnsPrivateKey: Path, discoToken: AccessToken):
+case class PillConf(
+  isTest: Boolean,
+  isProdBuild: Boolean,
+  db: Conf,
+  apnsPrivateKey: Path,
+  discoToken: AccessToken
+):
   def apnsEnabled = apnsPrivateKey.toString != "changeme"
+  def isFull = isProdBuild || isTest
 
 object PillConf:
   private val appDir = Paths.get(sys.props("user.home")).resolve(".pill")
@@ -18,6 +25,7 @@ object PillConf:
   private val localConfig =
     ConfigFactory.parseFile(localConfFile.toFile).withFallback(ConfigFactory.load())
   given ConfigReadable[Path] = ConfigReadable.string.map(s => Paths.get(s))
+
   private def pillConf =
     val conf =
       if BuildInfo.isProd then ConfigFactory.load("application-prod.conf")
@@ -31,6 +39,8 @@ object PillConf:
       apnsPrivateKey <- c.parse[Path]("push.apns.privateKey")
       discoToken <- c.parse[AccessToken]("discogs.token")
     yield PillConf(
+      isTest = false,
+      isProdBuild = isProd,
       if isProd then prodDatabaseConf(dbPass) else devDatabaseConf(dbPass),
       apnsPrivateKey,
       discoToken

@@ -54,7 +54,7 @@ val backend = project
       "com.malliina" %% "mobile-push-io" % "3.9.0",
       "com.malliina" %% "config" % "3.5.2",
       "com.malliina" %% "logstreams-client" % "2.7.0",
-      "com.malliina" %% "database" % "6.6.1",
+      "com.malliina" %% "database" % "6.6.3",
       "mysql" % "mysql-connector-java" % "8.0.33",
       "com.lihaoyi" %% "scalatags" % "0.12.0",
       "commons-codec" % "commons-codec" % "1.16.0",

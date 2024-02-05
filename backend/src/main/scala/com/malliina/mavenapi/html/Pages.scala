@@ -3,8 +3,7 @@ package com.malliina.mavenapi.html
 import cats.Show
 import com.malliina.http.FullUrl
 import com.malliina.live.LiveReload
-import com.malliina.mavenapi.html.Pages.{scope, urlAttr}
-import com.malliina.mavenapi.html.Pages.given
+import com.malliina.mavenapi.html.Pages.{scope, urlAttr, given}
 import com.malliina.mavenapi.{AssetsSource, BuildInfo, MavenDocument, MavenQuery}
 import com.malliina.mvn.assets.{FileAssets, HashedAssets}
 import org.http4s.Uri
@@ -45,7 +44,7 @@ class Pages(
         deviceWidthViewport,
         link(
           rel := "shortcut icon",
-          `type` := "image/png",
+          tpe := "image/png",
           href := inlineOrAsset(FileAssets.img.jag_16x16_png)
         ),
         cssFiles.map(file => cssLink(at(file))),
@@ -53,36 +52,36 @@ class Pages(
         scripts.map: path =>
           deferredJsPath(path)
       ),
-      body(`class` := "search-page")(
-        div(`class` := "search")(
-          form(`class` := "maven-form", method := "POST", action := "/")(
-            div(`class` := "mb-3")(
-              label(`for` := "artifact-input", `class` := "form-label")("Artifact"),
+      body(cls := "search-page")(
+        div(cls := "search")(
+          form(cls := "maven-form", method := "POST", action := "/")(
+            div(cls := "mb-3")(
+              label(`for` := "artifact-input", cls := "form-label")("Artifact"),
               input(
-                `type` := "text",
-                `class` := "form-control",
+                tpe := "text",
+                cls := "form-control",
                 id := "artifact-input",
                 name := "artifact",
                 placeholder := "aws-sdk",
                 value := q.artifact.map(_.id).getOrElse("")
               )
             ),
-            div(`class` := "mb-3")(
-              label(`for` := "group-input", `class` := "form-label")("Group"),
+            div(cls := "mb-3")(
+              label(`for` := "group-input", cls := "form-label")("Group"),
               input(
-                `type` := "text",
-                `class` := "form-control",
+                tpe := "text",
+                cls := "form-control",
                 id := "group-input",
                 name := "group",
                 placeholder := "com.amazon",
                 value := q.group.map(_.id).getOrElse("")
               )
             ),
-            button(`type` := "submit", `class` := "btn btn-primary")("Submit")
+            button(tpe := "submit", cls := "btn btn-primary")("Submit")
           ),
           if !q.isEmpty then
             if results.nonEmpty then
-              table(`class` := "table mt-3")(
+              table(cls := "table mt-3")(
                 thead(
                   tr(
                     th(scope := "col")("Artifact"),
@@ -101,7 +100,7 @@ class Pages(
                     )
                 )
               )
-            else p(`class` := "mt-3")(s"No results for ${q.describe}")
+            else p(cls := "mt-3")(s"No results for ${q.describe}")
           else modifier()
         )
       )
