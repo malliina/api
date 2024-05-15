@@ -8,7 +8,7 @@ inThisBuild(
   Seq(
     organization := "com.malliina",
     version := "0.0.1",
-    scalaVersion := "3.4.0",
+    scalaVersion := "3.4.1",
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % munitVersion % Test
     ),
@@ -43,7 +43,7 @@ val frontend = project
 
 val backend = project
   .in(file("backend"))
-  .enablePlugins(ServerPlugin)
+  .enablePlugins(ServerPlugin, JavaServerAppPackaging)
   .settings(
     clientProject := frontend,
     dependentModule := shared,
@@ -57,7 +57,7 @@ val backend = project
       "com.malliina" %% "database" % "6.7.0",
       "mysql" % "mysql-connector-java" % "8.0.33",
       "com.lihaoyi" %% "scalatags" % "0.12.0",
-      "commons-codec" % "commons-codec" % "1.16.1",
+      "commons-codec" % "commons-codec" % "1.17.0",
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
     ),
     buildInfoPackage := "com.malliina.mavenapi",
