@@ -47,7 +47,7 @@ object PillConf:
     )
 
   private def prodDatabaseConf(password: Password) = Conf(
-    "jdbc:mysql://database8-nuqmhn2cxlhle.mysql.database.azure.com:3306/pill",
+    "jdbc:mysql://localhost:3306/pill",
     "pill",
     password.pass,
     Conf.MySQLDriver,
