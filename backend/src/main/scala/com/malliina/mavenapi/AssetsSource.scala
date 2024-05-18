@@ -9,7 +9,7 @@ trait AssetsSource:
 
 object AssetsSource:
   def apply(isProd: Boolean): AssetsSource =
-    if isProd then CDNAssets(FullUrl.https("api-cdn.malliina.com", ""))
+    if isProd then HashedAssetsSource
     else DirectAssets
 
 object DirectAssets extends AssetsSource:
