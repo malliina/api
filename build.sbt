@@ -40,7 +40,7 @@ val frontend = project
 
 val backend = project
   .in(file("backend"))
-  .enablePlugins(ServerPlugin, JavaServerAppPackaging, DebianPlugin)
+  .enablePlugins(ServerPlugin, JavaServerAppPackaging, SystemdPlugin)
   .settings(
     clientProject := frontend,
     dependentModule := shared,
@@ -67,7 +67,8 @@ val backend = project
     maintainer := "Michael Skogberg <malliina123@gmail.com>",
     packageSummary := "HTTP backend",
     packageDescription := "Various http endpoints.",
-    Linux / daemonUser := "api"
+    Linux / daemonUser := "api",
+    Linux / packageName := "api"
   )
 
 val api = project
