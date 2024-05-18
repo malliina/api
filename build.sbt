@@ -43,7 +43,7 @@ val frontend = project
 
 val backend = project
   .in(file("backend"))
-  .enablePlugins(ServerPlugin, JavaServerAppPackaging)
+  .enablePlugins(ServerPlugin, JavaServerAppPackaging, DebianPlugin)
   .settings(
     clientProject := frontend,
     dependentModule := shared,
@@ -64,7 +64,10 @@ val backend = project
     buildInfoKeys ++= Seq[BuildInfoKey](name, version, scalaVersion),
     assembly / assemblyJarName := "app.jar",
     liveReloadPort := port"10102",
-    Compile / resourceDirectories += io.Path.userHome / ".pill"
+    Compile / resourceDirectories += io.Path.userHome / ".pill",
+    maintainer := "Michael Skogberg <malliina123@gmail.com>",
+    packageSummary := "HTTP backend",
+    packageDescription := "Various http endpoints."
   )
 
 val api = project
