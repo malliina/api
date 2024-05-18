@@ -12,7 +12,6 @@ inThisBuild(
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % munitVersion % Test
     ),
-    testFrameworks += new TestFramework("munit.Framework"),
     assemblyMergeStrategy := {
       case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.rename
       case PathList("META-INF", "versions", xs @ _*)            => MergeStrategy.first
@@ -23,9 +22,7 @@ inThisBuild(
         val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
         oldStrategy(x)
     },
-    scalacOptions ++= Seq(
-      "-Wunused:all"
-    )
+    scalacOptions ++= Seq("-Wunused:all")
   )
 )
 
@@ -65,6 +62,8 @@ val backend = project
     assembly / assemblyJarName := "app.jar",
     liveReloadPort := port"10102",
     Compile / resourceDirectories += io.Path.userHome / ".pill",
+    Compile / packageDoc / mappings := Nil,
+    Compile / packageDoc / publishArtifact := false,
     maintainer := "Michael Skogberg <malliina123@gmail.com>",
     packageSummary := "HTTP backend",
     packageDescription := "Various http endpoints."
