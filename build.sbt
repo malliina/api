@@ -66,7 +66,8 @@ val backend = project
     Compile / packageDoc / publishArtifact := false,
     maintainer := "Michael Skogberg <malliina123@gmail.com>",
     packageSummary := "HTTP backend",
-    packageDescription := "Various http endpoints."
+    packageDescription := "Various http endpoints.",
+    Linux / daemonUser := "api"
   )
 
 val api = project
