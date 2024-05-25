@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  A: b
+
+jobs:
+  deploy:
+    name: Build deb
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+          cache: sbt
+      - name: Build with sbt
+        run: |
+          sbt "mode prod" Debian/lintian
+      - name: Azure logout
+        run: |
+          az logout
