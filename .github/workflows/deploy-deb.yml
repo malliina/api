@@ -21,7 +21,7 @@ jobs:
           cache: sbt
       - name: Build with sbt
         run: |
-          sbt "mode prod" Debian/lintian
+          sbt "mode prod" frontend/build Debian/lintian
       - name: Azure logout
         run: |
           az logout
