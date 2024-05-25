@@ -27,6 +27,3 @@ jobs:
         run: |
           sbt "mode prod" compile
           sbt "mode prod" Debian/lintian
-      - name: Azure logout
-        run: |
-          az logout
