@@ -16,7 +16,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install lintian
         run: |
-          sudo apt install -y lintian
+          sudo apt-get update
+          sudo apt-get install -y lintian
       - uses: actions/setup-java@v4
         with:
           distribution: zulu
