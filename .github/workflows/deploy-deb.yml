@@ -23,7 +23,27 @@ jobs:
           distribution: zulu
           java-version: 17
           cache: sbt
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/ga.key
+          chmod 600 ~/.ssh/ga.key
+          cat >>~/.ssh/config <<END
+          Host server
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/ga.key
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
       - name: Build with sbt
         run: |
           sbt "mode prod" compile
-          sbt "mode prod" Debian/lintian
+          sbt "mode prod" Deb/packageBin
+      - name: Deploy
+        run: |
+          scp backend/target/api.deb server:/home/$SSH_USER/api.deb
+          ssh server 'sudo dpkg -i /home/$SSH_USER/api.deb'
