@@ -27,7 +27,7 @@ object DebPlugin extends AutoPlugin {
     Deb / packageBin := {
       val artifact = (Debian / packageBin).value
       val destName = (Linux / name).value
-      val dest = baseDirectory.value / destName
+      val dest = target.value / s"$destName.deb"
       IO.copyFile(artifact, dest)
       streams.value.log.info(s"Copied '$artifact' to '$dest'.")
       dest
