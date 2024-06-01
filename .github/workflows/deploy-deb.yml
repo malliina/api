@@ -46,4 +46,4 @@ jobs:
       - name: Deploy
         run: |
           scp backend/target/api.deb server:/home/mle/api.deb
-          ssh server 'sudo dpkg -i /home/mle/api.deb'
+          ssh server 'sudo dpkg --force-confold -i /home/mle/api.deb'
