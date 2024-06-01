@@ -45,5 +45,5 @@ jobs:
           sbt "mode prod" Deb/packageBin
       - name: Deploy
         run: |
-          scp backend/target/api.deb server:/home/$SSH_USER/api.deb
-          ssh server 'sudo dpkg -i /home/$SSH_USER/api.deb'
+          scp backend/target/api.deb server:/home/mle/api.deb
+          ssh server 'sudo dpkg -i /home/mle/api.deb'
