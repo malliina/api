@@ -1,5 +1,5 @@
-import sbt.Keys.{baseDirectory, name, publishArtifact, mappings, packageBin, packageDoc, streams}
 import sbt._
+import sbt.Keys._
 import com.typesafe.sbt.packager.linux.LinuxPlugin.autoImport.{Linux, daemonUser}
 import com.typesafe.sbt.packager.debian.DebianPlugin.autoImport.Debian
 import com.typesafe.sbt.packager.archetypes.systemloader.SystemdPlugin
