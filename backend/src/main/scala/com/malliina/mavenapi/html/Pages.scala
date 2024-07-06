@@ -48,7 +48,7 @@ class Pages(
           href := inlineOrAsset(FileAssets.img.jag_16x16_png)
         ),
         cssFiles.map(file => cssLink(at(file))),
-        absoluteScripts.map(url => script(src.:=(url)(urlAttr), defer)),
+        absoluteScripts.map(url => script(src := url, defer)),
         scripts.map: path =>
           deferredJsPath(path)
       ),
