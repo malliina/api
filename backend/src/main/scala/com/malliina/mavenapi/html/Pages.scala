@@ -63,7 +63,8 @@ class Pages(
                 id := "artifact-input",
                 name := "artifact",
                 placeholder := "aws-sdk",
-                value := q.artifact.map(_.id).getOrElse("")
+                value := q.artifact.map(_.id).getOrElse(""),
+                autofocus
               )
             ),
             div(cls := "mb-3")(
