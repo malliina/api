@@ -25,7 +25,7 @@ class StaticService[F[_]: Async] extends BasicService[F]:
   private val allowAllOrigins = Header.Raw(ci"Access-Control-Allow-Origin", "*")
   private val assetsDir = fs2.io.file.Path(BuildInfo.assetsDir.getAbsolutePath)
   private val publicDir = fs2.io.file.Path(BuildInfo.publicDir)
-  val routes: HttpRoutes[F] = HttpRoutes.of[F] {
+  val routes: HttpRoutes[F] = HttpRoutes.of[F]:
     case req @ GET -> rest if supportedStaticExtensions.exists(rest.toString.endsWith) =>
       val file = UnixPath(rest.segments.mkString("/"))
       val isCacheable = file.value.count(_ == '.') == 2
@@ -50,7 +50,6 @@ class StaticService[F[_]: Async] extends BasicService[F]:
         .map(_.putHeaders(`Cache-Control`(cacheHeaders), allowAllOrigins))
         .fold(onNotFound(req))(_.pure[F])
         .flatten
-  }
 
   private def onNotFound(req: Request[F]) =
     log.info(s"Not found '${req.uri}'.")
