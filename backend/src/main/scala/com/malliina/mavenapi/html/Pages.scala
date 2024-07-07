@@ -48,7 +48,7 @@ class Pages(
           href := inlineOrAsset(FileAssets.img.jag_16x16_png)
         ),
         cssFiles.map(file => cssLink(at(file))),
-        absoluteScripts.map(url => script(src.:=(url)(urlAttr), defer)),
+        absoluteScripts.map(url => script(src := url, defer)),
         scripts.map: path =>
           deferredJsPath(path)
       ),
@@ -63,7 +63,8 @@ class Pages(
                 id := "artifact-input",
                 name := "artifact",
                 placeholder := "aws-sdk",
-                value := q.artifact.map(_.id).getOrElse("")
+                value := q.artifact.map(_.id).getOrElse(""),
+                autofocus
               )
             ),
             div(cls := "mb-3")(
