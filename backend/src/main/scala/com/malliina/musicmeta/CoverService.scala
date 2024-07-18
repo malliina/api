@@ -2,10 +2,9 @@ package com.malliina.musicmeta
 
 import cats.effect.Async
 import cats.syntax.all.{catsSyntaxApplicativeError, toFlatMapOps}
-import com.malliina.http.ResponseException
-import com.malliina.http4s.BasicService.noCache
-import com.malliina.http4s.{AppImplicits, parsers}
-import com.malliina.mavenapi.{Errors, SingleError}
+import com.malliina.http.{Errors, ResponseException}
+import com.malliina.http4s.BasicApiService.noCache
+import com.malliina.http4s.{AppImplicits, QueryParsers}
 import com.malliina.musicmeta.CoverService.log
 import com.malliina.util.AppLogger
 import org.http4s.HttpRoutes
@@ -21,8 +20,8 @@ class CoverService[F[_]: Async](disco: DiscoClient[F]) extends AppImplicits[F]:
   val service: HttpRoutes[F] = HttpRoutes.of[F]:
     case req @ GET -> Root =>
       val e = for
-        artist <- parsers.parse[String](req.uri.query, "artist")
-        album <- parsers.parse[String](req.uri.query, "album")
+        artist <- QueryParsers.parse[String](req.uri.query, "artist")
+        album <- QueryParsers.parse[String](req.uri.query, "album")
       yield
         val coverName = s"$artist - $album"
         disco
@@ -50,7 +49,7 @@ class CoverService[F[_]: Async](disco: DiscoClient[F]) extends AppImplicits[F]:
               log.error(s"Failure while searching cover '$coverName'.")
               InternalServerError(Errors("Internal error. My bad."))
       e.fold(
-        errors => BadRequest(Errors(errors.map(e => SingleError(e.sanitized, "input"))), noCache),
+        errors => BadRequest(errors, noCache),
         ok => ok
       )
 

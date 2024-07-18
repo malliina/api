@@ -3,6 +3,7 @@ package com.malliina.mavenapi
 import cats.Parallel
 import cats.effect.Async
 import cats.syntax.all.toFlatMapOps
+import com.malliina.http.{Errors, SingleError}
 import com.malliina.http.io.HttpClientF2
 import com.malliina.http4s.{AppImplicits, parsers}
 import com.malliina.mavenapi.html.Pages

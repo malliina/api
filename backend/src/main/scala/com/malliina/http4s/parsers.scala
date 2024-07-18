@@ -12,20 +12,6 @@ object parsers:
   private def idQueryDecoder[T](build: String => T): QueryParamDecoder[T] =
     QueryParamDecoder.stringQueryParamDecoder.map(build)
 
-  def parseOrDefault[T](q: Query, key: String, default: => T)(implicit
-    dec: QueryParamDecoder[T]
-  ) =
-    parseOpt[T](q, key).getOrElse(Right(default))
-
-  def parse[T](q: Query, key: String)(implicit dec: QueryParamDecoder[T]) =
-    parseOpt[T](q, key).getOrElse:
-      Left(NonEmptyList(parseFailure(s"Query key not found: '$key'."), Nil))
-
-  def parseOpt[T](q: Query, key: String)(implicit
-    dec: QueryParamDecoder[T]
-  ): Option[Either[NonEmptyList[ParseFailure], T]] =
-    q.params.get(key).map(g => dec.decode(QueryParameterValue(g)).toEither)
-
   private def parseOpt2[T](q: Query, key: String)(implicit
     dec: QueryParamDecoder[T]
   ): Either[NonEmptyList[ParseFailure], Option[T]] =

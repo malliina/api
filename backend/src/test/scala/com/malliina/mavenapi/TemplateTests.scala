@@ -8,7 +8,7 @@ import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
 import org.http4s.implicits.*
 
 class TemplateTests extends munit.CatsEffectSuite:
-  private val serviceFixture = ResourceFixture(
+  private val serviceFixture = ResourceFunFixture(
     HttpClientIO.resource[IO].map(http => Service.default(http).service.orNotFound)
   )
 

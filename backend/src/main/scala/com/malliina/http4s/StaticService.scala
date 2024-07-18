@@ -17,7 +17,7 @@ import scala.concurrent.duration.DurationInt
 object StaticService:
   private val log = AppLogger(getClass)
 
-class StaticService[F[_]: Async] extends BasicService[F]:
+class StaticService[F[_]: Async] extends BasicApiService[F]:
   private val fontExtensions = List(".woff", ".woff2", ".eot", ".ttf")
   private val supportedStaticExtensions =
     List(".html", ".js", ".map", ".css", ".png", ".ico", ".svg") ++ fontExtensions
@@ -31,7 +31,7 @@ class StaticService[F[_]: Async] extends BasicService[F]:
       val isCacheable = file.value.count(_ == '.') == 2
       val cacheHeaders =
         if isCacheable then NonEmptyList.of(`max-age`(365.days), `public`)
-        else BasicService.noCacheDirectives
+        else BasicApiService.noCacheDirectives
       val search =
         if BuildInfo.isProd then
           val resourcePath = s"${BuildInfo.publicFolder}/${file.value}"

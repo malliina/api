@@ -4,7 +4,7 @@ import cats.Monad
 import cats.effect.*
 import cats.syntax.all.{toFlatMapOps, toFunctorOps}
 import com.malliina.http4s.AppImplicits
-import com.malliina.http4s.BasicService.noCache
+import com.malliina.http4s.BasicApiService.noCache
 import com.malliina.pill.db.PillService
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, Json}

@@ -41,7 +41,7 @@ object AppServer extends IOApp:
         if conf.apnsEnabled then Push.default[F](conf.apnsPrivateKey, http) else PushService.noop[F]
       db <-
         if conf.isFull then DoobieDatabase.default(conf.db)
-        else Resource.pure(DoobieDatabase.fast(conf.db))
+        else Resource.eval(DoobieDatabase.fast(conf.db))
       pill = PillRoutes(PillService(db))
     yield GZip:
       HSTS:
@@ -67,7 +67,7 @@ object AppServer extends IOApp:
   yield server
 
   def orNotFound[F[_]: Monad](rs: HttpRoutes[F]): Kleisli[F, Request[F], Response[F]] =
-    Kleisli(req => rs.run(req).getOrElseF(BasicService[F].notFound(req)))
+    Kleisli(req => rs.run(req).getOrElseF(BasicApiService[F].notFound(req)))
 
   override def run(args: List[String]): IO[ExitCode] =
     emberServer[IO].use(_ => IO.never).as(ExitCode.Success)
