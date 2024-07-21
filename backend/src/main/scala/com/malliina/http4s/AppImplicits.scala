@@ -2,8 +2,6 @@ package com.malliina.http4s
 
 import com.malliina.mavenapi.UserId
 import org.http4s.*
-import org.http4s.circe.CirceInstances
-import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`Content-Type`
 import scalatags.generic.Frag
 
@@ -26,9 +24,4 @@ trait MyScalatagsInstances:
       .contramap[C](content => content.render)
       .withContentType(`Content-Type`(mediaType, charset))
 
-trait AppImplicits[F[_]]
-  extends syntax.AllSyntax
-  with Http4sDsl[F]
-  with CirceInstances
-  with MyScalatagsInstances
-  with Extractors
+trait AppImplicits[F[_]] extends BasicService[F] with MyScalatagsInstances with Extractors

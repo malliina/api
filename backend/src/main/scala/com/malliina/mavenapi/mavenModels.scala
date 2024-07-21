@@ -1,31 +1,65 @@
 package com.malliina.mavenapi
 
+import com.malliina.http4s.FormReadableT
+import com.malliina.values.Readable
 import io.circe.{Codec, Decoder, Encoder}
-import com.malliina.values.{WrappedString, StringCompanion}
 
-case class ArtifactId(id: String) extends AnyVal with WrappedString:
-  def value: String = id
-object ArtifactId extends StringCompanion[ArtifactId]:
+trait IdComp[T <: String]:
+  def apply(s: String): T
+  extension (t: T)
+    def id: String = t
+    def trim: T = apply(id.trim)
+    def nonEmpty: Boolean = id.nonEmpty
+
+  given Readable[T] = Readable.string.map(s => apply(s))
+  given Codec[T] = Codec.from(
+    Decoder.decodeString.map(apply),
+    Encoder.encodeString.contramap(_.id)
+  )
+
+opaque type ArtifactId = String
+
+object ArtifactId extends IdComp[ArtifactId]:
   val key = "a"
+  def apply(s: String): ArtifactId = s.trim
 
-case class GroupId(id: String) extends AnyVal with WrappedString:
-  def value: String = id
-object GroupId extends StringCompanion[GroupId]:
+opaque type GroupId = String
+
+object GroupId extends IdComp[GroupId]:
   val key = "g"
+  def apply(s: String): GroupId = s.trim
 
-case class Version(id: String) extends AnyVal with WrappedString:
-  def value: String = id
-object Version extends StringCompanion[Version]
+opaque type Version = String
 
-case class ScalaVersion(id: String) extends AnyVal with WrappedString:
-  def value: String = id
-object ScalaVersion extends StringCompanion[ScalaVersion]:
+object Version extends IdComp[Version]:
+  def apply(s: String): Version = s.trim
+
+opaque type ScalaVersion = String
+
+object ScalaVersion extends IdComp[ScalaVersion]:
+  def apply(s: String): ScalaVersion = s.trim
   val scala213 = apply("2.13")
   val scala3 = apply("3")
   val sjs1scala213 = apply("sjs1_2.13")
   val sjs1scala3 = apply("sjs1_3")
   val sbt1 = apply("2.12_1.0")
   val key = "sv"
+
+case class SearchForm(a: Option[ArtifactId], g: Option[GroupId], sv: Option[ScalaVersion]):
+  def nonEmpty =
+    SearchForm(a.filter(_.trim.nonEmpty), g.filter(_.trim.nonEmpty), sv.filter(_.trim.nonEmpty))
+
+  def toMap = a.map(a => Map(ArtifactId.key -> a.id)).getOrElse(Map.empty) ++ g
+    .map(g => Map(GroupId.key -> g.id))
+    .getOrElse(Map.empty) ++ sv.map(v => Map(ScalaVersion.key -> v.id)).getOrElse(Map.empty)
+
+object SearchForm:
+  given FormReadableT[SearchForm] = FormReadableT.reader.emap: reader =>
+    for
+      a <- reader.read[Option[ArtifactId]]("artifact")
+      g <- reader.read[Option[GroupId]]("group")
+      sv <- reader.read[Option[ScalaVersion]]("scala")
+    yield SearchForm(a, g, sv)
 
 case class MavenQuery(
   group: Option[GroupId],

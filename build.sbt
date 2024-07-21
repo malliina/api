@@ -46,8 +46,8 @@ val backend = project
     dependentModule := shared,
     hashPackage := "com.malliina.mvn.assets",
     libraryDependencies ++=
-      Seq("database", "util-http4s").map { m =>
-        "com.malliina" %% m % "6.9.1"
+      Seq("database", "util-http4s", "util-html").map { m =>
+        "com.malliina" %% m % "6.9.2"
       } ++ Seq("generic", "parser").map { m =>
         "io.circe" %% s"circe-$m" % "0.14.9"
       } ++ Seq(
