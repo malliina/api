@@ -13,7 +13,8 @@ import com.malliina.mavenapi.Service
 import com.malliina.musicmeta.{CoverService, DiscoClient}
 import com.malliina.pill.db.PillService
 import com.malliina.pill.{PillConf, PillRoutes, Push, PushService}
-import com.malliina.util.AppLogger
+import com.malliina.util.{AppLogger, Sys}
+import com.malliina.values.{ErrorMessage, Readable}
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.{GZip, HSTS}
 import org.http4s.server.{Router, Server}
@@ -27,8 +28,11 @@ object AppServer extends IOApp:
   AppLogging.init()
   private val log = AppLogger(getClass)
   log.info("Starting server...")
+  given Readable[Port] =
+    Readable.string.emap(s => Port.fromString(s).toRight(ErrorMessage(s"Not a port: '$s'.")))
   private val serverPort: Port =
-    sys.env.get("SERVER_PORT").flatMap(s => Port.fromString(s)).getOrElse(port"9000")
+    Sys.env.readOpt[Port]("SERVER_PORT").getOrElse(port"9000")
+
   private def appResource[F[+_]: Async: Parallel]: Resource[F, Http[F, F]] =
     for
       http <- HttpClientIO.resource[F]
