@@ -3,7 +3,7 @@
 
 # api
 
-Experimental APIs at https://mvn.malliina.com.
+Experimental APIs at https://api.malliina.com.
 
 https://blog.sonatype.com/2011/06/you-dont-need-a-browser-to-use-maven-central/
 

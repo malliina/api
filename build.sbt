@@ -2,15 +2,13 @@ import sbtbuildinfo.BuildInfoKey
 import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
 import com.comcast.ip4s.IpLiteralSyntax
 
-val munitVersion = "1.0.0"
-
 inThisBuild(
   Seq(
     organization := "com.malliina",
     version := "0.0.1",
     scalaVersion := "3.4.1",
     libraryDependencies ++= Seq(
-      "org.scalameta" %% "munit" % munitVersion % Test
+      "org.scalameta" %% "munit" % "1.0.1" % Test
     ),
     assemblyMergeStrategy := {
       case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.rename
