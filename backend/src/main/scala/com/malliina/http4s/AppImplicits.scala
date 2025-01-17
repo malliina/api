@@ -1,9 +1,11 @@
 package com.malliina.http4s
 
+import com.malliina.http.Errors
 import com.malliina.mavenapi.UserId
 import org.http4s.*
 import org.http4s.headers.`Content-Type`
 import scalatags.generic.Frag
+import org.http4s.circe.CirceEntityEncoder.circeEntityEncoder
 
 trait Extractors:
   object UserIdVar:
@@ -24,4 +26,12 @@ trait MyScalatagsInstances:
       .contramap[C](content => content.render)
       .withContentType(`Content-Type`(mediaType, charset))
 
-trait AppImplicits[F[_]] extends BasicService[F] with MyScalatagsInstances with Extractors
+trait AppParsers[F[_]] extends BasicService[F]:
+  protected def parsed[T](result: Either[Errors, T])(
+    res: T => F[Response[F]]
+  ): F[Response[F]] = result.fold(
+    errors => badRequest(errors),
+    ok => res(ok)
+  )
+
+trait AppImplicits[F[_]] extends AppParsers[F] with MyScalatagsInstances with Extractors

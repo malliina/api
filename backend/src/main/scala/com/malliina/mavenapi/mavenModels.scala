@@ -8,7 +8,7 @@ trait IdComp[T <: String]:
   def apply(s: String): T
   extension (t: T)
     def id: String = t
-    def trim: T = apply(id.trim)
+    def trimmed: T = apply(id.trim)
     def nonEmpty: Boolean = id.nonEmpty
 
   given Readable[T] = Readable.string.map(s => apply(s))
@@ -46,8 +46,8 @@ object ScalaVersion extends IdComp[ScalaVersion]:
   val key = "sv"
 
 case class SearchForm(a: Option[ArtifactId], g: Option[GroupId], sv: Option[ScalaVersion]):
-  def nonEmpty =
-    SearchForm(a.filter(_.trim.nonEmpty), g.filter(_.trim.nonEmpty), sv.filter(_.trim.nonEmpty))
+  def nonEmpty: SearchForm =
+    SearchForm(a.filter(_.trimmed.nonEmpty), g.filter(_.trimmed.nonEmpty), sv.filter(_.trimmed.nonEmpty))
 
   def toMap = a.map(a => Map(ArtifactId.key -> a.id)).getOrElse(Map.empty) ++ g
     .map(g => Map(GroupId.key -> g.id))

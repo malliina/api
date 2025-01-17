@@ -1,8 +1,8 @@
 package com.malliina.mvn.js
 
 import org.scalajs.dom
-import org.scalajs.dom.document
 
+import scala.annotation.unused
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js.Dynamic.literal
@@ -40,7 +40,7 @@ object Bootstrap extends js.Object
 
 @js.native
 @JSImport("bootstrap", "Popover")
-class Popover(e: dom.Element, options: PopoverOptions) extends js.Any:
+class Popover(@unused e: dom.Element, @unused options: PopoverOptions) extends js.Any:
   def hide(): Unit = js.native
   def show(): Unit = js.native
   def toggle(): Unit = js.native

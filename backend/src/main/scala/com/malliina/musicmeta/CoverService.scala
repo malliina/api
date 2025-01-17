@@ -5,9 +5,9 @@ import cats.syntax.all.{catsSyntaxApplicativeError, toFlatMapOps}
 import com.malliina.http.{Errors, ResponseException}
 import com.malliina.http4s.BasicApiService.noCache
 import com.malliina.http4s.{AppImplicits, QueryParsers}
-import com.malliina.musicmeta.CoverService.log
+import com.malliina.musicmeta.CoverService.{CoverSearch, log}
 import com.malliina.util.AppLogger
-import org.http4s.HttpRoutes
+import org.http4s.{HttpRoutes, Uri}
 import org.http4s.circe.CirceEntityEncoder.circeEntityEncoder
 
 import java.net.ConnectException
@@ -15,17 +15,24 @@ import java.net.ConnectException
 object CoverService:
   private val log = AppLogger(getClass)
 
+  case class CoverSearch(artist: String, album: String):
+    def coverName = s"$artist - $album"
+
+  object CoverSearch:
+    def fromUri(uri: Uri) =
+      for
+        artist <- QueryParsers.parse[String](uri.query, "artist")
+        album <- QueryParsers.parse[String](uri.query, "album")
+      yield CoverSearch(artist, album)
+
 class CoverService[F[_]: Async](disco: DiscoClient[F]) extends AppImplicits[F]:
   val F = Async[F]
   val service: HttpRoutes[F] = HttpRoutes.of[F]:
     case req @ GET -> Root =>
-      val e = for
-        artist <- QueryParsers.parse[String](req.uri.query, "artist")
-        album <- QueryParsers.parse[String](req.uri.query, "album")
-      yield
-        val coverName = s"$artist - $album"
+      parsed(CoverSearch.fromUri(req.uri)): q =>
+        val coverName = q.coverName
         disco
-          .cover(artist, album)
+          .cover(q.artist, q.album)
           .flatMap(file => Ok(file))
           .handleErrorWith:
             case _: CoverNotFoundException =>
@@ -48,9 +55,5 @@ class CoverService[F[_]: Async](disco: DiscoClient[F]) extends AppImplicits[F]:
             case t =>
               log.error(s"Failure while searching cover '$coverName'.")
               InternalServerError(Errors("Internal error. My bad."))
-      e.fold(
-        errors => BadRequest(errors, noCache),
-        ok => ok
-      )
 
   private def notFound(str: String) = NotFound(Errors(str), noCache)

@@ -10,8 +10,3 @@ class Search:
         "click",
         (e: Event) => Clipboard.copyToClipboard(copyable.getAttribute("data-id"))
       )
-
-//  document
-//    .querySelectorAll("[data-bs-toggle='popover']")
-//    .map: e =>
-//      Popover(e, PopoverOptions.focus)

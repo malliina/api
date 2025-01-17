@@ -18,6 +18,5 @@ class TemplateTests extends munit.CatsEffectSuite:
     tr.run(pingRequest).flatMap(res => res.as[AppMeta].map(_ => true).assert)
 
   serviceFixture.test("interop with Future"): tr =>
-//    implicit val dec: EntityDecoder[IO, AppResult] = jsonOf[IO, AppResult]
     val request = Request[IO](Method.GET, uri"/")
     tr.run(request).map(res => assertEquals(res.status, Status.Ok))

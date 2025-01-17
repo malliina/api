@@ -8,6 +8,7 @@ import com.malliina.values.{AccessToken, Password}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import java.nio.file.{Path, Paths}
+import com.malliina.http.UrlSyntax.url
 
 case class PillConf(
   isTest: Boolean,
@@ -47,18 +48,18 @@ object PillConf:
     )
 
   private def prodDatabaseConf(password: Password) = Conf(
-    "jdbc:mysql://localhost:3306/pill",
+    url"jdbc:mysql://localhost:3306/pill",
     "pill",
-    password.pass,
+    password,
     Conf.MySQLDriver,
     2,
     autoMigrate = true
   )
 
   private def devDatabaseConf(password: Password) = Conf(
-    "jdbc:mysql://localhost:3307/pill",
+    url"jdbc:mysql://localhost:3307/pill",
     "pill",
-    password.pass,
+    password,
     Conf.MySQLDriver,
     2,
     autoMigrate = false

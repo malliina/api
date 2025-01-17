@@ -1,6 +1,5 @@
 package com.malliina.pill
 
-import cats.Monad
 import cats.effect.*
 import cats.syntax.all.{toFlatMapOps, toFunctorOps}
 import com.malliina.http4s.AppImplicits
@@ -12,7 +11,7 @@ import org.http4s.*
 import org.http4s.dsl.io.*
 import org.http4s.headers.`Cache-Control`
 
-class PillRoutes[F[_]: Monad: Concurrent](db: PillService[F]) extends AppImplicits[F]:
+class PillRoutes[F[_]: Concurrent](db: PillService[F]) extends AppImplicits[F]:
   given jsonResponses[A: Encoder]: EntityEncoder[F, A] =
     jsonEncoderOf[F, A]
 
