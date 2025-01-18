@@ -55,6 +55,7 @@ val backend = project
         "mysql" % "mysql-connector-java" % "8.0.33",
         "com.lihaoyi" %% "scalatags" % "0.13.1",
         "commons-codec" % "commons-codec" % "1.17.2",
+        "org.apache.commons" % "commons-text" % "1.13.0",
         "org.typelevel" %% "munit-cats-effect" % "2.0.0" % Test
       ),
     buildInfoPackage := "com.malliina.mavenapi",

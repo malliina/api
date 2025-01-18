@@ -22,9 +22,12 @@ case class PillConf(
 
 object PillConf:
   private val appDir = Paths.get(sys.props("user.home")).resolve(".pill")
-  private val localConfFile = appDir.resolve("pill.conf")
-  private val localConfig =
+  private val localConfig = local("pill.conf")
+
+  def local(file: String): Config =
+    val localConfFile = appDir.resolve(file)
     ConfigFactory.parseFile(localConfFile.toFile).withFallback(ConfigFactory.load())
+
   given ConfigReadable[Path] = ConfigReadable.string.map(s => Paths.get(s))
 
   private def pillConf =
@@ -33,16 +36,21 @@ object PillConf:
       else ConfigFactory.load(localConfig)
     conf.resolve().getConfig("pill")
 
-  def apply(c: Config = pillConf): Either[ConfigError, PillConf] =
+  def prod = apply(pillConf, isTest = false)
+
+  def apply(c: Config, isTest: Boolean): Either[ConfigError, PillConf] =
     val isProd = BuildInfo.isProd
+    from(c, isTest, if isProd then prodDatabaseConf else devDatabaseConf)
+
+  def from(c: Config, isTest: Boolean, db: Password => Conf): Either[ConfigError, PillConf] =
     for
       dbPass <- c.parse[Password]("db.pass")
       apnsPrivateKey <- c.parse[Path]("push.apns.privateKey")
       discoToken <- c.parse[AccessToken]("discogs.token")
     yield PillConf(
-      isTest = false,
-      isProdBuild = isProd,
-      if isProd then prodDatabaseConf(dbPass) else devDatabaseConf(dbPass),
+      isTest = isTest,
+      isProdBuild = BuildInfo.isProd,
+      db(dbPass),
       apnsPrivateKey,
       discoToken
     )

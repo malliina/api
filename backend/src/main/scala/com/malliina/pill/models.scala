@@ -5,6 +5,9 @@ import io.circe.Codec
 
 case class PillResponse(message: String) derives Codec.AsObject
 
+object PillResponse:
+  val done = PillResponse("Done.")
+
 case class EnablePillNotifications(os: MobileOS, token: PushToken) derives Codec.AsObject
 
 case class DisablePillNotifications(token: PushToken) derives Codec.AsObject

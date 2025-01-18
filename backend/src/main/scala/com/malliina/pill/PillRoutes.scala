@@ -30,7 +30,7 @@ class PillRoutes[F[_]: Concurrent](db: PillService[F]) extends AppImplicits[F]:
       for
         body <- req.decodeJson[DisablePillNotifications]
         task <- db.disable(body)
-        res <- Ok(PillResponse("Done."), noCache)
+        res <- Ok(PillResponse.done, noCache)
       yield res
     case GET -> Root / "boom" =>
       throw new Exception("Kaboom!")

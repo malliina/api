@@ -74,7 +74,7 @@ class DiscoClient[F[_]: Async](
           s => F.pure(s)
         )
 
-  protected def coverFile(artist: String, album: String): Path =
+  private def coverFile(artist: String, album: String): Path =
     // avoids platform-specific file system encoding nonsense
     val hash = DigestUtils.md5Hex(s"$artist-$album")
     coverDir.resolve(s"$hash.jpg")
@@ -97,7 +97,7 @@ class DiscoClient[F[_]: Async](
     * @return
     *   the downloaded album cover along with the number of bytes downloaded
     */
-  protected def downloadCover(
+  private def downloadCover(
     artist: String,
     album: String,
     fileFor: FullUrl => Path

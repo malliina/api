@@ -22,29 +22,24 @@ import org.http4s.{Http, HttpRoutes, Request, Response}
 
 import scala.concurrent.duration.{Duration, DurationInt}
 
-object AppServer extends IOApp:
-  override def runtimeConfig =
-    super.runtimeConfig.copy(cpuStarvationCheckInitialDelay = Duration.Inf)
-  AppLogging.init()
-  private val log = AppLogger(getClass)
-  log.info("Starting server...")
+trait ServerResources:
   given Readable[Port] =
     Readable.string.emap(s => Port.fromString(s).toRight(ErrorMessage(s"Not a port: '$s'.")))
+
   private val serverPort: Port =
     Sys.env.readOpt[Port]("SERVER_PORT").getOrElse(port"9000")
 
-  private def appResource[F[+_]: Async: Parallel]: Resource[F, Http[F, F]] =
+  private def appResource[F[+_]: Async: Parallel](conf: PillConf): Resource[F, Http[F, F]] =
     for
       http <- HttpClientIO.resource[F]
       dispatcher <- Dispatcher.parallel[F]
       _ <- AppLogging.resource(dispatcher, http)
       maven = Service.default[F](http)
-      conf <- Resource.eval(Sync[F].fromEither(PillConf.apply()))
       disco = CoverService(DiscoClient(conf.discoToken, http))
       push =
         if conf.apnsEnabled then Push.default[F](conf.apnsPrivateKey, http) else PushService.noop[F]
       db <-
-        if conf.isFull then DoobieDatabase.default(conf.db)
+        if conf.isFull then DoobieDatabase.init(conf.db)
         else Resource.eval(DoobieDatabase.fast(conf.db))
       pill = PillRoutes(PillService(db))
     yield GZip:
@@ -56,8 +51,9 @@ object AppServer extends IOApp:
             "/pill" -> pill.service,
             "/assets" -> StaticService[F].routes
           )
-  private def emberServer[F[+_]: Async: Parallel]: Resource[F, Server] = for
-    app <- appResource
+
+  def emberServer[F[+_]: Async: Parallel](conf: PillConf): Resource[F, Server] = for
+    app <- appResource(conf)
     server <- EmberServerBuilder
       .default[F]
       .withHost(host"0.0.0.0")
@@ -70,8 +66,19 @@ object AppServer extends IOApp:
       .build
   yield server
 
-  def orNotFound[F[_]: Monad](rs: HttpRoutes[F]): Kleisli[F, Request[F], Response[F]] =
+  private def orNotFound[F[_]: Monad](rs: HttpRoutes[F]): Kleisli[F, Request[F], Response[F]] =
     Kleisli(req => rs.run(req).getOrElseF(BasicApiService[F].notFound(req)))
 
+object AppServer extends IOApp with ServerResources:
+  override def runtimeConfig =
+    super.runtimeConfig.copy(cpuStarvationCheckInitialDelay = Duration.Inf)
+  AppLogging.init()
+  private val log = AppLogger(getClass)
+  log.info("Starting server...")
+
   override def run(args: List[String]): IO[ExitCode] =
-    emberServer[IO].use(_ => IO.never).as(ExitCode.Success)
+    val server = for
+      conf <- Resource.eval(Sync[IO].fromEither(PillConf.prod))
+      server <- emberServer[IO](conf)
+    yield server
+    server.use(_ => IO.never).as(ExitCode.Success)
