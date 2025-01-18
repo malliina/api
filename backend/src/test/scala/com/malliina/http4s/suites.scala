@@ -23,7 +23,7 @@ trait MUnitDatabaseSuite:
     override def afterAll(): Unit = ()
 
   private def testDatabaseConf(password: Password) = Conf(
-    url"jdbc:mysql://localhost:3306/testapi",
+    url"jdbc:mysql://127.0.0.1:3306/testapi",
     "testapi",
     password,
     Conf.MySQLDriver,

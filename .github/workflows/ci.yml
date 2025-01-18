@@ -5,7 +5,19 @@ on: push
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+
+    services:
+      mysql:
+        image: mysql:8.0.33
+        env:
+          MYSQL_DATABASE: testapi
+          MYSQL_USER: testapi
+          MYSQL_PASSWORD: testdb123
+          MYSQL_ROOT_PASSWORD: testdb123
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/checkout@v4
@@ -14,5 +26,8 @@ jobs:
           distribution: zulu
           java-version: 17
           cache: sbt
+      - uses: sbt/setup-sbt@v1
       - name: Run tests
+        env:
+          DB_PASS: testdb123
         run: sbt test
