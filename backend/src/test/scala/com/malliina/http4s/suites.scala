@@ -46,7 +46,7 @@ case class ServerTools(server: Server, client: HttpClientF2[IO]):
 trait ServerSuite extends MUnitDatabaseSuite with ServerResources:
   self: munit.CatsEffectSuite =>
   val ember: Resource[IO, ServerTools] = for
-    _ <- Resource.eval(IO.delay(LogbackUtils.init(rootLevel = Level.INFO)))
+//    _ <- Resource.eval(IO.delay(LogbackUtils.init(rootLevel = Level.INFO)))
     conf <- Resource.eval(Sync[IO].fromEither(testConf))
     server <- emberServer[IO](conf)
     client <- HttpClientIO.resource[IO]

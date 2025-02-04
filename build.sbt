@@ -8,7 +8,7 @@ inThisBuild(
     version := "0.0.1",
     scalaVersion := "3.6.2",
     libraryDependencies ++= Seq(
-      "org.scalameta" %% "munit" % "1.0.4" % Test
+      "org.scalameta" %% "munit" % "1.1.0" % Test
     ),
     assemblyMergeStrategy := {
       case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.rename
@@ -45,16 +45,16 @@ val backend = project
     hashPackage := "com.malliina.mvn.assets",
     libraryDependencies ++=
       Seq("database", "util-http4s", "util-html").map { m =>
-        "com.malliina" %% m % "6.9.6"
+        "com.malliina" %% m % "6.9.8"
       } ++ Seq("generic", "parser").map { m =>
         "io.circe" %% s"circe-$m" % "0.14.10"
       } ++ Seq(
-        "com.malliina" %% "mobile-push-io" % "3.11.2",
-        "com.malliina" %% "config" % "3.7.5",
-        "com.malliina" %% "logstreams-client" % "2.8.2",
+        "com.malliina" %% "mobile-push-io" % "3.11.4",
+        "com.malliina" %% "config" % "3.7.7",
+        "com.malliina" %% "logstreams-client" % "2.8.3",
         "mysql" % "mysql-connector-java" % "8.0.33",
         "com.lihaoyi" %% "scalatags" % "0.13.1",
-        "commons-codec" % "commons-codec" % "1.17.2",
+        "commons-codec" % "commons-codec" % "1.18.0",
         "org.apache.commons" % "commons-text" % "1.13.0",
         "org.typelevel" %% "munit-cats-effect" % "2.0.0" % Test
       ),
