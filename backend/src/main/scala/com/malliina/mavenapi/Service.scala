@@ -14,11 +14,11 @@ import org.http4s.{HttpRoutes, Request, Response, Uri}
 object Service:
   val pong = "pong"
 
-  def default[F[_]: Async: Parallel](http: HttpClientF2[F]): Service[F] =
+  def default[F[_]: { Async, Parallel }](http: HttpClientF2[F]): Service[F] =
     val db = MyDatabase[F]
     Service[F](MavenCentralClient[F](http), db)
 
-class Service[F[_]: Async: Parallel](maven: MavenCentralClient[F], data: MyDatabase[F])
+class Service[F[_]: { Async, Parallel }](maven: MavenCentralClient[F], data: MyDatabase[F])
   extends AppImplicits[F]
   with FormDecoders[F]:
   private val pages = Pages.default()
