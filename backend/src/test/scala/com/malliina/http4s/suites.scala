@@ -1,12 +1,10 @@
 package com.malliina.http4s
 
 import cats.effect.{IO, Resource, Sync}
-import ch.qos.logback.classic.Level
 import com.malliina.database.Conf
 import com.malliina.http.FullUrl
 import com.malliina.http.UrlSyntax.url
 import com.malliina.http.io.{HttpClientF2, HttpClientIO}
-import com.malliina.logback.LogbackUtils
 import com.malliina.pill.PillConf
 import com.malliina.values.Password
 import munit.AnyFixture

@@ -24,11 +24,20 @@ object Popper extends js.Object
 
 @js.native
 trait PopoverOptions extends js.Object:
-  def trigger: String
+  def trigger: String = js.native
+  def delay: Int = js.native
+  def container: String = js.native
+  def sanitize: Boolean = js.native
 
 object PopoverOptions:
-  def apply(trigger: String): PopoverOptions =
-    literal(trigger = trigger).asInstanceOf[PopoverOptions]
+  def apply(
+    trigger: String,
+    delay: Int = 1,
+    container: String = "body",
+    sanitize: Boolean = false
+  ): PopoverOptions =
+    literal(trigger = trigger, delay = delay, container = container, sanitize = sanitize)
+      .asInstanceOf[PopoverOptions]
 
   val click = apply("click")
   val focus = apply("focus")

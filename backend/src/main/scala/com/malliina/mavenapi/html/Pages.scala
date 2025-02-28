@@ -98,12 +98,14 @@ class Pages(
                       td(result.v),
                       td(code(result.sbt)),
                       td(
-                        div(
+                        a(
+                          tabindex := "0",
+                          tpe := "button",
                           cls := "clipboard",
                           data("id") := result.sbt,
                           data("bs-toggle") := "popover",
                           data("bs-title") := "Copied",
-                          data("bs-content") := result.sbt
+                          data("bs-content") := "Paste to sbt."
                         )
                       )
                     )

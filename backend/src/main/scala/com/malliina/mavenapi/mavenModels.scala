@@ -1,11 +1,16 @@
 package com.malliina.mavenapi
 
 import com.malliina.http4s.FormReadableT
-import com.malliina.values.Readable
+import com.malliina.values.Literals.err
+import com.malliina.values.{ErrorMessage, Readable}
 import io.circe.{Codec, Decoder, Encoder}
 
 trait IdComp[T <: String]:
-  def apply(s: String): T
+  def build(s: String): Either[ErrorMessage, T] =
+    if s.isBlank then Left(err"Input was blank.")
+    else Right(apply(s))
+
+  protected def apply(s: String): T
   extension (t: T)
     def id: String = t
     def trimmed: T = apply(id.trim)
@@ -21,18 +26,18 @@ opaque type ArtifactId = String
 
 object ArtifactId extends IdComp[ArtifactId]:
   val key = "a"
-  def apply(s: String): ArtifactId = s.trim
+  protected def apply(s: String): ArtifactId = s.trim
 
 opaque type GroupId = String
 
 object GroupId extends IdComp[GroupId]:
   val key = "g"
-  def apply(s: String): GroupId = s.trim
+  protected def apply(s: String): GroupId = s.trim
 
 opaque type Version = String
 
 object Version extends IdComp[Version]:
-  def apply(s: String): Version = s.trim
+  protected def apply(s: String): Version = s.trim
 
 opaque type ScalaVersion = String
 
@@ -47,7 +52,11 @@ object ScalaVersion extends IdComp[ScalaVersion]:
 
 case class SearchForm(a: Option[ArtifactId], g: Option[GroupId], sv: Option[ScalaVersion]):
   def nonEmpty: SearchForm =
-    SearchForm(a.filter(_.trimmed.nonEmpty), g.filter(_.trimmed.nonEmpty), sv.filter(_.trimmed.nonEmpty))
+    SearchForm(
+      a.filter(_.trimmed.nonEmpty),
+      g.filter(_.trimmed.nonEmpty),
+      sv.filter(_.trimmed.nonEmpty)
+    )
 
   def toMap = a.map(a => Map(ArtifactId.key -> a.id)).getOrElse(Map.empty) ++ g
     .map(g => Map(GroupId.key -> g.id))
