@@ -24,6 +24,8 @@ object PillConf:
   private val appDir = Paths.get(sys.props("user.home")).resolve(".pill")
   private val localConfig = local("pill.conf")
 
+  val mariaDbDriver = "org.mariadb.jdbc.Driver"
+
   def local(file: String): Config =
     val localConfFile = appDir.resolve(file)
     ConfigFactory.parseFile(localConfFile.toFile).withFallback(ConfigFactory.load())
@@ -56,19 +58,19 @@ object PillConf:
     )
 
   private def prodDatabaseConf(password: Password) = Conf(
-    url"jdbc:mysql://localhost:3306/pill",
+    url"jdbc:mariadb://localhost:3306/pill",
     "pill",
     password,
-    Conf.MySQLDriver,
+    mariaDbDriver,
     2,
     autoMigrate = true
   )
 
   private def devDatabaseConf(password: Password) = Conf(
-    url"jdbc:mysql://localhost:3307/pill",
+    url"jdbc:mariadb://localhost:3306/pill",
     "pill",
     password,
-    Conf.MySQLDriver,
+    mariaDbDriver,
     2,
     autoMigrate = false
   )

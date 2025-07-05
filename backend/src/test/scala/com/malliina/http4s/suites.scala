@@ -21,10 +21,10 @@ trait MUnitDatabaseSuite:
     override def afterAll(): Unit = ()
 
   private def testDatabaseConf(password: Password) = Conf(
-    url"jdbc:mysql://127.0.0.1:3306/testapi",
+    url"jdbc:mariadb://127.0.0.1:3306/testapi",
     "testapi",
     password,
-    Conf.MySQLDriver,
+    PillConf.mariaDbDriver,
     maxPoolSize = 2,
     autoMigrate = true
   )

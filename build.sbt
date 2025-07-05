@@ -2,13 +2,30 @@ import sbtbuildinfo.BuildInfoKey
 import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
 import com.comcast.ip4s.IpLiteralSyntax
 
+val versions = new {
+  val app = "0.0.1"
+  val circe = "0.14.14"
+  val logstreams = "2.8.3"
+  val mariadb = "3.5.4"
+  val malliina = "3.7.10"
+  val mobilePush = "3.13.3"
+  val munit = "1.1.1"
+  val munitCats = "2.1.0"
+  val scala = "3.7.1"
+  val scalaJsDom = "2.8.0"
+  val scalatags = "0.13.1"
+  val commonsCodec = "1.18.0"
+  val commonsText = "1.13.1"
+  val utilWeb = "6.9.10"
+}
+
 inThisBuild(
   Seq(
     organization := "com.malliina",
-    version := "0.0.1",
-    scalaVersion := "3.6.2",
+    version := versions.app,
+    scalaVersion := versions.scala,
     libraryDependencies ++= Seq(
-      "org.scalameta" %% "munit" % "1.1.0" % Test
+      "org.scalameta" %% "munit" % "1.1.1" % Test
     ),
     assemblyMergeStrategy := {
       case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.rename
@@ -16,7 +33,7 @@ inThisBuild(
       case PathList("META-INF", "okio.kotlin_module")           => MergeStrategy.first
       case PathList("com", "malliina", xs @ _*)                 => MergeStrategy.first
       case PathList("module-info.class")                        => MergeStrategy.discard
-      case x =>
+      case x                                                    =>
         val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
         oldStrategy(x)
     },
@@ -32,7 +49,7 @@ val frontend = project
   .disablePlugins(RevolverPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "2.8.0"
+      "org.scala-js" %%% "scalajs-dom" % versions.scalaJsDom
     )
   )
 
@@ -45,18 +62,18 @@ val backend = project
     hashPackage := "com.malliina.mvn.assets",
     libraryDependencies ++=
       Seq("database", "util-http4s", "util-html").map { m =>
-        "com.malliina" %% m % "6.9.8"
+        "com.malliina" %% m % versions.utilWeb
       } ++ Seq("generic", "parser").map { m =>
-        "io.circe" %% s"circe-$m" % "0.14.10"
+        "io.circe" %% s"circe-$m" % versions.circe
       } ++ Seq(
-        "com.malliina" %% "mobile-push-io" % "3.11.4",
-        "com.malliina" %% "config" % "3.7.7",
-        "com.malliina" %% "logstreams-client" % "2.8.3",
-        "mysql" % "mysql-connector-java" % "8.0.33",
-        "com.lihaoyi" %% "scalatags" % "0.13.1",
-        "commons-codec" % "commons-codec" % "1.18.0",
-        "org.apache.commons" % "commons-text" % "1.13.0",
-        "org.typelevel" %% "munit-cats-effect" % "2.0.0" % Test
+        "com.malliina" %% "mobile-push-io" % versions.mobilePush,
+        "com.malliina" %% "config" % versions.malliina,
+        "com.malliina" %% "logstreams-client" % versions.logstreams,
+        "org.mariadb.jdbc" % "mariadb-java-client" % versions.mariadb,
+        "com.lihaoyi" %% "scalatags" % versions.scalatags,
+        "commons-codec" % "commons-codec" % versions.commonsCodec,
+        "org.apache.commons" % "commons-text" % versions.commonsText,
+        "org.typelevel" %% "munit-cats-effect" % versions.munitCats % Test
       ),
     buildInfoPackage := "com.malliina.mavenapi",
     buildInfoKeys ++= Seq[BuildInfoKey](name, version, scalaVersion),

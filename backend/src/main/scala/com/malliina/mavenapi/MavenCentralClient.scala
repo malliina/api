@@ -18,7 +18,7 @@ import java.net.SocketTimeoutException
   * @see
   *   https://blog.sonatype.com/2011/06/you-dont-need-a-browser-to-use-maven-central/
   */
-class MavenCentralClient[F[_]: Async: Parallel](http: HttpClientF2[F]):
+class MavenCentralClient[F[_]: {Async, Parallel}](http: HttpClientF2[F]):
   private val log = AppLogger(getClass)
 
   private val baseUrl = FullUrl.https("search.maven.org", "/solrsearch/select")
