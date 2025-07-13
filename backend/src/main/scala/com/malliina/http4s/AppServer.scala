@@ -38,7 +38,7 @@ trait ServerResources:
       _ <- AppLogging.resource(dispatcher, http)
       maven = Service.default[F](http)
       disco = CoverService(DiscoClient(conf.discoToken, http))
-      push =
+      _ =
         if conf.apnsEnabled then Push.default[F](conf.apnsPrivateKey, http) else PushService.noop[F]
       db <-
         if conf.isFull then DoobieDatabase.init(conf.db)

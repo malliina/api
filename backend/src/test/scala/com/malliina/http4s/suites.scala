@@ -13,7 +13,7 @@ import org.http4s.server.Server
 trait MUnitDatabaseSuite:
   self: munit.CatsEffectSuite =>
   val db: Fixture[Conf] = new Fixture[Conf]("database"):
-    var conf: Option[Conf] = None
+    private var conf: Option[Conf] = None
     def apply(): Conf = conf.get
 
     override def beforeAll(): Unit =

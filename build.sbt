@@ -25,7 +25,7 @@ inThisBuild(
     version := versions.app,
     scalaVersion := versions.scala,
     libraryDependencies ++= Seq(
-      "org.scalameta" %% "munit" % "1.1.1" % Test
+      "org.scalameta" %% "munit" % versions.munit % Test
     ),
     assemblyMergeStrategy := {
       case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.rename
@@ -45,7 +45,7 @@ val shared = project.in(file("shared"))
 
 val frontend = project
   .in(file("frontend"))
-  .enablePlugins(NodeJsPlugin, RollupPlugin)
+  .enablePlugins(NodeJsPlugin, EsbuildPlugin)
   .disablePlugins(RevolverPlugin)
   .settings(
     libraryDependencies ++= Seq(

@@ -28,7 +28,7 @@ class Push[F[+_]: Monad](conf: APNSTokenConf, http: HttpClient[F]) extends PushS
   def push(msg: APNSRequest, to: APNSToken): F[APNSResult] =
     client.push(to, msg).map(result => APNSResult(to, result))
 
-trait PushService[F[+_]: Monad]:
+trait PushService[F[+_]]:
   def push(msg: APNSRequest, to: APNSToken): F[APNSResult]
 
 object PushService:

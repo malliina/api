@@ -53,7 +53,7 @@ class CoverService[F[_]: Async](disco: DiscoClient[F]) extends AppImplicits[F]:
               )
               BadGateway(Errors("Unable to connect."), noCache)
             case t =>
-              log.error(s"Failure while searching cover '$coverName'.")
+              log.error(s"Failure while searching cover '$coverName'.", t)
               InternalServerError(Errors("Internal error. My bad."))
 
   private def notFound(str: String) = NotFound(Errors(str), noCache)

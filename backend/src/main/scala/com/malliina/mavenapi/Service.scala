@@ -48,7 +48,7 @@ class Service[F[_]: {Async, Parallel}](maven: MavenCentralClient[F], data: MyDat
         val baseUri: Uri = uri"/"
         val dest = baseUri.withQueryParams(form.nonEmpty.toMap)
         seeOther(dest)
-    case GET -> Root / "health" => Ok(AppMeta.meta.asJson)
+    case GET -> Root / "health"          => Ok(AppMeta.meta.asJson)
     case req @ GET -> Root / "artifacts" =>
       parseMaven(req): q =>
         maven.search(q).flatMap(res => ok(res))

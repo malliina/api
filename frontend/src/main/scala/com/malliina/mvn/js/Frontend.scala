@@ -11,6 +11,9 @@ object Frontend:
   val bootstrapJs = Bootstrap
   val bootstrapCss = BootstrapCss
   val popperJs = Popper
+  val common = CommonCss
+  val app = AppCss
+  val fonts = FontsCss
 
   def main(args: Array[String]): Unit =
     println("Hello!")
@@ -57,3 +60,15 @@ class Popover(@unused e: dom.Element, @unused options: PopoverOptions) extends j
 @js.native
 @JSImport("bootstrap/dist/css/bootstrap.min.css", JSImport.Namespace)
 object BootstrapCss extends js.Object
+
+@js.native
+@JSImport("./css/common.css", JSImport.Namespace)
+object CommonCss extends js.Object
+
+@js.native
+@JSImport("./css/search.css", JSImport.Namespace)
+object AppCss extends js.Object
+
+@js.native
+@JSImport("./css/fonts.css", JSImport.Namespace)
+object FontsCss extends js.Object

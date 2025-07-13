@@ -8,7 +8,6 @@ import com.malliina.pill.db.PillService
 import io.circe.syntax.EncoderOps
 import io.circe.{Encoder, Json}
 import org.http4s.*
-import org.http4s.dsl.io.*
 import org.http4s.headers.`Cache-Control`
 
 class PillRoutes[F[_]: Concurrent](db: PillService[F]) extends AppImplicits[F]:
@@ -16,9 +15,9 @@ class PillRoutes[F[_]: Concurrent](db: PillService[F]) extends AppImplicits[F]:
     jsonEncoderOf[F, A]
 
   val service: HttpRoutes[F] = HttpRoutes.of[F]:
-    case req @ GET -> Root =>
+    case GET -> Root =>
       Ok(Json.obj("a" -> "b".asJson))
-    case req @ GET -> Root / "what" =>
+    case GET -> Root / "what" =>
       Ok(Json.obj("c" -> "d".asJson))
     case req @ POST -> Root / "enable" =>
       for
@@ -29,7 +28,7 @@ class PillRoutes[F[_]: Concurrent](db: PillService[F]) extends AppImplicits[F]:
     case req @ POST -> Root / "disable" =>
       for
         body <- req.decodeJson[DisablePillNotifications]
-        task <- db.disable(body)
+        _ <- db.disable(body)
         res <- Ok(PillResponse.done, noCache)
       yield res
     case GET -> Root / "boom" =>

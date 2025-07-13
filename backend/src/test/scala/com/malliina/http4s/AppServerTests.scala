@@ -2,7 +2,7 @@ package com.malliina.http4s
 
 import com.malliina.pill.{DisablePillNotifications, EnablePillNotifications, PillResponse}
 import com.malliina.pill.db.MobileOS.Apple
-import com.malliina.pill.db.{MobileOS, PillRow, PushToken}
+import com.malliina.pill.db.{PillRow, PushToken}
 import org.apache.commons.text.{CharacterPredicates, RandomStringGenerator}
 
 class AppServerTests extends munit.CatsEffectSuite with ServerSuite:

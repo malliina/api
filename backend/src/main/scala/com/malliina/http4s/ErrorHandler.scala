@@ -13,7 +13,7 @@ object ErrorHandler:
 
 class ErrorHandler[F[_]: Async] extends BasicApiService[F] with AppImplicits[F]:
   def handler: Request[F] => PartialFunction[Throwable, F[Response[F]]] =
-    req => partial
+    _ => partial
 
   def partial: PartialFunction[Throwable, F[Response[F]]] =
     case re: ResponseException =>

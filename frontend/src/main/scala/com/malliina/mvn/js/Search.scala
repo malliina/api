@@ -14,5 +14,5 @@ class Search:
     .foreach: copyable =>
       copyable.addEventListener(
         "click",
-        (e: Event) => Clipboard.copyToClipboard(copyable.getAttribute("data-id"))
+        (_: Event) => Clipboard.copyToClipboard(copyable.getAttribute("data-id"))
       )
