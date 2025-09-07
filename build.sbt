@@ -5,7 +5,7 @@ import com.comcast.ip4s.IpLiteralSyntax
 val versions = new {
   val app = "0.0.1"
   val circe = "0.14.14"
-  val logstreams = "2.8.3"
+  val logstreams = "2.9.3"
   val mariadb = "3.5.5"
   val malliina = "3.7.18"
   val mobilePush = "3.14.1"
