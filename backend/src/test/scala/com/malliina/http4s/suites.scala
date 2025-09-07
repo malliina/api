@@ -1,10 +1,12 @@
 package com.malliina.http4s
 
 import cats.effect.{IO, Resource, Sync}
+import ch.qos.logback.classic.Level
 import com.malliina.database.Conf
 import com.malliina.http.FullUrl
 import com.malliina.http.UrlSyntax.url
 import com.malliina.http.io.{HttpClientF2, HttpClientIO}
+import com.malliina.logback.LogbackUtils
 import com.malliina.pill.PillConf
 import com.malliina.values.Password
 import munit.AnyFixture
@@ -44,7 +46,7 @@ case class ServerTools(server: Server, client: HttpClientF2[IO]):
 trait ServerSuite extends MUnitDatabaseSuite with ServerResources:
   self: munit.CatsEffectSuite =>
   val ember: Resource[IO, ServerTools] = for
-//    _ <- Resource.eval(IO.delay(LogbackUtils.init(rootLevel = Level.INFO)))
+    _ <- Resource.eval(IO.delay(LogbackUtils.init(rootLevel = Level.INFO)))
     conf <- Resource.eval(Sync[IO].fromEither(testConf))
     server <- emberServer[IO](conf)
     client <- HttpClientIO.resource[IO]

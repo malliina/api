@@ -1,7 +1,7 @@
 package com.malliina.http4s
 
 import cats.effect.Async
-import com.malliina.http.ResponseException
+import com.malliina.http.{HttpResponse, ResponseException}
 import com.malliina.http4s.ErrorHandler.log
 import com.malliina.util.AppLogger
 import org.http4s.{Request, Response}
@@ -18,7 +18,11 @@ class ErrorHandler[F[_]: Async] extends BasicApiService[F] with AppImplicits[F]:
   def partial: PartialFunction[Throwable, F[Response[F]]] =
     case re: ResponseException =>
       val error = re.error
-      log.error(s"HTTP ${error.code} for '${error.url}'. Body: '${error.response.asString}'.")
+      error.response match
+        case res: HttpResponse =>
+          log.error(s"HTTP ${error.code} for '${error.url}'. Body: '${res.asString}'.")
+        case _ =>
+          log.error(s"HTTP ${error.code} for '${error.url}'.")
       serverError
     case NonFatal(t) =>
       log.error(s"Server error.", t)
