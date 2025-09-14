@@ -7,7 +7,7 @@ import cats.effect.{Async, ExitCode, IO, IOApp}
 import cats.{Monad, Parallel}
 import com.comcast.ip4s.{Port, host, port}
 import com.malliina.database.DoobieDatabase
-import com.malliina.http.io.HttpClientIO
+import com.malliina.http.HttpClient
 import com.malliina.logback.AppLogging
 import com.malliina.mavenapi.{BuildInfo, Service}
 import com.malliina.musicmeta.{CoverService, DiscoClient}
@@ -31,9 +31,9 @@ trait ServerResources:
   private val serverPort: Port =
     Sys.env.readOpt[Port]("SERVER_PORT").getOrElse(port"9000")
 
-  private def appResource[F[+_]: Async: Parallel](conf: PillConf): Resource[F, Http[F, F]] =
+  private def appResource[F[+_]: {Async, Parallel}](conf: PillConf): Resource[F, Http[F, F]] =
     for
-      http <- HttpClientIO.resource[F]
+      http <- HttpClient.resource[F]()
       dispatcher <- Dispatcher.parallel[F]
       _ <- AppLogging.resource(dispatcher, http)
       maven = Service.default[F](http)
@@ -44,7 +44,7 @@ trait ServerResources:
         if conf.isFull then DoobieDatabase.init(conf.db)
         else Resource.eval(DoobieDatabase.fast(conf.db))
       pill = PillRoutes(PillService(db))
-    yield GZip:
+    yield GZip[F, F]:
       HSTS:
         orNotFound:
           Router(
@@ -54,7 +54,7 @@ trait ServerResources:
             "/assets" -> StaticService[F].routes
           )
 
-  def emberServer[F[+_]: Async: Parallel](conf: PillConf): Resource[F, Server] = for
+  def emberServer[F[+_]: {Async, Parallel}](conf: PillConf): Resource[F, Server] = for
     app <- appResource(conf)
     _ = log.info(s"Binding on port $serverPort using app version ${BuildInfo.gitHash}...")
     server <- EmberServerBuilder

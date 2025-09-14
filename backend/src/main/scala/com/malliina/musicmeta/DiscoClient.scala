@@ -3,8 +3,7 @@ package com.malliina.musicmeta
 import cats.effect.Async
 import cats.syntax.flatMap.toFlatMapOps
 import cats.syntax.functor.toFunctorOps
-import com.malliina.http.io.HttpClientF
-import com.malliina.http.{FullUrl, ResponseException}
+import com.malliina.http.{FullUrl, HttpClient, ResponseException}
 import com.malliina.musicmeta.DiscoClient.log
 import com.malliina.storage.*
 import com.malliina.util.AppLogger
@@ -22,7 +21,7 @@ object DiscoClient:
 
 class DiscoClient[F[_]: Async](
   token: AccessToken,
-  http: HttpClientF[F],
+  http: HttpClient[F],
   coverDir: Path = DiscoClient.coverDir
 ):
   val F: Async[F] = Async[F]

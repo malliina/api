@@ -4,8 +4,7 @@ import cats.Parallel
 import cats.data.NonEmptyList
 import cats.effect.Async
 import cats.implicits.*
-import com.malliina.http.FullUrl
-import com.malliina.http.io.HttpClientF2
+import com.malliina.http.{FullUrl, HttpClient}
 import com.malliina.mavenapi.ScalaVersion.*
 import com.malliina.util.AppLogger
 import io.circe.Json
@@ -18,7 +17,7 @@ import java.net.SocketTimeoutException
   * @see
   *   https://blog.sonatype.com/2011/06/you-dont-need-a-browser-to-use-maven-central/
   */
-class MavenCentralClient[F[_]: {Async, Parallel}](http: HttpClientF2[F]):
+class MavenCentralClient[F[_]: {Async, Parallel}](http: HttpClient[F]):
   private val log = AppLogger(getClass)
 
   private val baseUrl = FullUrl.https("search.maven.org", "/solrsearch/select")
@@ -45,10 +44,12 @@ class MavenCentralClient[F[_]: {Async, Parallel}](http: HttpClientF2[F]):
     val group = q.group.map(g => s"""g:"$g"""")
     val artifact = q.artifactName.map(a => s"""a:"$a"""")
     val searchQuery = (group.toList ++ artifact.toList).mkString(" AND ")
-    val url = baseUrl.withQuery(
-      "q" -> searchQuery,
-      "rows" -> "20",
-      "core" -> "gav"
+    val url = baseUrl.query(
+      Map(
+        "q" -> searchQuery,
+        "rows" -> "20",
+        "core" -> "gav"
+      )
     )
     log.info(s"Fetching '$url'...")
     http

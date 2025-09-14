@@ -18,7 +18,7 @@ trait MyScalatagsInstances:
   ): EntityEncoder[F, C] =
     contentEncoder(MediaType.text.html)
 
-  private def contentEncoder[F[_], C <: Frag[?, String]](mediaType: MediaType)(implicit
+  private def contentEncoder[F[_], C <: Frag[?, String]](mediaType: MediaType)(using
     charset: Charset
   ): EntityEncoder[F, C] =
     EntityEncoder

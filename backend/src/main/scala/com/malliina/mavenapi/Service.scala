@@ -3,8 +3,7 @@ package com.malliina.mavenapi
 import cats.Parallel
 import cats.effect.Async
 import cats.syntax.all.toFlatMapOps
-import com.malliina.http.io.HttpClientF2
-import com.malliina.http.{Errors, SingleError}
+import com.malliina.http.{Errors, HttpClient, SingleError}
 import com.malliina.http4s.{AppImplicits, FormDecoders, parsers}
 import com.malliina.mavenapi.html.Pages
 import io.circe.syntax.EncoderOps
@@ -14,7 +13,7 @@ import org.http4s.{HttpRoutes, Request, Response, Uri}
 object Service:
   val pong = "pong"
 
-  def default[F[_]: {Async, Parallel}](http: HttpClientF2[F]): Service[F] =
+  def default[F[_]: {Async, Parallel}](http: HttpClient[F]): Service[F] =
     val db = MyDatabase[F]
     Service[F](MavenCentralClient[F](http), db)
 
