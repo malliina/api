@@ -5,9 +5,7 @@ import com.comcast.ip4s.IpLiteralSyntax
 val versions = new {
   val app = "0.0.1"
   val circe = "0.14.14"
-  val logstreams = "2.10.4"
   val mariadb = "3.5.6"
-  val malliina = "3.8.4"
   val mobilePush = "3.15.3"
   val munit = "1.2.0"
   val munitCats = "2.1.0"
@@ -16,7 +14,7 @@ val versions = new {
   val scalatags = "0.13.1"
   val commonsCodec = "1.19.0"
   val commonsText = "1.14.0"
-  val utilWeb = "6.9.16"
+  val util = "6.10.0"
 }
 
 inThisBuild(
@@ -61,14 +59,12 @@ val backend = project
     dependentModule := shared,
     hashPackage := "com.malliina.mvn.assets",
     libraryDependencies ++=
-      Seq("database", "util-http4s", "util-html").map { m =>
-        "com.malliina" %% m % versions.utilWeb
+      Seq("config", "logstreams-client", "database", "util-http4s", "util-html").map { m =>
+        "com.malliina" %% m % versions.util
       } ++ Seq("generic", "parser").map { m =>
         "io.circe" %% s"circe-$m" % versions.circe
       } ++ Seq(
         "com.malliina" %% "mobile-push-io" % versions.mobilePush,
-        "com.malliina" %% "config" % versions.malliina,
-        "com.malliina" %% "logstreams-client" % versions.logstreams,
         "org.mariadb.jdbc" % "mariadb-java-client" % versions.mariadb,
         "com.lihaoyi" %% "scalatags" % versions.scalatags,
         "commons-codec" % "commons-codec" % versions.commonsCodec,
