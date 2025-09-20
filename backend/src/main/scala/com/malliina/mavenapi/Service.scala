@@ -15,9 +15,9 @@ object Service:
 
   def default[F[_]: {Async, Parallel}](http: HttpClient[F]): Service[F] =
     val db = MyDatabase[F]
-    Service[F](MavenCentralClient[F](http), db)
+    Service[F](SearchClient.central[F](http), db)
 
-class Service[F[_]: Async](maven: MavenCentralClient[F], data: MyDatabase[F])
+class Service[F[_]: Async](search: SearchClient[F], data: MyDatabase[F])
   extends AppImplicits[F]
   with FormDecoders[F]:
   private val pages = Pages.default()
@@ -36,7 +36,7 @@ class Service[F[_]: Async](maven: MavenCentralClient[F], data: MyDatabase[F])
       parseMaven(req): q =>
         if q.isEmpty then ok(pages.search(q, Nil))
         else
-          maven
+          search
             .search(q)
             .flatMap: res =>
               ok(pages.search(q, res.results))
@@ -50,5 +50,5 @@ class Service[F[_]: Async](maven: MavenCentralClient[F], data: MyDatabase[F])
     case GET -> Root / "health"          => Ok(AppMeta.meta.asJson)
     case req @ GET -> Root / "artifacts" =>
       parseMaven(req): q =>
-        maven.search(q).flatMap(res => ok(res))
+        search.search(q).flatMap(res => ok(res))
     case req => NotFound(Errors(s"Not found: ${req.method} ${req.uri}.").asJson)

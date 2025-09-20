@@ -4,7 +4,7 @@ import cats.Show
 import com.malliina.http.FullUrl
 import com.malliina.live.LiveReload
 import com.malliina.mavenapi.html.Pages.{scope, urlAttr, given}
-import com.malliina.mavenapi.{AssetsSource, BuildInfo, MavenDocument, MavenQuery}
+import com.malliina.mavenapi.{AssetsSource, BuildInfo, SearchResult, MavenQuery}
 import com.malliina.mvn.assets.{FileAssets, HashedAssets}
 import org.http4s.Uri
 import scalatags.Text.all.*
@@ -34,7 +34,7 @@ class Pages(
   cssFiles: Seq[String],
   assets: AssetsSource
 ):
-  def search(q: MavenQuery, results: Seq[MavenDocument]) =
+  def search(q: MavenQuery, results: Seq[SearchResult]) =
     html(lang := "en")(
       head(
         meta(charset := "utf-8"),
@@ -90,7 +90,7 @@ class Pages(
                   )
                 ),
                 tbody(
-                  results.map: (result: MavenDocument) =>
+                  results.map: (result: SearchResult) =>
                     tr(
                       td(result.a),
                       td(result.v),

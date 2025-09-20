@@ -87,15 +87,15 @@ case class MavenQuery(
     case (None, Some(a))    => s"artifact $a"
     case (None, None)       => "no query"
 
-case class MavenDocument(id: String, g: GroupId, a: String, v: String, timestamp: Long)
+case class SearchResult(id: String, g: GroupId, a: String, v: String, timestamp: Long)
   derives Codec.AsObject:
   private val isScala = a.contains('_')
   private val artifactName = a.takeWhile(_ != '_')
   private val sep = if isScala then "%%" else "%"
   val sbt = s""""$g" $sep "$artifactName" % "$v""""
 
-case class MavenResponse(docs: Seq[MavenDocument], start: Int, numFound: Int) derives Codec.AsObject
+case class MavenResponse(docs: Seq[SearchResult], start: Int, numFound: Int) derives Codec.AsObject
 
 case class MavenSearchResponse(response: MavenResponse) derives Codec.AsObject
 
-case class MavenSearchResults(results: Seq[MavenDocument]) derives Codec.AsObject
+case class SearchResults(results: Seq[SearchResult]) derives Codec.AsObject

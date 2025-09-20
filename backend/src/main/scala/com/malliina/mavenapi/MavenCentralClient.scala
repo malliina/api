@@ -1,13 +1,9 @@
 package com.malliina.mavenapi
 
-import cats.Parallel
-import cats.data.NonEmptyList
 import cats.effect.Async
 import cats.implicits.*
 import com.malliina.http.{FullUrl, HttpClient}
-import com.malliina.mavenapi.ScalaVersion.*
 import com.malliina.util.AppLogger
-import io.circe.Json
 
 import java.net.SocketTimeoutException
 
@@ -17,30 +13,12 @@ import java.net.SocketTimeoutException
   * @see
   *   https://blog.sonatype.com/2011/06/you-dont-need-a-browser-to-use-maven-central/
   */
-class MavenCentralClient[F[_]: {Async, Parallel}](http: HttpClient[F]):
+class MavenCentralClient[F[_]: Async](http: HttpClient[F]) extends ArtifactSearcher[F]:
   private val log = AppLogger(getClass)
 
   private val baseUrl = FullUrl.https("search.maven.org", "/solrsearch/select")
 
-  def searchWildcard(q: String): F[Json] =
-    val url = baseUrl.withQuery("q" -> q, "rows" -> "20", "wt" -> "json")
-    http.getAs[Json](url)
-
-  def search(q: MavenQuery): F[MavenSearchResults] =
-    (NonEmptyList
-      .of(scala3, scala213, sjs1scala213, sjs1scala3, sbt1)
-      .map(sv => q.copy(scalaVersion = Option(sv))) ++ List(q.copy(scalaVersion = None)))
-      .parTraverse(query => searchByVersionWithRetry(query))
-      .map(list => MavenSearchResults(list.toList.flatMap(_.results).sortBy(_.timestamp).reverse))
-
-  private def searchByVersionWithRetry(q: MavenQuery): F[MavenSearchResults] =
-    searchByVersion(q).handleErrorWith:
-      case te: TimeoutException =>
-        log.warn(s"Request timeout for '${te.url}', retrying...")
-        searchByVersion(q)
-      case other => Async[F].raiseError(other)
-
-  private def searchByVersion(q: MavenQuery): F[MavenSearchResults] =
+  override def searchByVersion(q: MavenQuery): F[SearchResults] =
     val group = q.group.map(g => s"""g:"$g"""")
     val artifact = q.artifactName.map(a => s"""a:"$a"""")
     val searchQuery = (group.toList ++ artifact.toList).mkString(" AND ")
@@ -56,7 +34,7 @@ class MavenCentralClient[F[_]: {Async, Parallel}](http: HttpClient[F]):
       .getAs[MavenSearchResponse](url)
       .map: res =>
         log.info(s"Found ${res.response.numFound} artifacts from '$url'.")
-        MavenSearchResults(res.response.docs)
+        SearchResults(res.response.docs)
       .adaptError:
         case ste: SocketTimeoutException =>
           log.info(s"Request timeout for '$url'.")
