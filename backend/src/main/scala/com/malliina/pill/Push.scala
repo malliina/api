@@ -20,19 +20,16 @@ object Push:
   def default[F[+_]: Monad](file: Path, http: HttpClient[F]): Push[F] =
     new Push(APNSTokenConf(file, keyId, teamId), http)
 
-class Push[F[+_]: Monad](conf: APNSTokenConf, http: HttpClient[F]) extends PushService[F]:
+class Push[F[_]: Monad](conf: APNSTokenConf, http: HttpClient[F]) extends PushService[F]:
   private val client = APNSHttpClientF(conf, http, isSandbox = false)
-//  private val message = APNSMessage(APSPayload.background(None, None, None))
-//  private val req = APNSRequest.withTopic(Push.topic, message)
 
   def push(msg: APNSRequest, to: APNSToken): F[APNSResult] =
     client.push(to, msg).map(result => APNSResult(to, result))
 
-trait PushService[F[+_]]:
+trait PushService[F[_]]:
   def push(msg: APNSRequest, to: APNSToken): F[APNSResult]
 
 object PushService:
-  def noop[F[+_]: Monad]: PushService[F] = new PushService[F]:
-    override def push(msg: APNSRequest, to: APNSToken): F[APNSResult] =
-      val result = APNSResult(to, Left(APNSError.default("Not implemented.")))
-      Monad[F].pure(result)
+  def noop[F[_]: Monad]: PushService[F] = (_: APNSRequest, to: APNSToken) =>
+    val result = APNSResult(to, Left(APNSError.default("Not implemented.")))
+    Monad[F].pure(result)

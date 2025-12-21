@@ -3,7 +3,7 @@ package com.malliina.mvn.js
 import org.scalajs.dom.{Event, document}
 
 class Search:
-  val popovers = document
+  private val popovers = document
     .querySelectorAll("[data-bs-toggle='popover']")
     .map: e =>
       new Popover(e, PopoverOptions.click)

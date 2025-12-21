@@ -4,8 +4,6 @@ import com.malliina.http.FullUrl
 import fs2.io.net.SocketTimeoutException
 import io.circe.Codec
 
-case class Name(name: String) extends AnyVal
-
 case class UserId(id: String) extends AnyVal
 
 case class Person(name: String, age: Int) derives Codec.AsObject
