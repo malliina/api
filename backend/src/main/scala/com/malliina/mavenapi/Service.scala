@@ -3,7 +3,7 @@ package com.malliina.mavenapi
 import cats.Parallel
 import cats.effect.Async
 import cats.syntax.all.toFlatMapOps
-import com.malliina.http.{Errors, HttpClient, SingleError}
+import com.malliina.http.{Errors, HttpClient}
 import com.malliina.http4s.{AppImplicits, FormDecoders, parsers}
 import com.malliina.mavenapi.html.Pages
 import io.circe.syntax.EncoderOps
@@ -25,9 +25,6 @@ class Service[F[_]: Async](search: SearchClient[F], data: MyDatabase[F])
   private def parseMaven(req: Request[F])(run: MavenQuery => F[Response[F]]): F[Response[F]] =
     val result = parsers
       .parseMavenQuery(req.uri.query)
-      .left
-      .map: errors =>
-        Errors(errors.map(e => SingleError.input(e.sanitized)))
     parsed(result): q =>
       run(q)
 

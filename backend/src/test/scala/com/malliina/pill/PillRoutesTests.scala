@@ -6,5 +6,5 @@ import com.malliina.pill.db.*
 
 class PillRoutesTests extends FunSuite:
   test("json".ignore):
-    val json = EnablePillNotifications(MobileOS.Apple, PushToken("jee")).asJson
+    val json = EnablePillNotifications(MobileOS.Apple, PushToken.unsafe("jee")).asJson
     println(json)

@@ -11,7 +11,7 @@ class AppServerTests extends munit.CatsEffectSuite with ServerSuite:
     val pillUrl = srv.baseHttpUrl / "pill"
     val enableUrl = pillUrl / "enable"
     val disableUrl = pillUrl / "disable"
-    val in = EnablePillNotifications(Apple, PushToken(randomString(6)))
+    val in = EnablePillNotifications(Apple, PushToken.unsafe(randomString(6)))
     val client = srv.client
     for
       enabled <- client.postAs[EnablePillNotifications, PillRow](enableUrl, in)
