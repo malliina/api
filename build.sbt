@@ -5,16 +5,16 @@ import com.comcast.ip4s.IpLiteralSyntax
 val versions = new {
   val app = "0.0.1"
   val circe = "0.14.15"
-  val mariadb = "3.5.6"
-  val mobilePush = "3.16.0"
+  val mariadb = "3.5.7"
+  val mobilePush = "3.16.1"
   val munit = "1.2.1"
   val munitCats = "2.1.0"
   val scala = "3.7.2"
   val scalaJsDom = "2.8.0"
   val scalatags = "0.13.1"
-  val commonsCodec = "1.19.0"
-  val commonsText = "1.14.0"
-  val util = "6.11.0"
+  val commonsCodec = "1.20.0"
+  val commonsText = "1.15.0"
+  val util = "6.11.1"
 }
 
 inThisBuild(

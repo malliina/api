@@ -11,7 +11,7 @@ object Mappings extends Mappings
 trait Mappings:
   given Meta[Instant] = doobie.implicits.legacy.instant.JavaTimeInstantMeta
   given Meta[PushToken] = validated(PushToken)
-  given Meta[MobileOS] = Meta[String].timap(MobileOS.unsafe)(_.name)
+  given Meta[MobileOS] = validated(MobileOS)
   given Meta[PillRowId] = validated(PillRowId)
 
   private def validated[T, R: {Meta, Show}, C <: ValidatingCompanion[R, T]](c: C): Meta[T] =
