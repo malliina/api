@@ -4,7 +4,8 @@ import cats.data.Kleisli
 import cats.effect.kernel.{Resource, Sync}
 import cats.effect.std.Dispatcher
 import cats.effect.{Async, ExitCode, IO, IOApp}
-import cats.{Monad, Parallel}
+import cats.Parallel
+import cats.syntax.all.toFlatMapOps
 import com.comcast.ip4s.{Port, host, port}
 import com.malliina.database.DoobieDatabase
 import com.malliina.http.HttpClient
@@ -48,6 +49,7 @@ trait ServerResources:
       HSTS:
         orNotFound:
           Router(
+            "/logger" -> LoggerService[F]().service,
             "/" -> maven.service,
             "/covers" -> disco.service,
             "/pill" -> pill.service,
@@ -69,8 +71,14 @@ trait ServerResources:
       .build
   yield server
 
-  private def orNotFound[F[_]: Monad](rs: HttpRoutes[F]): Kleisli[F, Request[F], Response[F]] =
-    Kleisli(req => rs.run(req).getOrElseF(BasicApiService[F].notFound(req)))
+  private def orNotFound[F[_]: Async](rs: HttpRoutes[F]): Kleisli[F, Request[F], Response[F]] =
+    Kleisli: req =>
+      rs.run(req)
+        .getOrElseF:
+          Async[F]
+            .delay(log.info(s"Not found: ${req.method} ${req.uri}"))
+            .flatMap: _ =>
+              BasicApiService[F].notFound(req)
 
 object AppServer extends IOApp with ServerResources:
   override def runtimeConfig =
