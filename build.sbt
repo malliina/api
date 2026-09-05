@@ -1,21 +1,4 @@
-import sbtbuildinfo.BuildInfoKey
-import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
-import com.comcast.ip4s.IpLiteralSyntax
-
-val versions = new {
-  val app = "0.0.1"
-  val circe = "0.14.15"
-  val commonsCodec = "1.22.0"
-  val commonsText = "1.15.0"
-  val mariadb = "3.5.8"
-  val mobilePush = "3.17.1"
-  val munit = "1.3.1"
-  val munitCats = "2.2.0"
-  val scala = "3.8.3"
-  val scalaJsDom = "2.8.1"
-  val scalatags = "0.13.1"
-  val util = "6.14.3"
-}
+import com.comcast.ip4s.port
 
 inThisBuild(
   Seq(
@@ -47,7 +30,7 @@ val frontend = project
   .disablePlugins(RevolverPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % versions.scalaJsDom
+      "org.scala-js" %% "scalajs-dom" % versions.scalaJsDom
     )
   )
 

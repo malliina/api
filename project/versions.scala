@@ -1,0 +1,13 @@
+object versions:
+  val app = "0.0.1"
+  val circe = "0.14.15"
+  val commonsCodec = "1.22.1"
+  val commonsText = "1.15.0"
+  val mariadb = "3.5.10"
+  val mobilePush = "3.17.1"
+  val munit = "1.3.6"
+  val munitCats = "2.2.0"
+  val scala = "3.9.0"
+  val scalaJsDom = "2.8.1"
+  val scalatags = "0.13.1"
+  val util = "6.14.3"
