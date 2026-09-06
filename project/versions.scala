@@ -10,4 +10,4 @@ object versions:
   val scala = "3.9.0"
   val scalaJsDom = "2.8.1"
   val scalatags = "0.13.1"
-  val util = "6.14.3"
+  val util = "6.15.4"

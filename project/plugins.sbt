@@ -1,4 +1,4 @@
-val utilsVersion = "2.0.0"
+val utilsVersion = "2.0.3"
 
 Seq(
   "com.malliina" % "sbt-nodejs" % utilsVersion,

@@ -13,12 +13,12 @@ jobs:
     name: Build deb
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install lintian
         run: |
           sudo apt-get update
           sudo apt-get install -y lintian
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: zulu
           java-version: 17
@@ -42,9 +42,9 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
       - name: Build with sbt
         run: |
-          sbt "mode prod" compile
-          sbt "mode prod" Deb/packageBin
+          sbt "mode prod;compile"
+          sbt "mode prod;Deb/packageBin"
       - name: Deploy
         run: |
-          scp backend/target/api.deb server:/home/mle/api.deb
+          scp target/out/jvm/scala-3.9.0/backend/api.deb server:/home/mle/api.deb
           ssh server 'sudo dpkg --force-confold -i /home/mle/api.deb'
