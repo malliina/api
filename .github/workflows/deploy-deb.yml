@@ -11,7 +11,7 @@ env:
 jobs:
   deploy:
     name: Build deb
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
       - name: Install lintian
@@ -22,7 +22,6 @@ jobs:
         with:
           distribution: zulu
           java-version: 17
-          cache: sbt
       - uses: sbt/setup-sbt@v1
       - name: Configure SSH
         run: |

@@ -1,4 +1,4 @@
-val utilsVersion = "2.0.3"
+val utilsVersion = "2.0.5"
 
 Seq(
   "com.malliina" % "sbt-nodejs" % utilsVersion,
@@ -7,5 +7,5 @@ Seq(
   "org.scalameta" % "sbt-scalafmt" % "2.6.1",
   "org.portable-scala" % "sbt-scalajs-crossproject" % "1.4.0",
   "com.eed3si9n" % "sbt-assembly" % "2.5.0",
-  "com.github.sbt" % "sbt-native-packager" % "1.11.7"
+  "com.github.sbt" % "sbt-native-packager" % "1.12.0"
 ) map addSbtPlugin

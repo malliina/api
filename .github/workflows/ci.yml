@@ -5,7 +5,7 @@ on: push
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     services:
       mysql:
@@ -25,7 +25,6 @@ jobs:
         with:
           distribution: zulu
           java-version: 17
-          cache: sbt
       - uses: sbt/setup-sbt@v1
       - name: Run tests
         env:
