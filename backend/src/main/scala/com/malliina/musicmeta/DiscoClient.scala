@@ -7,7 +7,7 @@ import com.malliina.http.{FullUrl, HttpClient, ResponseException}
 import com.malliina.musicmeta.DiscoClient.log
 import com.malliina.storage.*
 import com.malliina.util.AppLogger
-import com.malliina.values.AccessToken
+import com.malliina.values.{AccessToken, NonBlank}
 import org.apache.commons.codec.digest.DigestUtils
 
 import java.nio.file.{Files, Path, Paths}
@@ -33,12 +33,12 @@ class DiscoClient[F[_]: Async](
     * locally.
     *
     * Fails with a [[NoSuchElementException]] if the cover cannot be found. Can also fail with a
-    * [[java.io.IOException]] and a [[com.fasterxml.jackson.core.JsonParseException]].
+    * [[java.io.IOException]].
     *
     * @return
     *   the album cover file, which is an image
     */
-  def cover(artist: String, album: String): F[Path] =
+  def cover(artist: NonBlank, album: Option[NonBlank]): F[Path] =
     val file = coverFile(artist, album)
     if Files.isReadable(file) && Files.size(file) != iLoveDiscoGsFakeCoverSize then F.pure(file)
     else
@@ -50,7 +50,7 @@ class DiscoClient[F[_]: Async](
             new NoSuchElementException(s"Fake cover of size $iLoveDiscoGsFakeCoverSize bytes.")
           )
 
-  private def downloadCover(artist: String, album: String): F[Path] =
+  private def downloadCover(artist: NonBlank, album: Option[NonBlank]): F[Path] =
     downloadCover(artist, album, _ => coverFile(artist, album))
 
   /** Streams `url` to `file`.
@@ -73,7 +73,7 @@ class DiscoClient[F[_]: Async](
           s => F.pure(s)
         )
 
-  private def coverFile(artist: String, album: String): Path =
+  private def coverFile(artist: NonBlank, album: Option[NonBlank]): Path =
     // avoids platform-specific file system encoding nonsense
     val hash = DigestUtils.md5Hex(s"$artist-$album")
     coverDir.resolve(s"$hash.jpg")
@@ -97,8 +97,8 @@ class DiscoClient[F[_]: Async](
     *   the downloaded album cover along with the number of bytes downloaded
     */
   private def downloadCover(
-    artist: String,
-    album: String,
+    artist: NonBlank,
+    album: Option[NonBlank],
     fileFor: FullUrl => Path
   ): F[Path] =
     for
@@ -120,9 +120,12 @@ class DiscoClient[F[_]: Async](
           .getOrElse:
             F.raiseError(CoverNotFoundException(s"Unable to find cover image from $url."))
 
-  private def albumIdUrl(artist: String, album: String): FullUrl =
+  private def albumIdUrl(artist: NonBlank, album: Option[NonBlank]): FullUrl =
+    val artistQuery = Map("artist" -> artist)
+    val query = album.fold(artistQuery): album =>
+      artistQuery ++ Map("release_title" -> album)
     FullUrl
       .https("api.discogs.com", "/database/search")
-      .query(Map("artist" -> artist, "release_title" -> album))
+      .query(query)
 
   private def authValue = s"Discogs token=$token"

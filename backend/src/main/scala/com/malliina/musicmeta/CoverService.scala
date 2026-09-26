@@ -7,7 +7,8 @@ import com.malliina.http4s.BasicApiService.noCache
 import com.malliina.http4s.{AppImplicits, QueryParsers}
 import com.malliina.musicmeta.CoverService.{CoverSearch, log}
 import com.malliina.util.AppLogger
-import org.http4s.{HttpRoutes, Uri}
+import com.malliina.values.NonBlank
+import org.http4s.{HttpRoutes, ParseFailure, QueryParamDecoder, Uri}
 import org.http4s.circe.CirceEntityEncoder.circeEntityEncoder
 
 import java.net.ConnectException
@@ -15,14 +16,17 @@ import java.net.ConnectException
 object CoverService:
   private val log = AppLogger(getClass)
 
-  case class CoverSearch(artist: String, album: String):
+  case class CoverSearch(artist: NonBlank, album: Option[NonBlank]):
     def coverName = s"$artist - $album"
+
+  given QueryParamDecoder[NonBlank] = QueryParamDecoder.stringQueryParamDecoder.emap: s =>
+    NonBlank.build(s).left.map(err => ParseFailure(err.message, err.message))
 
   object CoverSearch:
     def fromUri(uri: Uri) =
       for
-        artist <- QueryParsers.parse[String](uri.query, "artist")
-        album <- QueryParsers.parse[String](uri.query, "album")
+        artist <- QueryParsers.parse[NonBlank](uri.query, "artist")
+        album <- QueryParsers.parseOptE[NonBlank](uri.query, "album")
       yield CoverSearch(artist, album)
 
 class CoverService[F[_]: Async](disco: DiscoClient[F]) extends AppImplicits[F]:
