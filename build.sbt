@@ -36,7 +36,7 @@ val frontend = project
 
 val backend = project
   .in(file("backend"))
-  .enablePlugins(ServerPlugin, DebPlugin)
+  .enablePlugins(ServerPlugin, FixedDebPlugin)
   .settings(
     clientProject := frontend,
     dependentModule := shared,

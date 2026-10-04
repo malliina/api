@@ -4,7 +4,7 @@ object versions:
   val commonsCodec = "1.22.1"
   val commonsText = "1.15.0"
   val mariadb = "3.5.10"
-  val mobilePush = "3.17.1"
+  val mobilePush = "3.19.0"
   val munit = "1.3.6"
   val munitCats = "2.2.0"
   val scala = "3.9.0"
