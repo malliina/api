@@ -17,7 +17,7 @@ object CoverService:
   private val log = AppLogger(getClass)
 
   case class CoverSearch(artist: NonBlank, album: Option[NonBlank]):
-    def coverName = s"$artist - $album"
+    def coverName: String = album.fold(artist)(alb => s"$artist - $alb")
 
   given QueryParamDecoder[NonBlank] = QueryParamDecoder.stringQueryParamDecoder.emap: s =>
     NonBlank.build(s).left.map(err => ParseFailure(err.message, err.message))
