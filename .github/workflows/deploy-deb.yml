@@ -45,5 +45,5 @@ jobs:
           sbt "mode prod;Deb/packageBin"
       - name: Deploy
         run: |
-          scp target/out/jvm/scala-3.9.0/backend/api.deb server:/home/mle/api.deb
+          scp target/out/jvm/scala-3.10.0/backend/api.deb server:/home/mle/api.deb
           ssh server 'sudo dpkg --force-confold -i /home/mle/api.deb'
