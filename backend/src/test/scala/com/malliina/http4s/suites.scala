@@ -27,7 +27,10 @@ trait MUnitDatabaseSuite:
     "testapi",
     password,
     PillConf.mariaDbDriver,
-    maxPoolSize = 2,
+    2,
+    Conf.DefaultMaxLifetime,
+    Conf.DefaultKeepaliveTime,
+    Conf.DefaultIdleTimeout,
     autoMigrate = true
   )
 

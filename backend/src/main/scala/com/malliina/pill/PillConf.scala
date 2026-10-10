@@ -57,20 +57,25 @@ object PillConf:
       discoToken
     )
 
-  private def prodDatabaseConf(password: Password) = Conf(
-    url"jdbc:mariadb://localhost:3306/pill",
-    "pill",
-    password,
-    mariaDbDriver,
-    2,
-    autoMigrate = true
-  )
+  private def prodDatabaseConf(password: Password) =
+    databaseConf(password, 2, autoMigrate = true)
 
-  private def devDatabaseConf(password: Password) = Conf(
-    url"jdbc:mariadb://localhost:3306/pill",
-    "pill",
-    password,
-    mariaDbDriver,
-    2,
-    autoMigrate = false
-  )
+  private def devDatabaseConf(password: Password) =
+    databaseConf(password, 2, autoMigrate = false)
+
+  private def databaseConf(
+    password: Password,
+    maxPoolSize: Int,
+    autoMigrate: Boolean
+  ) =
+    Conf(
+      url"jdbc:mariadb://localhost:3306/pill",
+      "pill",
+      password,
+      mariaDbDriver,
+      maxPoolSize,
+      Conf.DefaultMaxLifetime,
+      Conf.DefaultKeepaliveTime,
+      Conf.DefaultIdleTimeout,
+      autoMigrate = autoMigrate
+    )
