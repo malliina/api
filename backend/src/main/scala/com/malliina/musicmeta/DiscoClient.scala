@@ -106,7 +106,8 @@ class DiscoClient[F[_]: Async](
       file = fileFor(url)
       size <- downloadFile(url, file)
     yield
-      log.info(s"Downloaded cover for '$artist - $album', $size to ${file.toAbsolutePath}.")
+      val describe = album.fold[String](artist)(alb => s"$artist - $alb")
+      log.info(s"Downloaded cover for '$describe', $size to ${file.toAbsolutePath}.")
       file
 
   private def albumCoverForSearch(url: FullUrl): F[FullUrl] =

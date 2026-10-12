@@ -2,6 +2,9 @@ name: Test
 
 on: push
 
+env:
+  db_pass: testdb123
+
 jobs:
   build:
     name: Build
@@ -13,8 +16,8 @@ jobs:
         env:
           MYSQL_DATABASE: testapi
           MYSQL_USER: testapi
-          MYSQL_PASSWORD: testdb123
-          MYSQL_ROOT_PASSWORD: testdb123
+          MYSQL_PASSWORD: ${{ env.db_pass }}
+          MYSQL_ROOT_PASSWORD: ${{ env.db_pass }}
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -28,5 +31,5 @@ jobs:
       - uses: sbt/setup-sbt@v1
       - name: Run tests
         env:
-          DB_PASS: testdb123
+          DB_PASS: ${{ env.db_pass }}
         run: sbt test
