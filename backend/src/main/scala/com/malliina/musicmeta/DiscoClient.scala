@@ -1,11 +1,13 @@
 package com.malliina.musicmeta
 
 import cats.effect.Async
+import cats.implicits.catsSyntaxApplicativeError
 import cats.syntax.flatMap.toFlatMapOps
 import cats.syntax.functor.toFunctorOps
-import com.malliina.http.{FullUrl, HttpClient, ResponseException}
+import com.malliina.http.{FullUrl, HttpClient}
+import com.malliina.musicmeta.CoverService.CoverSearch
+import com.malliina.musicmeta.CoverService.SearchAccuracy.BestEffort
 import com.malliina.musicmeta.DiscoClient.log
-import com.malliina.storage.*
 import com.malliina.util.AppLogger
 import com.malliina.values.{AccessToken, NonBlank}
 import org.apache.commons.codec.digest.DigestUtils
@@ -38,20 +40,25 @@ class DiscoClient[F[_]: Async](
     * @return
     *   the album cover file, which is an image
     */
-  def cover(artist: NonBlank, album: Option[NonBlank]): F[Path] =
-    val file = coverFile(artist, album)
+  def cover(query: CoverSearch): F[Path] =
+    val file = coverFile(query.artist, query.album)
     if Files.isReadable(file) && Files.size(file) != iLoveDiscoGsFakeCoverSize then F.pure(file)
     else
-      downloadCover(artist, album).flatMap: f =>
+      downloadCover(query).flatMap: f =>
         if Files.size(f) != iLoveDiscoGsFakeCoverSize then F.pure(f)
         else
-          log.error(s"Failed to download cover of '$artist' - '$album'.")
+          log.error(s"Failed to download cover of '${query.coverName}'.")
           F.raiseError(
             new NoSuchElementException(s"Fake cover of size $iLoveDiscoGsFakeCoverSize bytes.")
           )
 
-  private def downloadCover(artist: NonBlank, album: Option[NonBlank]): F[Path] =
-    downloadCover(artist, album, _ => coverFile(artist, album))
+  private def downloadCover(query: CoverSearch): F[Path] =
+    downloadCover(query.artist, query.album, _ => coverFile(query.artist, query.album))
+      .handleErrorWith:
+        case _: CoverNotFoundException if query.album.nonEmpty && query.accuracy == BestEffort =>
+          downloadCover(query.copy(album = None))
+        case e =>
+          F.raiseError(e)
 
   /** Streams `url` to `file`.
     *
@@ -61,17 +68,9 @@ class DiscoClient[F[_]: Async](
     *   destination path
     * @return
     *   the size of the downloaded file, stored in `file`
-    * @see
-    *   http://www.playframework.com/documentation/2.6.x/ScalaWS
     */
-  private def downloadFile(url: FullUrl, file: Path): F[StorageSize] =
-    http
-      .download(url, file, Map(Authorization -> authValue))
-      .flatMap: either =>
-        either.fold(
-          err => F.raiseError(new ResponseException(err)),
-          s => F.pure(s)
-        )
+  private def downloadFile(url: FullUrl, file: Path): F[Path] =
+    http.downloadFile(url, file, Map(Authorization -> authValue))
 
   private def coverFile(artist: NonBlank, album: Option[NonBlank]): Path =
     // avoids platform-specific file system encoding nonsense
@@ -104,8 +103,9 @@ class DiscoClient[F[_]: Async](
     for
       url <- albumCoverForSearch(albumIdUrl(artist, album))
       file = fileFor(url)
-      size <- downloadFile(url, file)
+      dest <- downloadFile(url, file)
     yield
+      val size = Files.size(dest)
       val describe = album.fold[String](artist)(alb => s"$artist - $alb")
       log.info(s"Downloaded cover for '$describe', $size to ${file.toAbsolutePath}.")
       file

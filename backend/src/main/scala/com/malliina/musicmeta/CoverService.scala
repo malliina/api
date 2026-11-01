@@ -48,7 +48,7 @@ class CoverService[F[_]: Async](disco: DiscoClient[F]) extends AppImplicits[F]:
       parsed(CoverSearch.fromUri(req.uri)): q =>
         val coverName = q.coverName
         disco
-          .cover(q.artist, q.album)
+          .cover(q)
           .flatMap(file => Ok(file))
           .handleErrorWith:
             case e: CoverNotFoundException =>
