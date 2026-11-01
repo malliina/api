@@ -8,7 +8,7 @@ import cats.Parallel
 import cats.syntax.all.toFlatMapOps
 import com.comcast.ip4s.{Port, host, port}
 import com.malliina.database.DoobieDatabase
-import com.malliina.http.HttpClient
+import com.malliina.http.JavaHttpClient
 import com.malliina.logback.AppLogging
 import com.malliina.mavenapi.{BuildInfo, Service}
 import com.malliina.musicmeta.{CoverService, DiscoClient}
@@ -34,7 +34,7 @@ trait ServerResources:
 
   private def appResource[F[+_]: {Async, Parallel}](conf: PillConf): Resource[F, Http[F, F]] =
     for
-      http <- HttpClient.resource[F]()
+      http <- JavaHttpClient.resource[F]()
       dispatcher <- Dispatcher.parallel[F]
       _ <- AppLogging.resource(dispatcher, http)
       maven = Service.default[F](http)

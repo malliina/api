@@ -7,7 +7,6 @@ import com.malliina.http.{Errors, HttpClient}
 import com.malliina.http4s.{AppImplicits, FormDecoders, parsers}
 import com.malliina.mavenapi.html.Pages
 import io.circe.syntax.EncoderOps
-import org.http4s.circe.CirceEntityEncoder.circeEntityEncoder
 import org.http4s.{HttpRoutes, Request, Response, Uri}
 
 object Service:

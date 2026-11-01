@@ -5,7 +5,7 @@ import com.malliina.config.{ConfigError, ConfigReadable}
 import com.malliina.database.Conf
 import com.malliina.mavenapi.BuildInfo
 import com.malliina.values.{AccessToken, Password}
-import com.typesafe.config.{Config, ConfigFactory}
+import org.ekrich.config.{Config, ConfigFactory}
 
 import java.nio.file.{Path, Paths}
 import com.malliina.http.UrlSyntax.url

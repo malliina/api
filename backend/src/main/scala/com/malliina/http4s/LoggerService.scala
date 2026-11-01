@@ -3,8 +3,8 @@ package com.malliina.http4s
 import cats.effect.Async
 import cats.syntax.all.{catsSyntaxApplicativeError, toFlatMapOps}
 import com.malliina.util.AppLogger
-import io.circe.{Codec, Json}
 import io.circe.syntax.EncoderOps
+import io.circe.{Codec, Json}
 import org.http4s.HttpRoutes
 
 case class KeyValue(key: String, value: String) derives Codec.AsObject

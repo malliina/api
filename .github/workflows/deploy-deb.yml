@@ -41,8 +41,8 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
       - name: Build with sbt
         run: |
-          sbt "mode prod;compile"
-          sbt "mode prod;Deb/packageBin"
+          sbt "mode prod;compile;shutdown"
+          sbt "mode prod;Deb/packageBin;shutdown"
       - name: Deploy
         run: |
           scp target/out/jvm/scala-3.10.0/backend/api.deb server:/home/mle/api.deb
