@@ -8,6 +8,7 @@ import com.malliina.http.{FullUrl, HttpClient}
 import com.malliina.musicmeta.CoverService.CoverSearch
 import com.malliina.musicmeta.CoverService.SearchAccuracy.BestEffort
 import com.malliina.musicmeta.DiscoClient.log
+import com.malliina.musicmeta.ResultType.Master
 import com.malliina.util.AppLogger
 import com.malliina.values.{AccessToken, NonBlank}
 import org.apache.commons.codec.digest.DigestUtils
@@ -114,9 +115,11 @@ class DiscoClient[F[_]: Async](
     http
       .getAs[CoverSearchResult](url, Map(Authorization -> authValue))
       .flatMap: result =>
-        result.results
+        val rs = result.results
+        rs
+          .find(_.tpe == Master)
+          .orElse(rs.headOption)
           .map(_.cover_image)
-          .headOption
           .map(F.pure)
           .getOrElse:
             F.raiseError(CoverNotFoundException(s"Unable to find cover image from $url."))
